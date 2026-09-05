@@ -1,0 +1,138 @@
+export interface TypeRow {
+  abap: string;
+  ddic: string;
+  edmV2: string;
+  edmV4: string;
+  json: string;
+  ts: string;
+  notes: string;
+}
+
+export const TYPE_MAP: TypeRow[] = [
+  {
+    abap: "c LENGTH n",
+    ddic: "CHAR n",
+    edmV2: "Edm.String",
+    edmV4: "Edm.String",
+    json: "string",
+    ts: "string",
+    notes: "MaxLength = n. Trailing blanks are significant in ABAP, usually trimmed on the wire.",
+  },
+  {
+    abap: "string",
+    ddic: "SSTRING / STRING",
+    edmV2: "Edm.String",
+    edmV4: "Edm.String",
+    json: "string",
+    ts: "string",
+    notes: "No length limit (SSTRING is searchable, max 1333). No MaxLength facet.",
+  },
+  {
+    abap: "n LENGTH n",
+    ddic: "NUMC n",
+    edmV2: "Edm.String",
+    edmV4: "Edm.String",
+    json: "string",
+    ts: "string",
+    notes: "Digit string, left-padded with zeros. Stays a string on the wire — never Edm.Int.",
+  },
+  {
+    abap: "i",
+    ddic: "INT4",
+    edmV2: "Edm.Int32",
+    edmV4: "Edm.Int32",
+    json: "number",
+    ts: "number",
+    notes: "32-bit signed. INT1 → Edm.Byte, INT2 → Edm.Int16, INT8 → Edm.Int64.",
+  },
+  {
+    abap: "int8",
+    ddic: "INT8",
+    edmV2: "Edm.Int64",
+    edmV4: "Edm.Int64",
+    json: "string",
+    ts: "string | number",
+    notes: "V2 serialises Int64 as a quoted string to avoid precision loss.",
+  },
+  {
+    abap: "p LENGTH l DECIMALS d",
+    ddic: "DEC / CURR / QUAN",
+    edmV2: "Edm.Decimal",
+    edmV4: "Edm.Decimal",
+    json: "string",
+    ts: "string",
+    notes: "Precision/Scale facets. Sent as a string to preserve exact decimals. CURR pairs with a currency (Edm.String, sap:unit).",
+  },
+  {
+    abap: "decfloat16 / decfloat34",
+    ddic: "DF16_DEC / DF34_DEC",
+    edmV2: "Edm.Decimal",
+    edmV4: "Edm.Decimal",
+    json: "string",
+    ts: "string",
+    notes: "IEEE 754-2008 decimal floating point. 16 or 34 significant digits.",
+  },
+  {
+    abap: "f",
+    ddic: "FLTP",
+    edmV2: "Edm.Double",
+    edmV4: "Edm.Double",
+    json: "number",
+    ts: "number",
+    notes: "Binary floating point — avoid for money.",
+  },
+  {
+    abap: "d",
+    ddic: "DATS",
+    edmV2: "Edm.DateTime",
+    edmV4: "Edm.Date",
+    json: "string",
+    ts: "string",
+    notes: "V2: /Date(ms)/ literal, no timezone. V4: plain 'YYYY-MM-DD'. Internal ABAP value is 'YYYYMMDD'.",
+  },
+  {
+    abap: "t",
+    ddic: "TIMS",
+    edmV2: "Edm.Time",
+    edmV4: "Edm.TimeOfDay",
+    json: "string",
+    ts: "string",
+    notes: "V2: 'PT13H20M00S' duration form. V4: 'HH:MM:SS'. Internal ABAP value is 'HHMMSS'.",
+  },
+  {
+    abap: "utclong",
+    ddic: "TIMESTAMP / TIMESTAMPL",
+    edmV2: "Edm.DateTimeOffset",
+    edmV4: "Edm.DateTimeOffset",
+    json: "string",
+    ts: "string",
+    notes: "Always UTC. TIMESTAMP is packed dec 0 (sec), TIMESTAMPL dec 7 (100 ns). utclong is the modern 7.54+ type.",
+  },
+  {
+    abap: "abap_bool (c LENGTH 1)",
+    ddic: "BOOLE_D / XFELD",
+    edmV2: "Edm.Boolean",
+    edmV4: "Edm.Boolean",
+    json: "boolean",
+    ts: "boolean",
+    notes: "ABAP has no real boolean; 'X' / '' (space). RAP & CDS expose it as Edm.Boolean via abap_boolean.",
+  },
+  {
+    abap: "x LENGTH n / xstring",
+    ddic: "RAW n / RAWSTRING",
+    edmV2: "Edm.Binary",
+    edmV4: "Edm.Binary",
+    json: "string",
+    ts: "string",
+    notes: "Base64-encoded on the wire. RAW16 is the classic GUID storage.",
+  },
+  {
+    abap: "sysuuid_x16 (x LENGTH 16)",
+    ddic: "SYSUUID_X16 / OS_GUID",
+    edmV2: "Edm.Guid",
+    edmV4: "Edm.Guid",
+    json: "string",
+    ts: "string",
+    notes: "V2 filter literal: guid'…'. Stored as RAW16, exposed as 8-4-4-4-12.",
+  },
+];
