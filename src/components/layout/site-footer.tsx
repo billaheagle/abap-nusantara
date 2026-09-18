@@ -20,6 +20,7 @@ export function SiteFooter() {
           <Link href="/articles" className="hover:text-white transition-colors">Articles</Link>
           <Link href="/series" className="hover:text-white transition-colors">Series</Link>
           <Link href="/about" className="hover:text-white transition-colors">About</Link>
+          <Link href="/hire-me" className="hover:text-white transition-colors">Hire Me</Link>
           <Link href="/admin/login" className="hover:text-white transition-colors">Admin</Link>
         </div>
       </div>

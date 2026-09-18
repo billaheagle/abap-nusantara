@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/categories", label: "Categories" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
+  { href: "/hire-me", label: "Hire Me" },
 ];
 
 export function SiteHeader() {
