@@ -11,14 +11,15 @@ export function HeaderSettingsForm({ initial }: { initial: HeaderSettings }) {
 
   return (
     <SettingsForm settingKey="header" value={v} previewHref="/">
-      <Section title="Menu links" description="The navigation in the top bar, left to right. Site paths (/articles) or full URLs (open in a new tab).">
+      <Section title="Menu links" description="The navigation in the top bar, left to right. Site paths (/articles) or full URLs (open in a new tab). Use the eye button to hide a link for now without deleting it.">
         <ListEditor
           items={v.links}
           onChange={(links) => set({ links })}
-          create={() => ({ label: "", href: "/" })}
+          create={() => ({ label: "", href: "/", hidden: false })}
           max={8}
           addLabel="Add link"
           itemTitle={(l) => l.label}
+          hiding={{ isHidden: (l) => l.hidden, setHidden: (l, hidden) => ({ ...l, hidden }) }}
           renderItem={(l, setL, i) => (
             <Grid>
               <TextField label="Label" path={`links.${i}.label`} value={l.label} onChange={(label) => setL({ label })} />

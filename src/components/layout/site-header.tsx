@@ -20,7 +20,7 @@ function NavLink({ href, className, children }: { href: string; className: strin
 export async function SiteHeader() {
   const [{ brand, links }, header] = await Promise.all([getSetting("general"), getSetting("header")]);
   const siteName = [brand.name, brand.accent].filter(Boolean).join(" ");
-  const navLinks = header.links;
+  const navLinks = header.links.filter((link) => !link.hidden);
 
   return (
     <header className="sticky top-0 z-40 pt-3 pb-4 px-3 sm:pt-4 sm:pb-6 sm:px-6">

@@ -134,7 +134,17 @@ export const ABOUT_DEFAULTS: AboutSettings = {
 // ---- Header ----------------------------------------------------------------
 
 export const headerSchema = z.object({
-  links: z.array(z.object({ label: required(30), href: link.refine((v) => v !== "", "Required") })).max(8),
+  links: z
+    .array(
+      z.object({
+        label: required(30),
+        href: link.refine((v) => v !== "", "Required"),
+        // Kept in the list but left out of the site nav; links saved before
+        // this field existed parse as visible.
+        hidden: z.boolean().default(false),
+      }),
+    )
+    .max(8),
   showSearch: z.boolean(),
   showGithub: z.boolean(),
 });
@@ -142,12 +152,12 @@ export type HeaderSettings = z.infer<typeof headerSchema>;
 
 export const HEADER_DEFAULTS: HeaderSettings = {
   links: [
-    { label: "Articles", href: "/articles" },
-    { label: "Series", href: "/series" },
-    { label: "Categories", href: "/categories" },
-    { label: "Tools", href: "/tools" },
-    { label: "About", href: "/about" },
-    { label: "Hire Me", href: "/hire-me" },
+    { label: "Articles", href: "/articles", hidden: false },
+    { label: "Series", href: "/series", hidden: false },
+    { label: "Categories", href: "/categories", hidden: false },
+    { label: "Tools", href: "/tools", hidden: false },
+    { label: "About", href: "/about", hidden: false },
+    { label: "Hire Me", href: "/hire-me", hidden: false },
   ],
   showSearch: true,
   showGithub: true,

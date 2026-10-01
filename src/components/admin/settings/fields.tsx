@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useId, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { ICON_NAMES, SETTINGS_ICONS, type IconName } from "@/features/settings/icons";
 
 export const fieldClass =
@@ -115,6 +115,7 @@ export function ListEditor<T>({
   itemTitle,
   renderItem,
   empty,
+  hiding,
 }: {
   items: T[];
   onChange: (items: T[]) => void;
@@ -124,6 +125,8 @@ export function ListEditor<T>({
   itemTitle: (item: T, index: number) => string;
   renderItem: (item: T, set: (patch: Partial<T>) => void, index: number) => ReactNode;
   empty?: string;
+  /** Adds a show/hide button per item: hidden items stay saved but aren't shown on the site. */
+  hiding?: { isHidden: (item: T) => boolean; setHidden: (item: T, hidden: boolean) => T };
 }) {
   const move = (from: number, to: number) => {
     const next = [...items];
@@ -137,13 +140,28 @@ export function ListEditor<T>({
       {items.length === 0 && empty && (
         <p className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-foreground-muted">{empty}</p>
       )}
-      {items.map((item, i) => (
-        <div key={i} className="rounded-md border border-border bg-surface/50">
+      {items.map((item, i) => {
+        const hidden = hiding?.isHidden(item) ?? false;
+        return (
+        <div key={i} className={`rounded-md border border-border ${hidden ? "border-dashed bg-surface/20" : "bg-surface/50"}`}>
           <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-            <p className="min-w-0 truncate text-xs font-semibold text-foreground-muted">
+            <p className={`min-w-0 truncate text-xs font-semibold text-foreground-muted ${hidden ? "opacity-60" : ""}`}>
               <span className="font-mono">#{i + 1}</span> · {itemTitle(item, i) || "Untitled"}
+              {hidden && <span className="ml-2 rounded bg-surface px-1.5 py-0.5 text-[10px] uppercase tracking-wider">Hidden</span>}
             </p>
             <div className="flex shrink-0 items-center gap-1">
+              {hiding && (
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-icon"
+                  onClick={() => onChange(items.map((it, j) => (j === i ? hiding.setHidden(it, !hidden) : it)))}
+                  aria-pressed={hidden}
+                  aria-label={hidden ? "Show on site" : "Hide from site"}
+                  title={hidden ? "Show on site" : "Hide from site"}
+                >
+                  {hidden ? <EyeOff /> : <Eye />}
+                </button>
+              )}
               <button type="button" className="admin-btn admin-btn-icon" disabled={i === 0} onClick={() => move(i, i - 1)} aria-label="Move up" title="Move up">
                 <ArrowUp />
               </button>
@@ -159,7 +177,8 @@ export function ListEditor<T>({
             {renderItem(item, (patch) => onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it))), i)}
           </div>
         </div>
-      ))}
+        );
+      })}
       <button type="button" className="admin-btn admin-btn-brand" disabled={items.length >= max} onClick={() => onChange([...items, create()])}>
         <Plus /> {addLabel}
       </button>
