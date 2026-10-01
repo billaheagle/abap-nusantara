@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import slugify from "slugify";
+import { Pencil, Check } from "lucide-react";
+import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 import {
   createCategoryAction, updateCategoryAction, deleteCategoryAction,
   createTagAction, deleteTagAction, type SimpleFormState,
@@ -41,15 +44,16 @@ export function CategoryManager({ items }: { items: CategoryItem[] }) {
               <EditCategoryInline item={c} onDone={() => setEditingId(null)} />
             ) : (
               <>
-                <div>
-                  <p className="text-sm font-medium">{c.name}</p>
-                  <p className="text-xs text-foreground-muted">/{c.slug} · {c._count.articles} articles</p>
-                </div>
-                <div className="flex gap-3 text-xs">
-                  <button onClick={() => setEditingId(c.id)} className="text-brand hover:underline">Edit</button>
-                  <form action={deleteCategoryAction.bind(null, c.id)}>
-                    <button type="submit" className="text-negative hover:underline">Delete</button>
-                  </form>
+                <Link href={`/admin/articles?category=${c.id}`} className="group min-w-0 flex-1" title="Show articles in this category">
+                  <p className="text-sm font-medium group-hover:text-brand">{c.name}</p>
+                  <p className="text-xs text-foreground-muted">/{c.slug} · <span className="group-hover:underline">{c._count.articles} articles →</span></p>
+                </Link>
+                <div className="shrink-0">
+                  <ConfirmDeleteButton
+                    action={() => deleteCategoryAction(c.id)}
+                    itemLabel={`"${c.name}"`}
+                    leading={<button type="button" onClick={() => setEditingId(c.id)} className="admin-btn admin-btn-brand"><Pencil /> Edit</button>}
+                  />
                 </div>
               </>
             )}
@@ -69,7 +73,8 @@ function EditCategoryInline({ item, onDone }: { item: CategoryItem; onDone: () =
       <input name="name" defaultValue={item.name} required className="rounded-md border border-border px-2 py-1 text-sm flex-1 min-w-[120px]" />
       <input name="slug" defaultValue={item.slug} required className="rounded-md border border-border px-2 py-1 text-sm font-mono flex-1 min-w-[120px]" />
       <input name="description" defaultValue={item.description ?? ""} className="hidden" />
-      <button type="submit" disabled={isPending} className="text-xs text-brand hover:underline">Save</button>
+      <button type="submit" disabled={isPending} className="admin-btn admin-btn-positive"><Check /> Save</button>
+      <button type="button" onClick={onDone} className="admin-btn">Cancel</button>
       {state.fieldErrors?.slug && <p className="w-full text-xs text-negative">{state.fieldErrors.slug}</p>}
     </form>
   );
@@ -98,10 +103,10 @@ export function TagManager({ items }: { items: TagItem[] }) {
       <div className="flex flex-wrap gap-2">
         {items.map((t) => (
           <div key={t.id} className="flex items-center gap-2 rounded-md border border-border bg-surface-elevated px-3 py-1.5 text-sm">
-            #{t.name} <span className="text-xs text-foreground-muted">({t._count.articles})</span>
-            <form action={deleteTagAction.bind(null, t.id)}>
-              <button type="submit" className="text-xs text-negative hover:underline">×</button>
-            </form>
+            <Link href={`/admin/articles?tag=${t.id}`} className="hover:text-brand" title="Show articles with this tag">
+              #{t.name} <span className="text-xs text-foreground-muted">({t._count.articles})</span>
+            </Link>
+            <ConfirmDeleteButton compact action={() => deleteTagAction(t.id)} itemLabel={`#${t.name}`} />
           </div>
         ))}
         {items.length === 0 && <p className="text-sm text-foreground-muted">No tags yet.</p>}

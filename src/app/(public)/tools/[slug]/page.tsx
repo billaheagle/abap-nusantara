@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTool, LIVE_TOOL_SLUGS } from "@/lib/tools/registry";
 import { ToolShell } from "@/components/tools/tool-shell";
 import { ToolRenderer } from "@/components/tools/tool-renderer";
+import { getSetting } from "@/features/settings/queries";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,6 +26,8 @@ export default async function ToolPage({ params }: PageProps) {
   const { slug } = await params;
   const tool = getTool(slug);
   if (!tool || tool.status === "planned") notFound();
+  // Taken offline from Admin → Tools.
+  if ((await getSetting("tools")).hidden.includes(slug)) notFound();
 
   return (
     <ToolShell tool={tool}>

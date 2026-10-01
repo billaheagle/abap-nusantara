@@ -2,15 +2,30 @@ import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { ArticleStatus, Prisma } from "@prisma/client";
 
-const ADMIN_PAGE_SIZE = 8;
+const ADMIN_PAGE_SIZE = 20;
 
 const ADMIN_ARTICLE_SORTS = {
+  // Grouped view: each series in its configured order with its parts in
+  // sequence, then everything outside a series. Postgres sorts NULLs last on
+  // ASC, so non-series articles naturally fall to the bottom.
+  series: [
+    { series: { order: "asc" } },
+    { series: { title: "asc" } },
+    { seriesId: { sort: "asc", nulls: "last" } },
+    { seriesOrder: { sort: "asc", nulls: "last" } },
+    { updatedAt: "desc" },
+  ],
   updated: { updatedAt: "desc" },
   created: { createdAt: "desc" },
   title: { title: "asc" },
   status: { status: "asc" },
   likes: { likes: { _count: "desc" } },
-} satisfies Record<string, Prisma.ArticleOrderByWithRelationInput>;
+} satisfies Record<string, Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[]>;
+
+export const DEFAULT_ADMIN_SORT: AdminArticleSort = "series";
+
+/** Pseudo series id for "articles not in any series". */
+export const NO_SERIES = "none";
 
 export type AdminArticleSort = keyof typeof ADMIN_ARTICLE_SORTS;
 
@@ -19,18 +34,20 @@ export interface AdminArticleFilters {
   q?: string;
   status?: ArticleStatus | "ALL";
   categoryId?: string;
+  seriesId?: string;
+  tagId?: string;
   sort?: AdminArticleSort;
-  likedOnly?: boolean;
 }
 
 export async function getAdminArticleList(filters: AdminArticleFilters = {}) {
   const page = Math.max(1, filters.page ?? 1);
-  const sort = filters.sort && filters.sort in ADMIN_ARTICLE_SORTS ? filters.sort : "updated";
+  const sort = filters.sort && filters.sort in ADMIN_ARTICLE_SORTS ? filters.sort : DEFAULT_ADMIN_SORT;
 
   const where: Prisma.ArticleWhereInput = {
     ...(filters.status && filters.status !== "ALL" ? { status: filters.status } : {}),
     ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
-    ...(filters.likedOnly ? { likes: { some: {} } } : {}),
+    ...(filters.seriesId ? { seriesId: filters.seriesId === NO_SERIES ? null : filters.seriesId } : {}),
+    ...(filters.tagId ? { tags: { some: { tagId: filters.tagId } } } : {}),
     ...(filters.q
       ? {
           OR: [
@@ -56,7 +73,8 @@ export async function getAdminArticleList(filters: AdminArticleFilters = {}) {
         updatedAt: true,
         publishedAt: true,
         category: { select: { name: true } },
-        series: { select: { title: true } },
+        seriesOrder: true,
+        series: { select: { id: true, title: true } },
         _count: { select: { likes: true } },
       },
     }),

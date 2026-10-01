@@ -10,9 +10,34 @@ import { ImagePlus, Loader2 } from "lucide-react";
  * via sharp, and records a Media row), shows a preview, and keeps the
  * resulting path in a hidden input so it submits with the form. A collapsed
  * "paste a URL" fallback stays available for images hosted elsewhere.
+ *
+ * Uncontrolled with `name` (article form) or controlled with `value` +
+ * `onChange` (settings forms, which serialise their own state). `square`
+ * switches the preview to a small square, e.g. for a profile photo.
  */
-export function CoverImageField({ name, defaultValue }: { name: string; defaultValue?: string | null }) {
-  const [value, setValue] = useState(defaultValue ?? "");
+export function CoverImageField({
+  name,
+  defaultValue,
+  value: controlledValue,
+  onChange,
+  label = "Cover image",
+  uploadLabel = "Upload cover image",
+  square = false,
+}: {
+  name?: string;
+  defaultValue?: string | null;
+  value?: string;
+  onChange?: (value: string) => void;
+  label?: string;
+  uploadLabel?: string;
+  square?: boolean;
+}) {
+  const [internalValue, setInternalValue] = useState(defaultValue ?? "");
+  const value = controlledValue ?? internalValue;
+  const setValue = (next: string) => {
+    setInternalValue(next);
+    onChange?.(next);
+  };
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -43,13 +68,13 @@ export function CoverImageField({ name, defaultValue }: { name: string; defaultV
 
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium">Cover image</span>
-      <input type="hidden" name={name} value={value} />
+      <span className="mb-1 block text-sm font-medium">{label}</span>
+      {name && <input type="hidden" name={name} value={value} />}
 
       {value ? (
-        <div className="overflow-hidden rounded-md border border-border">
-          <div className="relative aspect-[16/9] bg-surface">
-            <Image src={value} alt="Cover preview" fill sizes="360px" className="object-cover" unoptimized={!value.startsWith("/")} />
+        <div className={`overflow-hidden rounded-md border border-border ${square ? "max-w-[14rem]" : ""}`}>
+          <div className={`relative bg-surface ${square ? "aspect-square" : "aspect-[16/9]"}`}>
+            <Image src={value} alt={`${label} preview`} fill sizes="360px" className="object-cover" unoptimized={!value.startsWith("/")} />
           </div>
           <div className="flex items-center justify-between gap-2 border-t border-border bg-surface-elevated px-3 py-2">
             <span className="truncate font-mono text-xs text-foreground-muted">{value}</span>
@@ -95,7 +120,7 @@ export function CoverImageField({ name, defaultValue }: { name: string; defaultV
           ) : (
             <ImagePlus className="h-5 w-5 text-foreground-muted" />
           )}
-          <span className="text-sm font-medium">{uploading ? "Uploading…" : "Upload cover image"}</span>
+          <span className="text-sm font-medium">{uploading ? "Uploading…" : uploadLabel}</span>
           <span className="text-xs text-foreground-muted">PNG, JPEG or WebP · up to 8 MB · or drop a file here</span>
         </button>
       )}

@@ -49,7 +49,7 @@ function convertAlpha(value: string, mode: AlphaMode, length: number): AlphaRow 
 export function convertAlphaBatch(input: string, mode: AlphaMode, length: number): AlphaRow[] {
   return input
     .split(/\r?\n/)
-    .filter((line, i, all) => line.trim() !== "" || all.length === 1)
+    .filter((line, _i, all) => line.trim() !== "" || all.length === 1)
     .map((line) => convertAlpha(line, mode, length));
 }
 

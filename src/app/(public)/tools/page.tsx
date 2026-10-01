@@ -18,7 +18,9 @@ import {
   Tags,
   type LucideIcon,
 } from "lucide-react";
-import { TOOL_REGISTRY, type ToolCategory } from "@/lib/tools/registry";
+import { CATEGORY_ORDER, TOOL_REGISTRY } from "@/lib/tools/registry";
+import { getSetting } from "@/features/settings/queries";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = {
   title: "Developer Tools",
@@ -43,12 +45,12 @@ const ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
 };
 
-const CATEGORY_ORDER: ToolCategory[] = ["ABAP", "Integration", "OData & CDS", "BTP & Security", "Reference"];
-
-export default function ToolsPage() {
+export default async function ToolsPage() {
+  // Tools hidden from the admin (Admin → Tools) are left out entirely.
+  const hidden = new Set((await getSetting("tools")).hidden);
   const byCategory = CATEGORY_ORDER.map((category) => ({
     category,
-    tools: TOOL_REGISTRY.filter((t) => t.category === category),
+    tools: TOOL_REGISTRY.filter((t) => t.category === category && !hidden.has(t.slug)),
   })).filter((g) => g.tools.length > 0);
 
   return (
@@ -63,6 +65,9 @@ export default function ToolsPage() {
       </p>
 
       <div className="mt-12 space-y-12">
+        {byCategory.length === 0 && (
+          <EmptyState icon={FlaskConical} title="Tools are being tuned up" description="Check back soon — the developer tools will be back shortly." />
+        )}
         {byCategory.map(({ category, tools }) => (
           <section key={category}>
             <h2 className="mb-4 text-sm font-semibold text-foreground-muted">{category}</h2>

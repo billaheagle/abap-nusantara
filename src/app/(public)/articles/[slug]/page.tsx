@@ -6,7 +6,10 @@ import { format } from "date-fns";
 import { GithubIcon } from "@/components/ui/github-icon";
 import { getArticleBySlug, getRelatedArticles } from "@/features/articles/queries";
 import { ArticleRenderer } from "@/components/article/article-renderer";
+import { highlightCodeBlocks } from "@/lib/editor/highlight";
+import { addImageDimensions } from "@/lib/editor/image-dimensions";
 import { LikeButton } from "@/components/article/like-button";
+import { ViewTracker } from "@/components/article/view-tracker";
 import { ArticleCard } from "@/components/ui/article-card";
 import { CommentForm } from "@/components/comments/comment-form";
 import { CommentThread } from "@/components/comments/comment-thread";
@@ -14,6 +17,7 @@ import { buildCommentTree } from "@/features/comments/tree";
 import { getLikeState } from "@/features/likes/actions";
 import { issueCsrfToken } from "@/lib/security/csrf";
 import { prisma } from "@/lib/db/prisma";
+import { getSetting } from "@/features/settings/queries";
 
 export const revalidate = 60;
 
@@ -57,7 +61,7 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!article) notFound();
 
   const csrfToken = issueCsrfToken();
-  const [related, likeState, approvedComments] = await Promise.all([
+  const [related, likeState, approvedComments, content, hireMe, general] = await Promise.all([
     getRelatedArticles(article.id, article.categoryId, article.tags.map((t) => t.tag.slug)),
     getLikeState(article.id),
     prisma.comment.findMany({
@@ -65,6 +69,9 @@ export default async function ArticlePage({ params }: PageProps) {
       orderBy: { createdAt: "asc" },
       select: { id: true, authorName: true, body: true, createdAt: true, parentCommentId: true },
     }),
+    highlightCodeBlocks(article.contentJson).then(addImageDimensions),
+    getSetting("hireMe"),
+    getSetting("general"),
   ]);
 
   const commentTree = buildCommentTree(approvedComments);
@@ -83,7 +90,23 @@ export default async function ArticlePage({ params }: PageProps) {
     image: article.coverImage ?? undefined,
     datePublished: article.publishedAt?.toISOString(),
     dateModified: article.updatedAt.toISOString(),
-    author: { "@type": "Person", name: "ABAP Nusantara" },
+    // The real author (Settings → Hire Me → Profile) when set, linked to the
+    // Hire Me page and profiles; otherwise the site itself.
+    author: hireMe.profile.name
+      ? {
+          "@type": "Person",
+          name: hireMe.profile.name,
+          jobTitle: hireMe.profile.role || undefined,
+          url: `${siteUrl}/hire-me`,
+          sameAs: [general.links.linkedin, general.links.github].filter(Boolean),
+        }
+      : { "@type": "Organization", name: [general.brand.name, general.brand.accent].filter(Boolean).join(" "), url: siteUrl },
+    publisher: {
+      "@type": "Organization",
+      name: [general.brand.name, general.brand.accent].filter(Boolean).join(" "),
+      url: siteUrl,
+      logo: { "@type": "ImageObject", url: `${siteUrl}/brand/logo-512.png` },
+    },
     mainEntityOfPage: `${siteUrl}/articles/${article.slug}`,
   };
 
@@ -100,6 +123,7 @@ export default async function ArticlePage({ params }: PageProps) {
     <article className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <ViewTracker articleId={article.id} />
 
       {article.series && (
         <Link href={`/series/${article.series.slug}`} className="inline-flex items-center gap-2 rounded-full bg-accent-red-tint px-3.5 py-1.5 text-xs font-semibold text-accent-red mb-4">
@@ -140,7 +164,7 @@ export default async function ArticlePage({ params }: PageProps) {
       )}
 
       <div className="mt-8">
-        <ArticleRenderer content={article.contentJson} />
+        <ArticleRenderer content={content} />
       </div>
 
       {article.tags.length > 0 && (

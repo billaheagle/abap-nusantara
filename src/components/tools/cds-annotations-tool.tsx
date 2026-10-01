@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { CopyButton, Field, Panel, Segmented } from "./primitives";
+import { CodeOutput } from "./code-output";
 import { ANNOTATIONS, ANNOTATION_GROUPS, generateUiAnnotations, type UiField } from "@/lib/tools/cds-annotations";
 
 export function CdsAnnotationsTool() {
@@ -40,7 +41,7 @@ function Reference() {
                   <CopyButton value={a.example} label="" />
                 </div>
                 <p className="mt-1 text-sm text-foreground-muted">{a.purpose}</p>
-                <pre className="tool-output mt-2">{a.example}</pre>
+                <CodeOutput code={a.example} lang="abap" className="mt-2" />
               </div>
             ))}
           </div>
@@ -104,7 +105,7 @@ function Generator() {
         </button>
       </Panel>
       <Panel title="Generated CDS" action={<CopyButton value={output} />}>
-        <pre className="tool-output">{output}</pre>
+        <CodeOutput code={output} lang="abap" />
       </Panel>
     </div>
   );

@@ -149,6 +149,31 @@ h1, h2, h3 {
   box-shadow: 0 1px 0 rgb(9 28 56 / 0.6), 0 2px 10px -6px rgb(9 28 56 / 0.5);
 }
 
+/* Round icon button on the dark shell bar. */
+.shell-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  color: rgb(255 255 255 / 0.75);
+  transition: background-color 0.15s, color 0.15s;
+}
+.shell-icon-btn:hover { background: rgb(255 255 255 / 0.1); color: #fff; }
+.shell-icon-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+/* Dropdown panel hanging off the shell bar. */
+.shell-menu {
+  z-index: 40;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px -12px rgb(9 28 56 / 0.35), 0 2px 6px rgb(9 28 56 / 0.08);
+  animation: filter-select-in 0.12s ease-out;
+  transform-origin: top right;
+}
+
 /* White surface card — used for every panel, table and tile so content
    reads clearly against the near-white admin canvas. */
 .admin-card {
@@ -204,6 +229,121 @@ h1, h2, h3 {
 }
 
 /* List-report column header */
+/* Compact row/inline action button (Fiori "transparent/ghost" buttons with a
+   semantic tone). Works on <button> and <a>. */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 1.875rem;
+  padding: 0 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.admin-btn:hover {
+  background: var(--surface);
+  border-color: var(--foreground-muted);
+}
+.admin-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-elevated), 0 0 0 4px var(--brand);
+}
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.admin-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+.admin-btn-brand { color: var(--brand); border-color: rgb(20 101 189 / 0.35); }
+.admin-btn-brand:hover { background: var(--brand-tint); border-color: var(--brand); }
+.admin-btn-positive { color: var(--positive); border-color: rgb(26 127 75 / 0.35); }
+.admin-btn-positive:hover { background: var(--positive-tint); border-color: var(--positive); }
+.admin-btn-critical { color: var(--critical); border-color: rgb(162 98 10 / 0.35); }
+.admin-btn-critical:hover { background: var(--critical-tint); border-color: var(--critical); }
+.admin-btn-negative { color: var(--negative); border-color: rgb(180 35 24 / 0.35); }
+.admin-btn-negative:hover { background: var(--negative-tint); border-color: var(--negative); }
+/* Solid destructive — used for the final "Confirm delete" step. */
+.admin-btn-danger { color: #fff; background: var(--negative); border-color: var(--negative); }
+.admin-btn-danger:hover { background: #8f1c13; border-color: #8f1c13; }
+.admin-btn-icon { width: 1.875rem; padding: 0; }
+
+/* Filter dropdown (components/ui/filter-select.tsx) — admin filter bars and the public /articles filters. */
+.filter-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.375rem;
+  padding: 0 0.7rem 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+.filter-select-trigger:hover { border-color: var(--border-strong); }
+.filter-select-trigger:focus-visible,
+.filter-select-trigger.is-open {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgb(20 101 189 / 0.15);
+}
+.filter-select-icon { display: inline-flex; color: var(--foreground-muted); }
+.filter-select-icon svg { width: 0.95rem; height: 0.95rem; }
+/* A non-default value is applied — make it obvious. */
+.filter-select-trigger.is-active {
+  color: var(--brand);
+  background: var(--brand-tint);
+  border-color: rgb(20 101 189 / 0.4);
+}
+.filter-select-trigger.is-active .filter-select-icon { color: var(--brand); }
+
+.filter-select-panel {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  z-index: 40;
+  min-width: max(100%, 13rem);
+  max-width: 20rem;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px -8px rgb(9 28 56 / 0.22), 0 2px 6px rgb(9 28 56 / 0.06);
+  animation: filter-select-in 0.12s ease-out;
+  transform-origin: top left;
+}
+.filter-select-panel.align-right { left: auto; right: 0; transform-origin: top right; }
+@keyframes filter-select-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.filter-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+}
+.filter-select-option.is-highlighted { background: var(--surface); }
+.filter-select-option.is-selected { color: var(--brand); font-weight: 600; }
+
 .admin-th {
   background: var(--surface);
   font-size: 0.6875rem;
@@ -328,6 +468,59 @@ input.tool-input.tool-mono {
   padding: 0;
   color: inherit;
 }
+
+/* Highlighted code blocks (Shiki, VS Code Dark+). Long lines wrap instead of
+   scrolling sideways — readers shouldn't have to pan to read a snippet. */
+.prose-article .code-block {
+  background: var(--code-bg);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.prose-article .code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem 0.4rem 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(255 255 255 / 0.03);
+}
+.prose-article .code-block-lang {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #9da5b4;
+  letter-spacing: 0.02em;
+}
+.prose-article .code-block-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #c5c8ce;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.3rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+.prose-article .code-block-copy:hover {
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+}
+.prose-article .code-block pre {
+  background: transparent;
+  margin: 0;
+  border-radius: 0;
+  padding: 0.9rem 1.15rem 1rem;
+  overflow: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  tab-size: 4;
+}
+.prose-article .code-block pre code {
+  font-size: inherit;
+}
 .prose-article img {
   max-width: 100%;
   height: auto;
@@ -342,6 +535,55 @@ input.tool-input.tool-mono {
   display: block;
   overflow-x: auto;
 }
+/* Table scroller with edge shadows (components/article/scroll-table.tsx). */
+.table-scroll {
+  position: relative;
+  margin: 1.5rem 0;
+}
+.table-scroll::before,
+.table-scroll::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.25rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.table-scroll::before {
+  left: 0;
+  background: linear-gradient(to right, rgb(9 28 56 / 0.14), transparent);
+}
+.table-scroll::after {
+  right: 0;
+  background: linear-gradient(to left, rgb(9 28 56 / 0.14), transparent);
+}
+.table-scroll[data-shadow-left="true"]::before,
+.table-scroll[data-shadow-right="true"]::after {
+  opacity: 1;
+}
+.table-scroll-inner {
+  overflow-x: auto;
+}
+.table-scroll-inner:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.prose-article .table-scroll table {
+  display: table;
+  width: 100%;
+  margin: 0;
+}
+/* Inline code gets <wbr> break points at _ < and camelCase humps (see
+   article-renderer.tsx), so identifiers wrap there. break-word is only the
+   last resort for a segment that still doesn't fit. */
+.prose-article .table-scroll td code,
+.prose-article .table-scroll th code {
+  overflow-wrap: break-word;
+}
+
 .prose-article th, .prose-article td {
   border: 1px solid var(--border);
   padding: 0.5rem 0.75rem;

@@ -2,14 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Heart, Search, X } from "lucide-react";
+import { ArrowUpDown, CircleDot, Folder, Hash, Layers, Search, X } from "lucide-react";
+import { FilterSelect } from "@/components/ui/filter-select";
 
 interface Current {
   q?: string;
   status?: string;
   category?: string;
+  series?: string;
+  tag?: string;
   sort?: string;
-  liked?: string;
 }
 
 const STATUSES = [
@@ -19,7 +21,11 @@ const STATUSES = [
   { value: "ARCHIVED", label: "Archived" },
 ];
 
+// Must match DEFAULT_ADMIN_SORT in features/articles/admin-queries.ts.
+const DEFAULT_SORT = "series";
+
 const SORTS = [
+  { value: "series", label: "Grouped by series" },
   { value: "updated", label: "Updated" },
   { value: "created", label: "Created" },
   { value: "title", label: "Title A–Z" },
@@ -29,15 +35,17 @@ const SORTS = [
 
 export function ArticleFilterBar({
   categories,
+  series,
+  tags,
   current,
 }: {
   categories: { id: string; name: string }[];
+  series: { id: string; title: string }[];
+  tags: { id: string; name: string }[];
   current: Current;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState(current.q ?? "");
-
-  const likedOnly = current.liked === "1";
 
   function apply(next: Partial<Current>) {
     const merged: Current = { ...current, ...next };
@@ -45,14 +53,15 @@ export function ArticleFilterBar({
     if (merged.q) params.set("q", merged.q);
     if (merged.status && merged.status !== "ALL") params.set("status", merged.status);
     if (merged.category) params.set("category", merged.category);
-    if (merged.sort && merged.sort !== "updated") params.set("sort", merged.sort);
-    if (merged.liked === "1") params.set("liked", "1");
+    if (merged.series) params.set("series", merged.series);
+    if (merged.tag) params.set("tag", merged.tag);
+    if (merged.sort && merged.sort !== DEFAULT_SORT) params.set("sort", merged.sort);
     const qs = params.toString();
     router.push(qs ? `/admin/articles?${qs}` : "/admin/articles");
   }
 
   const hasFilters = Boolean(
-    current.q || (current.status && current.status !== "ALL") || current.category || likedOnly,
+    current.q || (current.status && current.status !== "ALL") || current.category || current.series || current.tag,
   );
 
   return (
@@ -73,49 +82,53 @@ export function ArticleFilterBar({
         />
       </form>
 
-      <select
+      <FilterSelect
+        label="Status"
+        icon={<CircleDot />}
         value={current.status ?? "ALL"}
-        onChange={(e) => apply({ status: e.target.value })}
-        className="rounded-md border border-border bg-surface-elevated px-3 py-2 text-sm"
-      >
-        {STATUSES.map((s) => (
-          <option key={s.value} value={s.value}>{s.label}</option>
-        ))}
-      </select>
+        defaultValue="ALL"
+        onChange={(v) => apply({ status: v })}
+        options={STATUSES}
+      />
 
-      <select
+      <FilterSelect
+        label="Category"
+        icon={<Folder />}
         value={current.category ?? ""}
-        onChange={(e) => apply({ category: e.target.value })}
-        className="rounded-md border border-border bg-surface-elevated px-3 py-2 text-sm"
-      >
-        <option value="">All categories</option>
-        {categories.map((c) => (
-          <option key={c.id} value={c.id}>{c.name}</option>
-        ))}
-      </select>
+        onChange={(v) => apply({ category: v })}
+        options={[{ value: "", label: "All categories" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+      />
 
-      <select
-        value={current.sort ?? "updated"}
-        onChange={(e) => apply({ sort: e.target.value })}
-        className="rounded-md border border-border bg-surface-elevated px-3 py-2 text-sm"
-      >
-        {SORTS.map((s) => (
-          <option key={s.value} value={s.value}>Sort: {s.label}</option>
-        ))}
-      </select>
+      <FilterSelect
+        label="Series"
+        icon={<Layers />}
+        value={current.series ?? ""}
+        onChange={(v) => apply({ series: v })}
+        searchable={series.length > 6}
+        options={[
+          { value: "", label: "All series" },
+          ...series.map((x) => ({ value: x.id, label: x.title })),
+          { value: "none", label: "Not in a series", separated: true },
+        ]}
+      />
 
-      <button
-        type="button"
-        aria-pressed={likedOnly}
-        onClick={() => apply({ liked: likedOnly ? undefined : "1" })}
-        className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-          likedOnly
-            ? "border-accent-red bg-accent-red-tint text-accent-red"
-            : "border-border text-foreground-muted hover:border-accent-red/50"
-        }`}
-      >
-        <Heart className={`h-3.5 w-3.5 ${likedOnly ? "fill-accent-red" : ""}`} /> Liked only
-      </button>
+      <FilterSelect
+        label="Tag"
+        icon={<Hash />}
+        value={current.tag ?? ""}
+        onChange={(v) => apply({ tag: v })}
+        searchable={tags.length > 6}
+        options={[{ value: "", label: "All tags" }, ...tags.map((t) => ({ value: t.id, label: t.name }))]}
+      />
+
+      <FilterSelect
+        label="Sort"
+        icon={<ArrowUpDown />}
+        value={current.sort ?? DEFAULT_SORT}
+        defaultValue={DEFAULT_SORT}
+        onChange={(v) => apply({ sort: v })}
+        options={SORTS}
+      />
 
       {hasFilters && (
         <button

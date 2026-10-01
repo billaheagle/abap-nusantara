@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CopyButton, Field, Panel, Segmented } from "./primitives";
+import { CodeOutput } from "./code-output";
 import {
   base64ToUtf8,
   formatJson,
@@ -86,11 +87,11 @@ function FormatMode() {
         title={pretty.err ? "Invalid" : "Formatted & validated ✓"}
         action={!pretty.err && <CopyButton value={pretty.out} />}
       >
-        {pretty.err ? <p className="text-sm text-negative">{pretty.err}</p> : <pre className="tool-output">{pretty.out}</pre>}
+        {pretty.err ? <p className="text-sm text-negative">{pretty.err}</p> : <CodeOutput code={pretty.out} lang={lang} />}
       </Panel>
       {lang === "json" && !mini.err && (
         <Panel title="Minified" action={<CopyButton value={mini.out} />}>
-          <pre className="tool-output">{mini.out}</pre>
+          <CodeOutput code={mini.out} lang="json" />
         </Panel>
       )}
     </div>
@@ -123,7 +124,7 @@ function ConvertMode() {
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
       </Panel>
       <Panel title={result.err ? "Invalid" : "Output"} action={!result.err && <CopyButton value={result.out} />}>
-        {result.err ? <p className="text-sm text-negative">{result.err}</p> : <pre className="tool-output">{result.out}</pre>}
+        {result.err ? <p className="text-sm text-negative">{result.err}</p> : <CodeOutput code={result.out} lang={dir === "x2j" ? "json" : "xml"} />}
       </Panel>
     </div>
   );

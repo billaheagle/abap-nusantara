@@ -2,47 +2,70 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { Eye, Pencil, Send, EyeOff, Trash2 } from "lucide-react";
 import { setArticleStatusAction, deleteArticleAction } from "@/features/articles/actions";
 
 export function ArticleRowActions({ articleId, status, slug }: { articleId: string; status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; slug: string }) {
   const [isPending, startTransition] = useTransition();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  if (confirmingDelete) {
+    return (
+      <div className="flex items-center justify-end gap-1.5">
+        <span className="mr-1 text-xs text-foreground-muted">Delete this article?</span>
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => startTransition(() => deleteArticleAction(articleId))}
+          className="admin-btn admin-btn-danger"
+        >
+          <Trash2 /> {isPending ? "Deleting…" : "Delete"}
+        </button>
+        <button type="button" onClick={() => setConfirmingDelete(false)} className="admin-btn">
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-end gap-2 text-xs">
-      {status === "PUBLISHED" ? (
-        <Link href={`/articles/${slug}`} target="_blank" className="text-brand hover:underline">
-          View
-        </Link>
-      ) : null}
-      {status !== "PUBLISHED" && (
-        <button disabled={isPending} onClick={() => startTransition(() => setArticleStatusAction(articleId, "PUBLISHED"))} className="font-medium text-positive hover:underline">
-          Publish
-        </button>
-      )}
+    <div className="flex items-center justify-end gap-1.5">
       {status === "PUBLISHED" && (
-        <button disabled={isPending} onClick={() => startTransition(() => setArticleStatusAction(articleId, "DRAFT"))} className="text-foreground-muted hover:underline">
-          Unpublish
-        </button>
+        <Link href={`/articles/${slug}`} target="_blank" className="admin-btn" title="View on site">
+          <Eye /> View
+        </Link>
       )}
-      {confirmingDelete ? (
-        <span className="flex items-center gap-1">
-          <button
-            disabled={isPending}
-            onClick={() => startTransition(() => deleteArticleAction(articleId))}
-            className="font-medium text-negative hover:underline"
-          >
-            Confirm
-          </button>
-          <button onClick={() => setConfirmingDelete(false)} className="text-foreground-muted hover:underline">
-            Cancel
-          </button>
-        </span>
+      <Link href={`/admin/articles/${articleId}`} className="admin-btn admin-btn-brand">
+        <Pencil /> Edit
+      </Link>
+      {status !== "PUBLISHED" ? (
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => startTransition(() => setArticleStatusAction(articleId, "PUBLISHED"))}
+          className="admin-btn admin-btn-positive"
+        >
+          <Send /> Publish
+        </button>
       ) : (
-        <button onClick={() => setConfirmingDelete(true)} className="text-negative hover:underline">
-          Delete
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => startTransition(() => setArticleStatusAction(articleId, "DRAFT"))}
+          className="admin-btn admin-btn-critical"
+        >
+          <EyeOff /> Unpublish
         </button>
       )}
+      <button
+        type="button"
+        onClick={() => setConfirmingDelete(true)}
+        className="admin-btn admin-btn-negative admin-btn-icon"
+        aria-label="Delete article"
+        title="Delete"
+      >
+        <Trash2 />
+      </button>
     </div>
   );
 }

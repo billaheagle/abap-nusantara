@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CopyButton, Panel } from "./primitives";
+import { CodeOutput } from "./code-output";
 import { decodeJwt, isExpired, scopesOf, timeClaims } from "@/lib/tools/jwt";
 
 export function JwtInspector() {
@@ -63,10 +64,10 @@ export function JwtInspector() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Panel title="Header" action={<CopyButton value={JSON.stringify(decoded.header, null, 2)} />}>
-              <pre className="tool-output">{JSON.stringify(decoded.header, null, 2)}</pre>
+              <CodeOutput code={JSON.stringify(decoded.header, null, 2)} lang="json" />
             </Panel>
             <Panel title="Payload" action={<CopyButton value={JSON.stringify(decoded.payload, null, 2)} />}>
-              <pre className="tool-output">{JSON.stringify(decoded.payload, null, 2)}</pre>
+              <CodeOutput code={JSON.stringify(decoded.payload, null, 2)} lang="json" />
             </Panel>
           </div>
 

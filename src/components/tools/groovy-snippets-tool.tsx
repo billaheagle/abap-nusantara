@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CopyButton, Panel } from "./primitives";
+import { CodeOutput } from "./code-output";
 import { GROOVY_CATEGORIES, GROOVY_SNIPPETS } from "@/lib/tools/groovy-snippets";
 
 export function GroovySnippetsTool() {
@@ -39,7 +40,7 @@ export function GroovySnippetsTool() {
         {snippets.map((s) => (
           <Panel key={s.title} title={s.title} action={<CopyButton value={s.code} />}>
             <p className="mb-2 text-sm text-foreground-muted">{s.description}</p>
-            <pre className="tool-output">{s.code}</pre>
+            <CodeOutput code={s.code} lang="groovy" />
           </Panel>
         ))}
         {snippets.length === 0 && <p className="text-sm text-foreground-muted">No snippets match.</p>}

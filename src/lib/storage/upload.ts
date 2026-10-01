@@ -49,17 +49,43 @@ export async function saveUploadedImage(fileBuffer: Buffer): Promise<{ url: stri
   const finalFilename = detected.ext === "png" ? filename : filename.replace(/\.[a-z]+$/, ".webp");
   const metadata = await sharp(outputBuffer).metadata();
 
+  return {
+    url: await writeUpload(finalFilename, outputBuffer),
+    width: metadata.width ?? 0,
+    height: metadata.height ?? 0,
+  };
+}
+
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // 10MB
+
+/**
+ * Save an uploaded PDF (e.g. the CV linked from the Hire Me page). Same
+ * guarantees as images where they apply: size-limited, type verified from
+ * the file's magic bytes, random filename. PDFs are stored as-is — there is
+ * no safe re-encode step like sharp for images — which is acceptable because
+ * only authenticated admins can upload.
+ */
+export async function saveUploadedDocument(fileBuffer: Buffer): Promise<{ url: string }> {
+  if (fileBuffer.byteLength > MAX_DOCUMENT_BYTES) {
+    throw new UploadError("File too large (max 10MB)");
+  }
+
+  const detected = await fileTypeFromBuffer(fileBuffer);
+  if (detected?.mime !== "application/pdf") {
+    throw new UploadError("Unsupported file type. Only PDF documents are allowed.");
+  }
+
+  const filename = `${Date.now()}-${randomBytes(8).toString("hex")}.pdf`;
+  return { url: await writeUpload(filename, fileBuffer) };
+}
+
+async function writeUpload(filename: string, data: Buffer): Promise<string> {
   const env = getEnv();
   // UPLOAD_DIR is operator-configured, not user input; the turbopackIgnore
   // hints keep this dynamic path from forcing a trace of the whole project
   // into the server bundle (see the storage note at the top of this file).
   const uploadDir = path.join(/*turbopackIgnore: true*/ process.cwd(), env.UPLOAD_DIR);
   await mkdir(uploadDir, { recursive: true });
-  await writeFile(path.join(/*turbopackIgnore: true*/ uploadDir, finalFilename), outputBuffer);
-
-  return {
-    url: `/uploads/${finalFilename}`,
-    width: metadata.width ?? 0,
-    height: metadata.height ?? 0,
-  };
+  await writeFile(path.join(/*turbopackIgnore: true*/ uploadDir, filename), data);
+  return `/uploads/${filename}`;
 }

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
+import { Check, X, ShieldAlert, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { moderateCommentAction, deleteCommentAction } from "@/features/comments/actions";
 import { ObjectStatus, commentStatusTone } from "@/components/admin/admin-ui";
@@ -86,28 +87,28 @@ export function CommentModerationRow({ comment }: { comment: CommentRow }) {
       </p>
 
       {/* Moderation actions */}
-      <div className="mt-3 flex flex-wrap gap-4 text-xs font-medium">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {comment.status !== "APPROVED" && (
-          <button disabled={isPending} onClick={() => setStatus("APPROVED")} className="text-positive hover:underline">
-            Approve
+          <button disabled={isPending} onClick={() => setStatus("APPROVED")} className="admin-btn admin-btn-positive">
+            <Check /> Approve
           </button>
         )}
         {comment.status !== "REJECTED" && (
-          <button disabled={isPending} onClick={() => setStatus("REJECTED")} className="text-foreground-muted hover:underline">
-            Reject
+          <button disabled={isPending} onClick={() => setStatus("REJECTED")} className="admin-btn">
+            <X /> Reject
           </button>
         )}
         {comment.status !== "SPAM" && (
-          <button disabled={isPending} onClick={() => setStatus("SPAM")} className="text-critical hover:underline">
-            Mark as spam
+          <button disabled={isPending} onClick={() => setStatus("SPAM")} className="admin-btn admin-btn-critical">
+            <ShieldAlert /> Mark as spam
           </button>
         )}
         <button
           disabled={isPending}
           onClick={() => startTransition(() => deleteCommentAction(comment.id))}
-          className="text-negative hover:underline"
+          className="admin-btn admin-btn-negative"
         >
-          Delete
+          <Trash2 /> Delete
         </button>
       </div>
     </div>

@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import slugify from "slugify";
+import { Pencil } from "lucide-react";
+import { ConfirmDeleteButton } from "@/components/admin/confirm-delete-button";
 import { createSeriesAction, updateSeriesAction, deleteSeriesAction, type SimpleFormState } from "@/features/series/actions";
 
 interface SeriesItem { id: string; title: string; slug: string; description: string | null; coverImage: string | null; order: number; _count: { articles: number } }
@@ -64,15 +67,16 @@ export function SeriesManager({ items }: { items: SeriesItem[] }) {
               <SeriesForm mode="edit" item={s} onDone={() => setEditingId(null)} />
             ) : (
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-sm">{s.title}</p>
-                  <p className="text-xs text-foreground-muted">/{s.slug} · {s._count.articles} articles</p>
-                </div>
-                <div className="flex gap-3 text-xs">
-                  <button onClick={() => setEditingId(s.id)} className="text-brand hover:underline">Edit</button>
-                  <form action={deleteSeriesAction.bind(null, s.id)}>
-                    <button type="submit" className="text-negative hover:underline">Delete</button>
-                  </form>
+                <Link href={`/admin/articles?series=${s.id}`} className="group min-w-0 flex-1" title="Show articles in this series">
+                  <p className="font-medium text-sm group-hover:text-brand">{s.title}</p>
+                  <p className="text-xs text-foreground-muted">/{s.slug} · <span className="group-hover:underline">{s._count.articles} articles →</span></p>
+                </Link>
+                <div className="shrink-0">
+                  <ConfirmDeleteButton
+                    action={() => deleteSeriesAction(s.id)}
+                    itemLabel={`"${s.title}"`}
+                    leading={<button type="button" onClick={() => setEditingId(s.id)} className="admin-btn admin-btn-brand"><Pencil /> Edit</button>}
+                  />
                 </div>
               </div>
             )}

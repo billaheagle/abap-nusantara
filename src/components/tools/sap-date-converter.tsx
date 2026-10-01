@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CopyButton, Field, Panel, Segmented } from "./primitives";
+import { CodeOutput } from "./code-output";
 import {
   abapSnippet,
   epochMillis,
@@ -114,7 +115,7 @@ export function SapDateConverter() {
           </Panel>
 
           <Panel title="ABAP" action={<CopyButton value={abapSnippet(viewIn(parsed.instant, "UTC"), parsed.hasDate, parsed.hasTime)} />}>
-            <pre className="tool-output">{abapSnippet(viewIn(parsed.instant, "UTC"), parsed.hasDate, parsed.hasTime)}</pre>
+            <CodeOutput code={abapSnippet(viewIn(parsed.instant, "UTC"), parsed.hasDate, parsed.hasTime)} lang="abap" />
           </Panel>
         </>
       )}

@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { ArrowDownUp, FolderTree, Search, Tag, X } from "lucide-react";
+import { FilterSelect } from "@/components/ui/filter-select";
 
 interface FilterOption {
   slug: string;
@@ -33,58 +34,77 @@ export function ArticlesFilterBar({
     router.push(`/articles?${params.toString()}`);
   }
 
+  const hasFilters = Boolean(current.q || current.category || current.tag || (current.sort && current.sort !== "newest"));
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          updateParam("q", query);
+          updateParam("q", query.trim());
         }}
-        className="flex gap-2 max-w-md"
+        className="flex max-w-md gap-2"
+        role="search"
       >
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-muted" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted" />
           <input
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search articles…"
-            className="w-full rounded-md border border-border pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+            aria-label="Search articles"
+            className="h-[2.375rem] w-full rounded-[var(--radius-sm)] border border-border bg-surface-elevated pl-9 pr-3 text-sm transition-colors hover:border-border-strong focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-brand/15"
           />
         </div>
-        <button type="submit" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark">
+        <button
+          type="submit"
+          className="h-[2.375rem] rounded-[var(--radius-sm)] bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+        >
           Search
         </button>
       </form>
 
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        <select
+      <div className="flex flex-wrap items-center gap-2">
+        <FilterSelect
+          label="Category"
+          icon={<FolderTree />}
           value={current.category ?? ""}
-          onChange={(e) => updateParam("category", e.target.value)}
-          className="rounded-md border border-border px-3 py-1.5 bg-background"
-        >
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c.slug} value={c.slug}>{c.name}</option>
-          ))}
-        </select>
-        <select
+          onChange={(v) => updateParam("category", v)}
+          searchable={categories.length > 8}
+          options={[{ value: "", label: "All categories" }, ...categories.map((c) => ({ value: c.slug, label: c.name }))]}
+        />
+        <FilterSelect
+          label="Tag"
+          icon={<Tag />}
           value={current.tag ?? ""}
-          onChange={(e) => updateParam("tag", e.target.value)}
-          className="rounded-md border border-border px-3 py-1.5 bg-background"
-        >
-          <option value="">All tags</option>
-          {tags.map((t) => (
-            <option key={t.slug} value={t.slug}>#{t.name}</option>
-          ))}
-        </select>
-        <select
+          onChange={(v) => updateParam("tag", v)}
+          searchable={tags.length > 8}
+          options={[{ value: "", label: "All tags" }, ...tags.map((t) => ({ value: t.slug, label: `#${t.name}` }))]}
+        />
+        <FilterSelect
+          label="Sort"
+          icon={<ArrowDownUp />}
           value={current.sort ?? "newest"}
-          onChange={(e) => updateParam("sort", e.target.value)}
-          className="rounded-md border border-border px-3 py-1.5 bg-background"
-        >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-        </select>
+          defaultValue="newest"
+          onChange={(v) => updateParam("sort", v === "newest" ? "" : v)}
+          options={[
+            { value: "newest", label: "Newest first" },
+            { value: "oldest", label: "Oldest first" },
+          ]}
+        />
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              router.push("/articles");
+            }}
+            className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" /> Clear filters
+          </button>
+        )}
       </div>
     </div>
   );

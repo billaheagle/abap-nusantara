@@ -46,12 +46,38 @@ npx tsx scripts/hash-password.ts "yourChosenPassword"
 # 4. Run database migrations
 npx prisma migrate dev --name init
 
-# 5. Seed sample content (a series, standalone articles, tags, comments)
+# 5. Seed the taxonomy (categories, tags, series from the content plan)
 npx prisma db seed
+
+# 5b. Import reviewed articles from ../abap-nusantara-content/03-published
+npm run content:import
 
 # 6. Start the dev server
 npm run dev
 ```
+
+### Importing articles from the content repo
+
+Articles are written as Markdown in the sibling repository `abap-nusantara-content`
+(`01-drafts/` → `02-review/` → `03-published/`). Once a file is in `03-published/`:
+
+```bash
+npm run content:import -- --dry-run   # validate only: metadata, taxonomy, Markdown, editor schema
+npm run content:import                # upsert every article in 03-published by slug
+npm run content:import -- ../abap-nusantara-content/03-published/S1-1-foo.md   # one file
+npm run content:import -- --draft     # production: new articles as DRAFT, existing status untouched
+```
+
+- The content repo is expected next to this one; override with `--content <path>` or `CONTENT_DIR`.
+- Re-running is safe: articles are matched by `slug` and updated in place (tags replaced, `publishedAt` kept).
+- Category, tags and series must exist already (`npx prisma db seed`); unknown values stop the import.
+- `cover: ../assets/<code>/cover.png` in the metadata becomes the article's `coverImage` (copied to `public/articles/<slug>/`).
+- Series covers: `<content>/assets/series/<series-slug>.png` is copied to `public/series/` and set as that series' `coverImage` on every import.
+- Images referenced as `![alt](../assets/<code>/file.png)` are copied to `public/articles/<slug>/`
+  (committed with the site, unlike `public/uploads/`).
+- Supported Markdown: `##`–`####` headings (a single leading `#` is the title and is skipped), lists,
+  tables, fenced code, blockquotes, links, bold/italic/strike/inline code, images on their own line.
+  Raw HTML and task lists are rejected; HTML comments are dropped.
 
 Visit `http://localhost:3000` for the public site and
 `http://localhost:3000/admin/login` to sign in with the admin email/password
@@ -121,8 +147,8 @@ Full schema: `prisma/schema.prisma`.
   (`src/lib/auth/password.ts`).
 - **Sessions**: signed JWT in an `HttpOnly`, `SameSite=Lax`, `Secure` (in
   production) cookie, 8-hour expiry (`src/lib/auth/session.ts`).
-- **Authorization boundary**: `src/middleware.ts` blocks every `/admin/*`
-  route except `/admin/login` at the edge before any page code runs. The
+- **Authorization boundary**: `src/proxy.ts` blocks every `/admin/*`
+  route except `/admin/login` before any page code runs. The
   media upload API route re-checks the session independently since it's
   under `/api/*`, not `/admin/*`.
 - **Rate limiting**: in-memory sliding-window limiter
@@ -245,10 +271,10 @@ src/
 ├── components/
 │   ├── layout/, ui/, article/, admin/, editor/, comments/
 ├── features/             # server actions + queries, grouped by domain
-│   ├── articles/, series/, taxonomy/, comments/, likes/, auth/
+│   ├── articles/, series/, taxonomy/, comments/, likes/, auth/, settings/, analytics/
 ├── lib/
 │   ├── auth/, security/, validation/, storage/, editor/, db/
-└── middleware.ts          # edge-level admin route protection
+└── proxy.ts               # admin route protection (Next.js 16 proxy)
 prisma/
 ├── schema.prisma
 └── seed.ts

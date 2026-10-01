@@ -2,6 +2,8 @@ type ToolStatus = "live" | "beta" | "planned";
 
 export type ToolCategory = "Integration" | "ABAP" | "OData & CDS" | "BTP & Security" | "Reference";
 
+export const CATEGORY_ORDER: ToolCategory[] = ["ABAP", "Integration", "OData & CDS", "BTP & Security", "Reference"];
+
 export interface ToolMeta {
   slug: string;
   name: string;

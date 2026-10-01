@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CopyButton, Field, Panel, Segmented } from "./primitives";
+import { CodeOutput } from "./code-output";
 import {
   buildMessageSnippets,
   parseBapiret2,
@@ -104,7 +105,7 @@ function Build() {
       </Panel>
       {snippets.map((s) => (
         <Panel key={s.label} title={s.label} action={<CopyButton value={s.code} />}>
-          <pre className="tool-output">{s.code}</pre>
+          <CodeOutput code={s.code} lang="abap" />
         </Panel>
       ))}
     </div>

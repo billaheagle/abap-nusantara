@@ -1,7 +1,12 @@
 "use client";
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useCallback, useState } from "react";
 import Image from "next/image";
+import { Maximize2 } from "lucide-react";
+import { CodeBlock } from "./code-block";
+import { ScrollTable } from "./scroll-table";
+import { ImageLightbox } from "./image-lightbox";
+import type { HighlightedCode } from "@/lib/editor/highlight";
 
 /**
  * Renders Tiptap's JSON document tree directly to React elements.
@@ -25,8 +30,30 @@ interface TiptapNode {
   marks?: TiptapMark[];
 }
 
+// Where a long identifier may wrap: after _ - . / :, before <, and at a
+// camelCase hump (IF_ERP2BTP_ | HelloWorld_ | Sync, TKNRetail | Online…).
+const IDENTIFIER_BREAKS = /(?<=[_\-./:])|(?=<)|(?<=[a-z])(?=[A-Z])/;
+
+/**
+ * Inline code with <wbr> break opportunities, so identifiers wrap at sensible
+ * points in narrow spots (table cells, phones) instead of mid-word. <wbr>
+ * contributes no characters, so copying the text still yields the exact
+ * identifier — unlike a zero-width space, which would be pasted along.
+ */
+function withBreakOpportunities(text: string): React.ReactNode {
+  const parts = text.split(IDENTIFIER_BREAKS).filter(Boolean);
+  if (parts.length < 2) return text;
+  return parts.map((part, i) => (
+    <Fragment key={i}>
+      {i > 0 && <wbr />}
+      {part}
+    </Fragment>
+  ));
+}
+
 function renderMarks(text: string, marks: TiptapMark[] | undefined, key: number): React.ReactNode {
   if (!marks || marks.length === 0) return text;
+  const base = marks.some((m) => m.type === "code") ? withBreakOpportunities(text) : text;
   return marks.reduce<React.ReactNode>((acc, mark, i) => {
     const k = `${key}-${i}`;
     switch (mark.type) {
@@ -50,7 +77,7 @@ function renderMarks(text: string, marks: TiptapMark[] | undefined, key: number)
       default:
         return acc;
     }
-  }, text);
+  }, base);
 }
 
 function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: number; onImageClick: (src: string, alt: string) => void }) {
@@ -78,9 +105,11 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
       return <blockquote>{children}</blockquote>;
     case "codeBlock":
       return (
-        <pre>
-          <code>{node.content?.map((c) => c.text).join("") ?? ""}</code>
-        </pre>
+        <CodeBlock
+          code={node.content?.map((c) => c.text).join("") ?? ""}
+          language={typeof node.attrs?.language === "string" ? node.attrs.language : null}
+          highlighted={node.attrs?.highlighted as HighlightedCode | undefined}
+        />
       );
     case "horizontalRule":
       return <hr />;
@@ -88,9 +117,11 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
       return <br />;
     case "table":
       return (
-        <table>
-          <tbody>{children}</tbody>
-        </table>
+        <ScrollTable>
+          <table>
+            <tbody>{children}</tbody>
+          </table>
+        </ScrollTable>
       );
     case "tableRow":
       return <tr>{children}</tr>;
@@ -102,16 +133,33 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
       const src = typeof node.attrs?.src === "string" ? node.attrs.src : "";
       const alt = typeof node.attrs?.alt === "string" ? node.attrs.alt : "";
       if (!src) return null;
+      // Intrinsic size is attached server-side (lib/editor/image-dimensions);
+      // render at the real aspect ratio, never wider than the original file.
+      const width = Number(node.attrs?.width) || 0;
+      const height = Number(node.attrs?.height) || 0;
+      const known = width > 0 && height > 0;
+      const isSmall = known && width < 160;
       return (
         <button
           type="button"
           onClick={() => onImageClick(src, alt)}
-          className="block w-full text-left"
+          className="group relative mx-auto my-6 block max-w-full cursor-zoom-in"
+          style={known ? { width } : { width: "100%" }}
           aria-label={`View larger image: ${alt || "article image"}`}
         >
-          <span className="relative block w-full aspect-video">
-            <Image src={src} alt={alt} fill sizes="(max-width: 768px) 100vw, 700px" className="object-contain rounded-md border border-border" />
-          </span>
+          <Image
+            src={src}
+            alt={alt}
+            width={known ? width : 0}
+            height={known ? height : 0}
+            sizes={known ? `(max-width: 768px) 100vw, ${Math.min(width, 700)}px` : "(max-width: 768px) 100vw, 700px"}
+            className="block h-auto w-full rounded-md border border-border"
+          />
+          {!isSmall && (
+            <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+              <Maximize2 className="h-4 w-4" aria-hidden="true" />
+            </span>
+          )}
         </button>
       );
     }
@@ -125,32 +173,13 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
 export function ArticleRenderer({ content }: { content: unknown }) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const doc = content as TiptapNode;
+  const closeLightbox = useCallback(() => setLightbox(null), []);
 
   return (
     <div className="prose-article">
       <RenderNode node={doc} index={0} onImageClick={(src, alt) => setLightbox({ src, alt })} />
 
-      {lightbox && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image preview"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="Close image preview"
-            className="absolute top-4 right-4 text-white/80 hover:text-white text-2xl leading-none"
-          >
-            ×
-          </button>
-          <div className="relative max-h-[85vh] max-w-4xl w-full h-full" onClick={(e) => e.stopPropagation()}>
-            <Image src={lightbox.src} alt={lightbox.alt} fill sizes="100vw" className="object-contain" />
-          </div>
-        </div>
-      )}
+      {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />}
     </div>
   );
 }
