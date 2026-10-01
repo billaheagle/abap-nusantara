@@ -16,7 +16,7 @@ export function AlphaConverter() {
     <div className="space-y-5">
       <Panel>
         <div className="flex flex-wrap items-end gap-4">
-          <div>
+          <div className="w-full sm:w-auto">
             <span className="mb-1 block text-xs font-medium text-foreground-muted">Direction</span>
             <Segmented<AlphaMode>
               value={mode}
@@ -58,7 +58,7 @@ export function AlphaConverter() {
         </p>
       </Panel>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Panel title="Values (one per line)">
           <textarea
             value={text}
@@ -81,8 +81,8 @@ export function AlphaConverter() {
               <tbody className="font-mono text-[0.8125rem]">
                 {rows.map((r, i) => (
                   <tr key={i} className="border-b border-border last:border-0">
-                    <td className="py-1.5 pr-3 text-foreground-muted">{r.raw || "∅"}</td>
-                    <td className="py-1.5 pr-3">{r.result || "∅"}</td>
+                    <td className="break-all py-1.5 pr-3 text-foreground-muted">{r.raw || "∅"}</td>
+                    <td className="break-all py-1.5 pr-3">{r.result || "∅"}</td>
                     <td className="py-1.5 font-sans text-xs text-foreground-muted">{r.note ?? ""}</td>
                   </tr>
                 ))}

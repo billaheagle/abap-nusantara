@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Panel } from "./primitives";
 import { TYPE_MAP } from "@/lib/tools/abap-types";
 
@@ -26,7 +26,33 @@ export function AbapTypeMapper() {
         />
       </Panel>
 
-      <div className="overflow-x-auto tool-panel">
+      {/* Phones: one card per type instead of a six-column sideways-scrolling table */}
+      <div className="space-y-2 md:hidden">
+        {rows.map((r) => (
+          <div key={r.abap} className="tool-panel p-3">
+            <p className="break-all font-mono text-[0.8125rem] font-semibold">{r.abap}</p>
+            <dl className="mt-2 grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3 gap-y-1 text-xs">
+              {(
+                [
+                  ["DDIC", r.ddic],
+                  ["Edm V2", r.edmV2],
+                  ["Edm V4", r.edmV4],
+                  ["JSON", r.json],
+                  ["TS", r.ts],
+                ] as const
+              ).map(([label, value]) => (
+                <Fragment key={label}>
+                  <dt className="text-foreground-muted">{label}</dt>
+                  <dd className="break-words font-mono text-[0.8125rem]">{value}</dd>
+                </Fragment>
+              ))}
+            </dl>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="tool-panel px-3 py-8 text-center text-sm text-foreground-muted">No type matches “{q}”.</p>}
+      </div>
+
+      <div className="tool-panel hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="admin-th text-left">

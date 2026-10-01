@@ -71,7 +71,7 @@ export default async function ToolsPage() {
         {byCategory.map(({ category, tools }) => (
           <section key={category}>
             <h2 className="mb-4 text-sm font-semibold text-foreground-muted">{category}</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {tools.map((tool) => {
                 const Icon = ICONS[tool.icon] ?? FlaskConical;
                 const planned = tool.status === "planned";

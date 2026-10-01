@@ -65,7 +65,7 @@ export function RegexTester() {
   return (
     <div className="space-y-5">
       <Panel>
-        <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_8rem]">
           <Field label="Pattern"><input value={pattern} onChange={(e) => setPattern(e.target.value)} spellCheck={false} className="tool-input tool-mono" /></Field>
           <Field label="Flags"><input value={flags} onChange={(e) => setFlags(e.target.value.replace(/[^gimsuy]/g, ""))} spellCheck={false} className="tool-input tool-mono" /></Field>
         </div>

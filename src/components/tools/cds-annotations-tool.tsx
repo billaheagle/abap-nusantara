@@ -37,8 +37,8 @@ function Reference() {
             {items.map((a) => (
               <div key={a.name} className="rounded-md border border-border p-3">
                 <div className="flex items-start justify-between gap-3">
-                  <code className="tool-mono text-[0.8125rem] font-semibold">{a.name}</code>
-                  <CopyButton value={a.example} label="" />
+                  <code className="tool-mono min-w-0 break-all text-[0.8125rem] font-semibold">{a.name}</code>
+                  <CopyButton value={a.example} label="" className="shrink-0" />
                 </div>
                 <p className="mt-1 text-sm text-foreground-muted">{a.purpose}</p>
                 <CodeOutput code={a.example} lang="abap" className="mt-2" />

@@ -45,7 +45,7 @@ export function ODataQueryBuilder() {
   return (
     <div className="space-y-5">
       <Panel>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Service base URL"><input value={s.baseUrl} onChange={(e) => set("baseUrl", e.target.value)} className="tool-input tool-mono" /></Field>
           <Field label="Entity set"><input value={s.entitySet} onChange={(e) => set("entitySet", e.target.value)} className="tool-input tool-mono" /></Field>
         </div>
@@ -56,7 +56,7 @@ export function ODataQueryBuilder() {
       </Panel>
 
       <Panel title="$select / $expand">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="$select (comma-separated)"><input value={s.select} onChange={(e) => set("select", e.target.value)} className="tool-input tool-mono" /></Field>
           <Field label="$expand (comma-separated)"><input value={s.expand} onChange={(e) => set("expand", e.target.value)} className="tool-input tool-mono" /></Field>
         </div>
@@ -65,7 +65,7 @@ export function ODataQueryBuilder() {
       <Panel
         title="$filter"
         action={
-          <Segmented value={s.useRaw ? "raw" : "builder"} onChange={(m) => set("useRaw", m === "raw")} options={[{ value: "builder", label: "Builder" }, { value: "raw", label: "Raw" }]} />
+          <Segmented value={s.useRaw ? "raw" : "builder"} onChange={(m) => set("useRaw", m === "raw")} options={[{ value: "builder", label: "Builder" }, { value: "raw", label: "Raw" }]} fill={false} />
         }
       >
         {s.useRaw ? (

@@ -276,7 +276,7 @@ function DiffMode() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Panel title="Before">
           <textarea value={a} onChange={(e) => setA(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
         </Panel>

@@ -66,7 +66,7 @@ export function SapDateConverter() {
             Detected: <span className="font-medium text-foreground">{parsed.detected}</span> · {relativeTime(parsed.instant)}
           </p>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {(["UTC", "Local"] as Zone[]).map((zone) => {
               const v = viewIn(parsed.instant, zone);
               const rows: [string, string][] = [
@@ -98,7 +98,7 @@ export function SapDateConverter() {
           </div>
 
           <Panel title="Unix epoch">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {(
                 [
                   ["Seconds", String(epochSeconds(parsed.instant))],
