@@ -121,7 +121,7 @@ export function CoverImageField({
             <ImagePlus className="h-5 w-5 text-foreground-muted" />
           )}
           <span className="text-sm font-medium">{uploading ? "Uploading…" : uploadLabel}</span>
-          <span className="text-xs text-foreground-muted">PNG, JPEG or WebP · up to 8 MB · or drop a file here</span>
+          <span className="text-xs text-foreground-muted">PNG, JPEG or WebP · up to 4 MB · or drop a file here</span>
         </button>
       )}
 

@@ -1,12 +1,14 @@
 import { randomBytes } from "crypto";
 import path from "path";
 import { mkdir, writeFile } from "fs/promises";
+import { put } from "@vercel/blob";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { getEnv } from "@/lib/env";
 
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MAX_UPLOAD_BYTES = 8 * 1024 * 1024; // 8MB
+// Vercel rejects function request bodies above ~4.5MB, so stay under it.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024; // 4MB
 const MAX_WIDTH = 2000;
 
 export class UploadError extends Error {}
@@ -22,15 +24,14 @@ export class UploadError extends Error {}
  *  - written under a randomly generated filename (no path traversal, no
  *    collisions, no user-controlled paths)
  *
- * Storage: for local/dev this writes to the public/uploads directory
- * configured by UPLOAD_DIR. For production behind a platform like Vercel
- * (read-only filesystem) swap this for an object-storage adapter (S3 /
- * Cloudflare R2 / Supabase Storage) — the function signature here is the
- * seam to do that behind.
+ * Storage: when BLOB_READ_WRITE_TOKEN is set (Vercel, read-only filesystem)
+ * files go to Vercel Blob and the absolute blob URL is returned; otherwise
+ * (local/dev) they are written to the public/uploads directory configured by
+ * UPLOAD_DIR. See writeUpload below.
  */
 export async function saveUploadedImage(fileBuffer: Buffer): Promise<{ url: string; width: number; height: number }> {
   if (fileBuffer.byteLength > MAX_UPLOAD_BYTES) {
-    throw new UploadError("File too large (max 8MB)");
+    throw new UploadError("File too large (max 4MB)");
   }
 
   const detected = await fileTypeFromBuffer(fileBuffer);
@@ -56,7 +57,7 @@ export async function saveUploadedImage(fileBuffer: Buffer): Promise<{ url: stri
   };
 }
 
-const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_DOCUMENT_BYTES = 4 * 1024 * 1024; // 4MB, same Vercel body limit
 
 /**
  * Save an uploaded PDF (e.g. the CV linked from the Hire Me page). Same
@@ -67,7 +68,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // 10MB
  */
 export async function saveUploadedDocument(fileBuffer: Buffer): Promise<{ url: string }> {
   if (fileBuffer.byteLength > MAX_DOCUMENT_BYTES) {
-    throw new UploadError("File too large (max 10MB)");
+    throw new UploadError("File too large (max 4MB)");
   }
 
   const detected = await fileTypeFromBuffer(fileBuffer);
@@ -80,6 +81,12 @@ export async function saveUploadedDocument(fileBuffer: Buffer): Promise<{ url: s
 }
 
 async function writeUpload(filename: string, data: Buffer): Promise<string> {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    // filename is already random, so no extra suffix is needed.
+    const blob = await put(`uploads/${filename}`, data, { access: "public", addRandomSuffix: false });
+    return blob.url;
+  }
+
   const env = getEnv();
   // UPLOAD_DIR is operator-configured, not user input; the turbopackIgnore
   // hints keep this dynamic path from forcing a trace of the whole project

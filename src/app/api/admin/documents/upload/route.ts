@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
   }
 
   const declaredBytes = Number(request.headers.get("content-length") ?? 0);
-  if (declaredBytes > 12 * 1024 * 1024) {
-    return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 413 });
+  if (declaredBytes > 5 * 1024 * 1024) {
+    return NextResponse.json({ error: "File too large (max 4MB)" }, { status: 413 });
   }
 
   const formData = await request.formData();

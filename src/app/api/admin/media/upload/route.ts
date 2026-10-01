@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
   // Cheap early bail-out before buffering the whole body into memory; the
   // exact byte-count limit is enforced on the decoded image in saveUploadedImage.
   const declaredBytes = Number(request.headers.get("content-length") ?? 0);
-  if (declaredBytes > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "File too large (max 8MB)" }, { status: 413 });
+  if (declaredBytes > 5 * 1024 * 1024) {
+    return NextResponse.json({ error: "File too large (max 4MB)" }, { status: 413 });
   }
 
   const formData = await request.formData();

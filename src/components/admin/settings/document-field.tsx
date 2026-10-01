@@ -48,7 +48,7 @@ export function DocumentField({
     }
   }
 
-  const isUploaded = value.startsWith("/uploads/");
+  const isUploaded = value.startsWith("/uploads/") || value.includes(".blob.vercel-storage.com/uploads/");
   const message = uploadError ?? error;
 
   return (
@@ -89,7 +89,7 @@ export function DocumentField({
           className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-border-strong px-4 py-5 text-sm font-medium transition-colors hover:border-brand hover:bg-surface"
         >
           {uploading ? <Loader2 className="h-4 w-4 animate-spin text-brand" /> : <Upload className="h-4 w-4 text-foreground-muted" />}
-          {uploading ? "Uploading…" : "Upload PDF (max 10 MB)"}
+          {uploading ? "Uploading…" : "Upload PDF (max 4 MB)"}
         </button>
       )}
 
