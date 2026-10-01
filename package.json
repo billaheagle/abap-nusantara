@@ -11,7 +11,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "content:import": "tsx scripts/import-articles.ts"
+    "content:import": "tsx scripts/import-articles.ts",
+    "content:import:prod": "node scripts/import-prod.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
