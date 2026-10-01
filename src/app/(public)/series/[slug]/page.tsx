@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { hasPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 
 export const revalidate = 60;
@@ -10,8 +11,8 @@ interface PageProps {
 }
 
 async function getSeries(slug: string) {
-  return prisma.series.findUnique({
-    where: { slug },
+  return prisma.series.findFirst({
+    where: { slug, ...hasPublishedArticles },
     include: {
       articles: {
         where: { status: "PUBLISHED" },

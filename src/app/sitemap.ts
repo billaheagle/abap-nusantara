@@ -1,15 +1,15 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db/prisma";
-import { getAllPublishedSlugs } from "@/features/articles/queries";
+import { getAllPublishedSlugs, hasPublishedArticles, tagHasPublishedArticles } from "@/features/articles/queries";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articles, series, categories, tags] = await Promise.all([
     getAllPublishedSlugs(),
-    prisma.series.findMany({ select: { slug: true, updatedAt: true } }),
-    prisma.category.findMany({ select: { slug: true } }),
-    prisma.tag.findMany({ select: { slug: true } }),
+    prisma.series.findMany({ where: hasPublishedArticles, select: { slug: true, updatedAt: true } }),
+    prisma.category.findMany({ where: hasPublishedArticles, select: { slug: true } }),
+    prisma.tag.findMany({ where: tagHasPublishedArticles, select: { slug: true } }),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [

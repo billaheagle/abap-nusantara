@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPublishedArticles } from "@/features/articles/queries";
+import { getPublishedArticles, hasPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { Pagination } from "@/components/ui/pagination";
 import { prisma } from "@/lib/db/prisma";
@@ -14,7 +14,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = await prisma.category.findUnique({ where: { slug } });
+  const category = await prisma.category.findFirst({ where: { slug, ...hasPublishedArticles } });
   if (!category) return {};
   return { title: category.name, description: category.description ?? `Articles in ${category.name}.` };
 }
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoryPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { page: pageParam } = await searchParams;
-  const category = await prisma.category.findUnique({ where: { slug } });
+  const category = await prisma.category.findFirst({ where: { slug, ...hasPublishedArticles } });
   if (!category) notFound();
 
   const page = Number(pageParam) || 1;

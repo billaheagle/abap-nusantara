@@ -3,12 +3,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
+import { hasPublishedArticles } from "@/features/articles/queries";
 
 export const metadata: Metadata = { title: "Series" };
 export const revalidate = 60;
 
 export default async function SeriesListPage() {
   const series = await prisma.series.findMany({
+    where: hasPublishedArticles,
     orderBy: { order: "asc" },
     include: { _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
   });

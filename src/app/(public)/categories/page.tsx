@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
+import { hasPublishedArticles } from "@/features/articles/queries";
 
 export const metadata: Metadata = { title: "Categories" };
 export const revalidate = 60;
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
+    where: hasPublishedArticles,
     orderBy: { name: "asc" },
     include: { _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
   });

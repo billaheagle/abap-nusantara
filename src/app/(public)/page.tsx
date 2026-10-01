@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Terminal, Newspaper } from "lucide-react";
 import { GithubIcon } from "@/components/ui/github-icon";
-import { getFeaturedArticles, getPublishedArticles } from "@/features/articles/queries";
+import { getFeaturedArticles, getPublishedArticles, hasPublishedArticles, tagHasPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { prisma } from "@/lib/db/prisma";
@@ -13,8 +13,8 @@ export default async function HomePage() {
   const [featured, latest, categories, tags, { hero, home, links }] = await Promise.all([
     getFeaturedArticles(3),
     getPublishedArticles({ page: 1 }),
-    prisma.category.findMany({ take: 8, orderBy: { name: "asc" } }),
-    prisma.tag.findMany({ take: 12, orderBy: { name: "asc" } }),
+    prisma.category.findMany({ where: hasPublishedArticles, take: 8, orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ where: tagHasPublishedArticles, take: 12, orderBy: { name: "asc" } }),
     getSetting("general"),
   ]);
 

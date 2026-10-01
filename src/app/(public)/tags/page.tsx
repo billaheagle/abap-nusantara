@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
+import { tagHasPublishedArticles } from "@/features/articles/queries";
 
 export const metadata: Metadata = { title: "Tags" };
 export const revalidate = 60;
 
 export default async function TagsIndexPage() {
   const tags = await prisma.tag.findMany({
+    where: tagHasPublishedArticles,
     orderBy: { name: "asc" },
-    include: { _count: { select: { articles: true } } },
+    include: { _count: { select: { articles: { where: { article: { status: "PUBLISHED" } } } } } },
   });
 
   return (

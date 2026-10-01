@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPublishedArticles } from "@/features/articles/queries";
+import { getPublishedArticles, hasPublishedArticles, tagHasPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { Pagination } from "@/components/ui/pagination";
 import { ArticlesFilterBar } from "@/components/article/articles-filter-bar";
@@ -23,8 +23,8 @@ export default async function ArticlesPage({ searchParams }: PageProps) {
 
   const [{ items, totalPages }, categories, tags] = await Promise.all([
     getPublishedArticles({ page, query: params.q, categorySlug: params.category, tagSlug: params.tag, sort }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
-    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({ where: hasPublishedArticles, orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ where: tagHasPublishedArticles, orderBy: { name: "asc" } }),
   ]);
 
   return (

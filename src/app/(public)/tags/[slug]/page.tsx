@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPublishedArticles } from "@/features/articles/queries";
+import { getPublishedArticles, tagHasPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { Pagination } from "@/components/ui/pagination";
 import { prisma } from "@/lib/db/prisma";
@@ -14,7 +14,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const tag = await prisma.tag.findUnique({ where: { slug } });
+  const tag = await prisma.tag.findFirst({ where: { slug, ...tagHasPublishedArticles } });
   if (!tag) return {};
   return { title: `#${tag.name}`, description: `Articles tagged with ${tag.name}.` };
 }
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function TagPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { page: pageParam } = await searchParams;
-  const tag = await prisma.tag.findUnique({ where: { slug } });
+  const tag = await prisma.tag.findFirst({ where: { slug, ...tagHasPublishedArticles } });
   if (!tag) notFound();
 
   const page = Number(pageParam) || 1;

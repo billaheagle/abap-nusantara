@@ -3,6 +3,16 @@ import { ArticleStatus, Prisma } from "@prisma/client";
 
 const PAGE_SIZE = 9;
 
+/** Series/categories are only shown publicly once they hold a published article. */
+export const hasPublishedArticles = {
+  articles: { some: { status: ArticleStatus.PUBLISHED } },
+} satisfies Prisma.SeriesWhereInput & Prisma.CategoryWhereInput;
+
+/** Same rule for tags, which reach articles through the ArticleTag join. */
+export const tagHasPublishedArticles = {
+  articles: { some: { article: { status: ArticleStatus.PUBLISHED } } },
+} satisfies Prisma.TagWhereInput;
+
 export interface ArticleListFilters {
   page?: number;
   query?: string;
