@@ -61,7 +61,7 @@ export default async function AdminArticlesPage({ searchParams }: PageProps) {
   };
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader
         title="Articles"
         description="Search, filter and manage every post."
@@ -86,7 +86,59 @@ export default async function AdminArticlesPage({ searchParams }: PageProps) {
         {total === 0 ? "No matching articles" : `Showing ${rangeStart}–${rangeEnd} of ${total}`}
       </p>
 
-      <div className="admin-card overflow-x-auto">
+      {/* Phones: one card per article instead of a sideways-scrolling table */}
+      <ul className="admin-card divide-y divide-border md:hidden">
+        {items.map((article, i) => {
+          const groupKey = article.series?.id ?? null;
+          const startsGroup = grouped && (i === 0 || (items[i - 1].series?.id ?? null) !== groupKey);
+          return (
+            <Fragment key={article.id}>
+              {startsGroup && (
+                <li className="bg-surface/60 px-4 pb-2 pt-4">
+                  {article.series ? (
+                    <Link href={`/admin/articles?series=${article.series.id}`} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand hover:underline">
+                      <Layers className="h-3.5 w-3.5 shrink-0" /> {article.series.title}
+                    </Link>
+                  ) : (
+                    <span className="text-xs font-semibold uppercase tracking-wide text-foreground-muted">Not in a series</span>
+                  )}
+                </li>
+              )}
+              <li className="space-y-2 p-4">
+                <div className="flex items-start gap-2">
+                  {grouped && article.seriesOrder != null && (
+                    <span className="mt-0.5 inline-block min-w-[1.5rem] shrink-0 rounded bg-brand-tint px-1.5 py-0.5 text-center text-[0.6875rem] font-semibold tabular-nums text-brand">
+                      {article.seriesOrder}
+                    </span>
+                  )}
+                  <Link href={`/admin/articles/${article.id}`} className="min-w-0 break-words text-sm font-medium hover:text-brand">
+                    {article.title}
+                  </Link>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground-muted">
+                  <ObjectStatus tone={articleStatusTone(article.status)}>{article.status}</ObjectStatus>
+                  {article.category && <span>{article.category.name}</span>}
+                  {!grouped && article.series && <span className="inline-flex items-center gap-1"><Layers className="h-3 w-3" /> {article.series.title}</span>}
+                  <span className="inline-flex items-center gap-1 tabular-nums">
+                    <Heart className={`h-3 w-3 ${article._count.likes > 0 ? "fill-accent-red text-accent-red" : ""}`} />
+                    {article._count.likes}
+                  </span>
+                  <span>{format(article.updatedAt, "MMM d, yyyy")}</span>
+                </div>
+                <ArticleRowActions articleId={article.id} status={article.status} slug={article.slug} />
+              </li>
+            </Fragment>
+          );
+        })}
+        {items.length === 0 && (
+          <li className="px-4 py-10 text-center text-sm text-foreground-muted">
+            Nothing here. Try clearing the filters, or{" "}
+            <Link href="/admin/articles/new" className="text-brand hover:underline">create an article</Link>.
+          </li>
+        )}
+      </ul>
+
+      <div className="admin-card hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="admin-th text-left">

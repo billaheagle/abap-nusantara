@@ -41,7 +41,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
   ];
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader
         title="Overview"
         description="Everything happening across ABAP Nusantara at a glance."
@@ -51,14 +51,14 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
       />
 
       {/* Headline numbers for the period */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatTile label="Views" total={analytics.views.total} previous={analytics.views.previous} points={analytics.views.series} periodLabel={tilePeriod} />
         <StatTile label="Likes" total={analytics.likes.total} previous={analytics.likes.previous} points={analytics.likes.series} periodLabel={tilePeriod} />
         <StatTile label="Comments" total={analytics.comments.total} previous={analytics.comments.previous} points={analytics.comments.series} periodLabel={tilePeriod} />
       </div>
 
       {/* Views over time */}
-      <section className="admin-card mt-6 p-5">
+      <section className="admin-card mt-6 p-4 sm:p-5">
         <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold">Views per {noun}</h2>
@@ -103,13 +103,13 @@ export default async function AdminDashboardPage({ searchParams }: PageProps) {
         </details>
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section className="admin-card p-5">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section className="admin-card min-w-0 p-4 sm:p-5">
           <h2 className="text-sm font-semibold">Top articles</h2>
           <p className="mb-5 text-xs text-foreground-muted">By views · {range.label.toLowerCase()}</p>
           <TopArticles items={analytics.topArticles} />
         </section>
-        <section className="admin-card p-5">
+        <section className="admin-card min-w-0 p-4 sm:p-5">
           <h2 className="text-sm font-semibold">Series progress</h2>
           <p className="mb-5 text-xs text-foreground-muted">Published parts per series</p>
           <SeriesProgress items={analytics.seriesProgress} />

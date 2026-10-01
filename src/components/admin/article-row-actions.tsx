@@ -11,7 +11,7 @@ export function ArticleRowActions({ articleId, status, slug }: { articleId: stri
 
   if (confirmingDelete) {
     return (
-      <div className="flex items-center justify-end gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5 md:justify-end">
         <span className="mr-1 text-xs text-foreground-muted">Delete this article?</span>
         <button
           type="button"
@@ -29,7 +29,7 @@ export function ArticleRowActions({ articleId, status, slug }: { articleId: stri
   }
 
   return (
-    <div className="flex items-center justify-end gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5 md:justify-end">
       {status === "PUBLISHED" && (
         <Link href={`/articles/${slug}`} target="_blank" className="admin-btn" title="View on site">
           <Eye /> View

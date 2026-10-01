@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, ExternalLink, Plus } from "lucide-react";
+import { Bell, ExternalLink } from "lucide-react";
 import { getAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { AdminNav } from "@/components/admin/admin-nav";
@@ -32,16 +32,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </span>
         </Link>
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Link
-            href="/admin/articles/new"
-            className="inline-flex h-8 items-center gap-1.5 rounded-full bg-gold px-3 text-xs font-semibold text-ink transition-colors hover:bg-[#f0b83a]"
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            <span className="hidden sm:inline">New article</span>
-          </Link>
-
-          <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" aria-hidden="true" />
-
           <Link
             href="/admin/comments?status=PENDING"
             className="shell-icon-btn relative"

@@ -9,7 +9,7 @@ export default async function AdminSeriesPage() {
   });
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader title="Series" description="Group multi-part tutorials into an ordered journey." />
       <SeriesManager items={series} />
     </div>

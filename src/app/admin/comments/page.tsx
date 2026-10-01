@@ -77,7 +77,7 @@ export default async function AdminCommentsPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader title="Comments" description="Search, filter and moderate reader comments." />
 
       <div className="admin-card mb-4 inline-flex flex-wrap gap-1 p-1 text-sm">

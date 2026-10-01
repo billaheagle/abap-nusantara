@@ -8,7 +8,7 @@ export default async function AdminCategoriesPage() {
     include: { _count: { select: { articles: true } } },
   });
   return (
-    <div className="p-6 sm:p-8">
+    <div className="p-4 sm:p-8">
       <PageHeader title="Categories" description="Top-level topics articles are filed under." />
       <CategoryManager items={categories} />
     </div>
