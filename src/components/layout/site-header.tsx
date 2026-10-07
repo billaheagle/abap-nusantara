@@ -68,11 +68,11 @@ export async function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile nav */}
+      {/* Mobile nav: links share the bar and wrap rather than scroll; the 21px radius is a pill on one line. */}
       {navLinks.length > 0 && (
-        <nav className="md:hidden mt-2 mx-auto max-w-4xl flex items-center gap-1 overflow-x-auto rounded-full border border-border bg-background/80 backdrop-blur-md px-2 py-1.5 text-sm font-medium text-foreground-muted">
+        <nav className="md:hidden mt-2 mx-auto max-w-4xl flex flex-wrap items-center justify-around gap-0.5 rounded-[21px] border border-border bg-background/80 backdrop-blur-md px-1.5 py-1.5 text-sm font-medium text-foreground-muted">
           {navLinks.map((link) => (
-            <NavLink key={`${link.label}-${link.href}`} href={link.href} className="whitespace-nowrap rounded-full px-3 py-1 hover:text-foreground hover:bg-surface">
+            <NavLink key={`${link.label}-${link.href}`} href={link.href} className="whitespace-nowrap rounded-full px-2 py-1 hover:text-foreground hover:bg-surface">
               {link.label}
             </NavLink>
           ))}
