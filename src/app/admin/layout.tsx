@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import { LogoMark, Wordmark } from "@/components/brand/logo";
 import { Bell, ExternalLink } from "lucide-react";
 import { getAdminSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { getSetting } from "@/features/settings/queries";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { AdminUserMenu } from "@/components/admin/admin-user-menu";
 
@@ -14,20 +15,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // /admin/login renders through this same layout with no session — show it
   // bare (its own page centres itself full-screen).
-  if (!session) return <>{children}</>;
+  if (!session) return <div data-theme="light">{children}</div>;
 
-  const pendingComments = await prisma.comment.count({ where: { status: "PENDING" } });
+  const [pendingComments, { brand }] = await Promise.all([
+    prisma.comment.count({ where: { status: "PENDING" } }),
+    getSetting("general"),
+  ]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    // The admin stays in the light theme whatever the public site uses.
+    <div data-theme="light" className="flex min-h-screen flex-col bg-background">
       {/* Fiori shell bar */}
       <header className="admin-shell sticky top-0 z-30 flex h-14 items-center justify-between gap-4 px-4">
-        <Link href="/admin/dashboard" className="flex items-center gap-2.5 rounded-md">
-          <Image src="/brand/logo-200.png" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
-          <span className="text-sm font-semibold tracking-tight">
-            ABAP <span className="text-gold">Nusantara</span>
-          </span>
-          <span className="ml-1 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/75">
+        <Link href="/admin/dashboard" className="flex min-w-0 items-center gap-2.5 rounded-md">
+          <LogoMark size={28} />
+          <Wordmark name={brand.name} accent={brand.accent} className="text-[0.9375rem]" />
+          <span className="ml-1 hidden rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/75 sm:inline">
             Admin
           </span>
         </Link>

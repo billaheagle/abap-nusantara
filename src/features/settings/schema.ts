@@ -53,22 +53,16 @@ export const generalSchema = z.object({
     whatsapp: phone,
   }),
   hero: z.object({
-    badge: text(80),
     titleLine1: text(80),
     titleLine2: text(80),
     titleHighlight: text(80),
     description: text(500),
     primaryCtaLabel: required(40),
-    showGithubButton: z.boolean(),
   }),
   home: z.object({
     featuredTitle: required(80),
     latestTitle: required(80),
-    aboutTitle: required(80),
-    aboutBody: text(800),
-    aboutLinkLabel: required(80),
     toolsTitle: required(80),
-    toolsBody: text(400),
   }),
 });
 export type GeneralSettings = z.infer<typeof generalSchema>;
@@ -88,24 +82,17 @@ export const GENERAL_DEFAULTS: GeneralSettings = {
     whatsapp: "6281317714843",
   },
   hero: {
-    badge: "SAP BTP · ABAP · Indonesia",
     titleLine1: "Learning SAP.",
     titleLine2: "Building things.",
     titleHighlight: "Sharing the journey.",
     description:
       "A personal technical blog documenting hands-on work with SAP BTP, ABAP, Integration Suite / CPI, OData, CAP, and Fiori/UI5 — written from an Indonesian developer's desk.",
     primaryCtaLabel: "Read the articles",
-    showGithubButton: true,
   },
   home: {
     featuredTitle: "Start here",
     latestTitle: "Fresh from the notebook",
-    aboutTitle: "About this journey",
-    aboutBody:
-      "This blog is a record of what I learn while working with SAP BTP and related technologies — tutorials, notes on real integrations, mistakes made along the way, and the tools I build to make the work easier.",
-    aboutLinkLabel: "More about ABAP Nusantara",
     toolsTitle: "Developer tools",
-    toolsBody: "RFC testers, OData/JSON/XML formatters, and CPI helpers are on the roadmap.",
   },
 };
 

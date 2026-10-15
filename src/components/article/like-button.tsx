@@ -40,12 +40,12 @@ export function LikeButton({ articleId, initialLiked, initialCount }: { articleI
         onClick={handleClick}
         disabled={isPending}
         aria-pressed={liked}
-        className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all hover:scale-[1.02] ${
+        className={`inline-flex items-center gap-2 rounded-full border bg-surface-elevated px-4 py-2 text-sm font-semibold transition-colors ${
           liked ? "border-accent-red bg-accent-red-tint text-accent-red" : "border-border hover:border-accent-red/50"
         }`}
       >
         <Heart className={`h-4 w-4 ${liked ? "fill-accent-red text-accent-red" : ""}`} />
-        {count} {count === 1 ? "like" : "likes"}
+        {count} suka
       </button>
       {error && <p className="text-xs text-accent-red">{error}</p>}
     </div>

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
+import { Clock } from "lucide-react";
+import { CoverArt, coverTone } from "@/components/brand/cover-art";
 
 export interface ArticleCardData {
   slug: string;
@@ -9,70 +11,77 @@ export interface ArticleCardData {
   coverImage: string | null;
   readingTimeMin: number;
   publishedAt: Date | null;
-  series: { title: string; slug: string } | null;
+  seriesOrder?: number | null;
+  series: { title: string; slug: string; order?: number } | null;
   category: { name: string; slug: string } | null;
-  tags: { tag: { name: string; slug: string } }[];
 }
 
-export function ArticleCard({ article }: { article: ArticleCardData }) {
+/**
+ * One article as a card. `featured` lays it out wide (cover beside the text)
+ * on screens that have room, and stacks like the rest on phones.
+ */
+export function ArticleCard({
+  article,
+  featured = false,
+  badge,
+  seed = 0,
+}: {
+  article: ArticleCardData;
+  featured?: boolean;
+  badge?: string;
+  seed?: number;
+}) {
+  const tone = coverTone(article.series?.order, article.slug);
+  const label =
+    article.series?.order && article.seriesOrder
+      ? `Seri ${article.series.order}, bagian ${article.seriesOrder}`
+      : (article.series?.title ?? article.category?.name);
+
   return (
-    <article className="card-hover group flex flex-col rounded-xl border border-border bg-surface-elevated overflow-hidden">
-      <Link href={`/articles/${article.slug}`} className="block relative aspect-[16/9] bg-surface overflow-hidden">
-        {article.coverImage ? (
-          <Image
-            src={article.coverImage}
-            alt={article.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-grid">
-            <span className="font-mono font-bold text-3xl text-border-strong">AN</span>
-          </div>
-        )}
-        {article.series && (
-          <span className="absolute top-3 left-3 rounded-full bg-accent-red px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-            Series
+    <Link
+      href={`/articles/${article.slug}`}
+      className={`card-hover group flex flex-col overflow-hidden rounded-[22px] border border-border bg-surface-elevated shadow-[var(--shadow-1)] ${
+        featured ? "md:col-span-2 md:flex-row" : ""
+      }`}
+    >
+      <div className={`relative aspect-[16/9] overflow-hidden ${featured ? "md:aspect-auto md:min-h-[300px] md:flex-[1.15]" : ""}`}>
+        <CoverArt
+          tone={tone}
+          seed={seed}
+          className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+        />
+        {label && (
+          <span className="absolute left-3 top-3 rounded-full bg-black/25 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md">
+            {label}
           </span>
         )}
-      </Link>
-      <div className="flex flex-1 flex-col p-5 gap-2">
-        {article.category && (
-          <Link
-            href={`/categories/${article.category.slug}`}
-            className="text-[11px] font-mono font-semibold text-brand uppercase tracking-wider"
-          >
-            {article.category.name}
-          </Link>
-        )}
-        <Link href={`/articles/${article.slug}`}>
-          <h3 className="font-semibold leading-snug tracking-tight group-hover:text-brand transition-colors line-clamp-2">
-            {article.title}
-          </h3>
-        </Link>
-        {article.excerpt && <p className="text-sm text-foreground-muted line-clamp-2 leading-relaxed">{article.excerpt}</p>}
-        <div className="mt-auto flex items-center gap-2 pt-3 text-xs text-foreground-muted font-mono">
-          {article.publishedAt && (
-            <time dateTime={article.publishedAt.toISOString()}>{format(article.publishedAt, "MMM d, yyyy")}</time>
-          )}
-          <span>·</span>
-          <span>{article.readingTimeMin} min read</span>
-        </div>
-        {article.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-2">
-            {article.tags.slice(0, 3).map(({ tag }) => (
-              <Link
-                key={tag.slug}
-                href={`/tags/${tag.slug}`}
-                className="rounded-full bg-surface px-2.5 py-1 text-[11px] font-mono text-foreground-muted hover:text-brand hover:bg-brand-tint transition-colors"
-              >
-                #{tag.name}
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
-    </article>
+      <div className={`flex flex-1 flex-col gap-2 p-5 ${featured ? "md:justify-center md:p-7" : ""}`}>
+        {badge && (
+          <span className="self-start rounded-full bg-gold-tint px-2.5 py-0.5 text-xs font-bold text-gold-strong">{badge}</span>
+        )}
+        <h3
+          className={`font-semibold leading-tight tracking-[-0.02em] transition-colors group-hover:text-brand-dark ${
+            featured ? "text-[1.375rem] md:text-[1.75rem] md:leading-[1.15]" : "text-[1.1875rem]"
+          }`}
+        >
+          {article.title}
+        </h3>
+        {article.excerpt && (
+          <p className={`text-[0.9375rem] leading-relaxed text-foreground-muted ${featured ? "line-clamp-3 md:line-clamp-4 md:text-base" : "line-clamp-2"}`}>
+            {article.excerpt}
+          </p>
+        )}
+        <div className="mt-auto flex items-center gap-3 pt-2 text-[0.8125rem] text-foreground-muted tabular-nums">
+          {article.publishedAt && (
+            <time dateTime={article.publishedAt.toISOString()}>{format(article.publishedAt, "d MMM yyyy", { locale: localeId })}</time>
+          )}
+          <span className="ml-auto inline-flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+            {article.readingTimeMin} menit
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

@@ -30,9 +30,9 @@ const publicArticleSelect = {
   readingTimeMin: true,
   publishedAt: true,
   updatedAt: true,
-  series: { select: { title: true, slug: true } },
+  seriesOrder: true,
+  series: { select: { title: true, slug: true, order: true } },
   category: { select: { name: true, slug: true } },
-  tags: { select: { tag: { select: { name: true, slug: true } } } },
 } satisfies Prisma.ArticleSelect;
 
 export async function getPublishedArticles(filters: ArticleListFilters = {}) {
@@ -63,15 +63,6 @@ export async function getPublishedArticles(filters: ArticleListFilters = {}) {
   ]);
 
   return { items, total, page, pageSize: PAGE_SIZE, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
-}
-
-export async function getFeaturedArticles(limit = 3) {
-  return prisma.article.findMany({
-    where: { status: ArticleStatus.PUBLISHED },
-    select: publicArticleSelect,
-    orderBy: { publishedAt: "desc" },
-    take: limit,
-  });
 }
 
 export async function getArticleBySlug(slug: string) {

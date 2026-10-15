@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { LogoMark } from "@/components/brand/logo";
 import { useActionState } from "react";
 import { loginAction, type LoginFormState } from "@/features/auth/actions";
 
@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-surface px-4">
       <div className="w-full max-w-sm rounded-md border border-border bg-surface-elevated p-6">
         <div className="mb-6 text-center">
-          <Image src="/brand/logo-200.png" alt="ABAP Nusantara" width={56} height={56} className="h-14 w-14 object-contain mx-auto" />
+          <LogoMark size={56} title="ABAP Nusantara" className="mx-auto" />
           <h1 className="mt-3 text-lg font-semibold">Admin sign in</h1>
           <p className="text-sm text-foreground-muted mt-1">ABAP Nusantara</p>
         </div>

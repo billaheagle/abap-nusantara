@@ -1,15 +1,24 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, JetBrains_Mono, Literata } from "next/font/google";
 import "./globals.css";
 import { getSetting } from "@/features/settings/queries";
 
-const geistSans = Geist({
-  variable: "--font-inter",
+// Interface and headings: a lively grotesque with width and optical-size axes.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
+  axes: ["wdth", "opsz"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Article body: a serif designed for long reading on screens.
+const literata = Literata({
+  variable: "--font-literata",
+  subsets: ["latin"],
+  axes: ["opsz"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
 });
 
@@ -37,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: ["/brand/logo-512.png"],
     },
     icons: {
-      icon: "/favicon.ico",
+      icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/brand/logo.svg", type: "image/svg+xml" }],
       apple: "/brand/apple-touch-icon.png",
     },
     robots: {
@@ -47,9 +56,27 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f5fa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0e24" },
+  ],
+};
+
+// Sets data-theme on <html> before first paint: the reader's saved choice,
+// otherwise their system setting. Kept tiny and inline so there's no flash.
+const themeScript = `(function(){try{var t=localStorage.getItem("an-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${bricolage.variable} ${literata.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-screen bg-background text-foreground">{children}</body>
     </html>
   );

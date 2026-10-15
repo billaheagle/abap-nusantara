@@ -1,23 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowLeftRight,
-  Binary,
-  CalendarClock,
-  Code2,
-  Fingerprint,
-  FlaskConical,
-  Globe2,
-  KeyRound,
-  Link2,
-  MessageSquareWarning,
-  Network,
-  Regex,
-  ShieldCheck,
-  Tags,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, FlaskConical, ShieldCheck } from "lucide-react";
+import { ToolIcon } from "@/components/tools/tool-icon";
 import { CATEGORY_ORDER, TOOL_REGISTRY } from "@/lib/tools/registry";
 import { getSetting } from "@/features/settings/queries";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -26,23 +10,6 @@ export const metadata: Metadata = {
   title: "Developer Tools",
   description:
     "A growing set of browser-based utilities for SAP development — SAP date conversion, ALPHA exits, OData query building, payload formatting, JWT decoding and more. Nothing you paste leaves your browser.",
-};
-
-const ICONS: Record<string, LucideIcon> = {
-  CalendarClock,
-  Binary,
-  FlaskConical,
-  Link2,
-  Network,
-  KeyRound,
-  Regex,
-  Tags,
-  ArrowLeftRight,
-  Code2,
-  MessageSquareWarning,
-  Fingerprint,
-  Globe2,
-  ShieldCheck,
 };
 
 export default async function ToolsPage() {
@@ -55,8 +22,7 @@ export default async function ToolsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-      <p className="mb-2 text-xs font-mono font-medium uppercase tracking-wider text-brand">[ Tools ]</p>
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Developer tools for SAP</h1>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.05]">Developer tools for SAP</h1>
       <p className="mt-3 max-w-2xl text-foreground-muted">
         Small, focused utilities for everyday ABAP, OData and Integration Suite work — built alongside the articles.
       </p>
@@ -73,17 +39,16 @@ export default async function ToolsPage() {
             <h2 className="mb-4 text-sm font-semibold text-foreground-muted">{category}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {tools.map((tool) => {
-                const Icon = ICONS[tool.icon] ?? FlaskConical;
                 const planned = tool.status === "planned";
                 const inner = (
                   <>
                     <div className="flex items-start justify-between gap-3">
                       <span
-                        className={`inline-flex h-9 w-9 items-center justify-center rounded-md ${
+                        className={`inline-flex h-11 w-11 items-center justify-center rounded-[13px] ${
                           planned ? "bg-surface text-foreground-muted" : "bg-brand-tint text-brand"
                         }`}
                       >
-                        <Icon className="h-5 w-5" />
+                        <ToolIcon name={tool.icon} className="h-5 w-5" />
                       </span>
                       {planned ? (
                         <span className="rounded-full bg-surface px-2 py-0.5 text-[11px] font-medium text-foreground-muted">
@@ -105,7 +70,7 @@ export default async function ToolsPage() {
                 return planned ? (
                   <div
                     key={tool.slug}
-                    className="flex flex-col rounded-xl border border-dashed border-border bg-surface-elevated p-5 opacity-70"
+                    className="flex flex-col rounded-[20px] border border-dashed border-border bg-surface-elevated p-5 opacity-70"
                   >
                     {inner}
                   </div>
@@ -113,7 +78,7 @@ export default async function ToolsPage() {
                   <Link
                     key={tool.slug}
                     href={`/tools/${tool.slug}`}
-                    className="card-hover group flex flex-col rounded-xl border border-border bg-surface-elevated p-5"
+                    className="card-hover group flex flex-col rounded-[20px] border border-border bg-surface-elevated p-5 shadow-[var(--shadow-1)]"
                   >
                     {inner}
                   </Link>

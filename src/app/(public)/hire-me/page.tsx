@@ -77,7 +77,7 @@ function PageSection({
 }) {
   const inner = (
     <div className={`mx-auto ${narrow ? "max-w-3xl" : "max-w-6xl"} px-4 sm:px-6 py-14 sm:py-16`}>
-      {eyebrow && <p className="text-xs font-mono font-medium text-brand uppercase tracking-wider mb-1.5">[ {eyebrow} ]</p>}
+      {eyebrow && <p className="mb-1.5 text-sm font-semibold text-brand-dark">{eyebrow}</p>}
       <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-8">{title}</h2>
       {children}
     </div>
@@ -405,7 +405,7 @@ export default async function HireMePage() {
           )}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter leading-[1.05] text-balance">
             {h.hero.titlePrefix}{" "}
-            <span className="bg-gradient-to-r from-accent-red via-sunset to-gold bg-clip-text text-transparent">{h.hero.titleHighlight}</span>
+            <span className="text-brand">{h.hero.titleHighlight}</span>
           </h1>
           {h.hero.intro && <p className="mt-6 max-w-xl mx-auto text-foreground-muted text-base sm:text-lg leading-relaxed">{h.hero.intro}</p>}
           <div className="mt-9">
@@ -433,7 +433,7 @@ export default async function HireMePage() {
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute inset-0 bg-grid-dark" aria-hidden="true" />
         <div className="relative mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-20 text-center">
-          {h.cta.eyebrow && <p className="text-xs font-mono font-medium text-gold uppercase tracking-wider mb-3">[ {h.cta.eyebrow} ]</p>}
+          {h.cta.eyebrow && <p className="mb-3 text-sm font-semibold text-gold">{h.cta.eyebrow}</p>}
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">{h.cta.title}</h2>
           {h.cta.body && <p className="text-ink-foreground-muted max-w-xl mx-auto mb-8 leading-relaxed">{h.cta.body}</p>}
           <ContactButtons links={contacts} variant="dark" />

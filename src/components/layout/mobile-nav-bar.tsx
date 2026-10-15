@@ -39,7 +39,7 @@ export function MobileNavBar({ children }: { children: React.ReactNode }) {
     <nav
       aria-hidden={hidden || undefined}
       inert={hidden}
-      className={`md:hidden mt-2 mx-auto max-w-4xl flex flex-wrap items-center justify-around gap-0.5 rounded-[21px] border border-border bg-background/80 backdrop-blur-md px-1.5 py-1.5 text-sm font-medium text-foreground-muted transition-[translate,opacity] duration-200 ease-out motion-reduce:transition-none ${
+      className={`md:hidden mt-2 flex flex-wrap gap-1 transition-[translate,opacity] duration-200 ease-out motion-reduce:transition-none ${
         hidden ? "pointer-events-none -translate-y-3 opacity-0" : "pointer-events-auto"
       }`}
     >

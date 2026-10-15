@@ -15,7 +15,7 @@ export default async function CategoriesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-8">Categories</h1>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-8">Categories</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((cat) => (
           <Link key={cat.id} href={`/categories/${cat.slug}`} className="rounded-md border border-border p-4 hover:border-brand transition-colors">

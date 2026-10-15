@@ -93,7 +93,9 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
     case "heading": {
       const level = Math.min(4, Math.max(2, Number(node.attrs?.level) || 2));
       const Tag = (`h${level}` as unknown) as "h2" | "h3" | "h4";
-      return <Tag>{children}</Tag>;
+      // Anchor ids are attached server-side (lib/editor/headings) for the table of contents.
+      const id = typeof node.attrs?.id === "string" ? node.attrs.id : undefined;
+      return <Tag id={id}>{children}</Tag>;
     }
     case "bulletList":
       return <ul>{children}</ul>;
@@ -153,7 +155,7 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
             width={known ? width : 0}
             height={known ? height : 0}
             sizes={known ? `(max-width: 768px) 100vw, ${Math.min(width, 700)}px` : "(max-width: 768px) 100vw, 700px"}
-            className="block h-auto w-full rounded-md border border-border"
+            className="block h-auto w-full rounded-[14px] border border-border"
           />
           {!isSmall && (
             <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">

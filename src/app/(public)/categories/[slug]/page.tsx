@@ -30,14 +30,14 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-      <p className="text-sm font-semibold text-brand uppercase tracking-wide mb-2">Category</p>
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{category.name}</h1>
+      <p className="mb-3 inline-flex rounded-full bg-brand-tint px-3 py-1 text-sm font-semibold text-brand-dark">Kategori</p>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold">{category.name}</h1>
       {category.description && <p className="text-foreground-muted mt-3 max-w-2xl">{category.description}</p>}
 
       {items.length === 0 ? (
         <p className="text-foreground-muted text-sm mt-10">No articles in this category yet.</p>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-10">
+        <div className="grid grid-cols-1 gap-4 sm:gap-[18px] md:grid-cols-2 lg:grid-cols-3 mt-10">
           {items.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
