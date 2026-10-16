@@ -191,14 +191,14 @@ export function IflowPlayer({ articleHref, articleTitle }: { articleHref?: strin
         <Slot title="Property" note="tinggal di iFlow" value={current.property} />
       </div>
 
-      <div className="mt-3 flex items-center gap-3 px-1 text-sm text-ink-foreground-muted [&_b]:font-semibold [&_b]:text-ink-foreground">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-sm text-ink-foreground-muted [&_b]:font-semibold [&_b]:text-ink-foreground">
         <span className="shrink-0 font-mono text-xs font-semibold text-kunyit">
           {step + 1}/{STEPS.length}
         </span>
         <span aria-live="polite" className="min-w-0">
           {current.text}
         </span>
-        <span className="ml-auto flex shrink-0 gap-1">
+        <span className="ml-auto flex shrink-0">
           {STEPS.map((_, i) => (
             <button
               key={i}
@@ -206,8 +206,10 @@ export function IflowPlayer({ articleHref, articleTitle }: { articleHref?: strin
               aria-label={`Langkah ${i + 1}`}
               aria-current={i === step ? "step" : undefined}
               onClick={() => setChosen({ step: i, playing: false })}
-              className={`h-1.5 rounded-full transition-all ${i === step ? "w-4 bg-kunyit" : "w-1.5 bg-ink-border"}`}
-            />
+              className="grid h-6 min-w-6 place-items-center"
+            >
+              <span className={`block h-1.5 rounded-full transition-all ${i === step ? "w-4 bg-kunyit" : "w-1.5 bg-ink-border"}`} />
+            </button>
           ))}
         </span>
       </div>

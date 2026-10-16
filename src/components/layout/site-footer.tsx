@@ -71,8 +71,7 @@ export async function SiteFooter() {
           aria-hidden="true"
           className="-mb-[0.14em] select-none whitespace-nowrap text-[clamp(3.5rem,15vw,12rem)] leading-[0.8] font-extrabold tracking-[-0.055em] text-ink-elevated [font-variation-settings:'wdth'_80]"
         >
-          {signOff}
-          <span className="text-kunyit">.</span>
+          <span className="before:content-[attr(data-word)] after:text-kunyit after:content-['.']" data-word={signOff} />
         </p>
 
         <div className="flex flex-wrap justify-between gap-3 border-t border-ink-border pt-5 text-[0.8125rem]">

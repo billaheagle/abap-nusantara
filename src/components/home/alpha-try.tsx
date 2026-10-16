@@ -59,11 +59,11 @@ export function AlphaTry() {
       <output aria-live="polite" className="rounded-xl bg-ink-elevated px-3.5 py-3 font-mono text-[1.375rem] font-semibold tracking-wide text-kunyit [overflow-wrap:anywhere]">
         {v ? (
           <>
-            <span className="text-[#5f669e]">{pad}</span>
+            <span className="text-[#8a91c9]">{pad}</span>
             {shown}
           </>
         ) : (
-          <span className="text-[#5f669e]">Ketik nomor</span>
+          <span className="text-[#8a91c9]">Ketik nomor</span>
         )}
       </output>
       <Link href="/tools/alpha-converter" className="text-sm font-semibold text-ink-foreground underline decoration-kunyit underline-offset-[3px]">
