@@ -7,6 +7,8 @@ import { CodeBlock } from "./code-block";
 import { ScrollTable } from "./scroll-table";
 import { ImageLightbox } from "./image-lightbox";
 import type { HighlightedCode } from "@/lib/editor/highlight";
+import { FlowPlayer } from "@/components/flows/flow-player";
+import { FLOW_LANGUAGE, parseFlow } from "@/lib/flows/schema";
 
 /**
  * Renders Tiptap's JSON document tree directly to React elements.
@@ -172,35 +174,58 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
   }
 }
 
+const isFlowBlock = (node: TiptapNode) => node.type === "codeBlock" && node.attrs?.language === FLOW_LANGUAGE;
+
+const FLOW_CAPTION = "Ikuti satu pesan melewati iFlow di artikel ini. Klik titik langkah untuk berhenti di satu tahap.";
+
+/** A ```flow block: the animated message flow, or a notice if its JSON is broken (the importer normally catches that). */
+function FlowBlock({ node }: { node: TiptapNode }) {
+  const parsed = parseFlow(node.content?.map((c) => c.text ?? "").join("") ?? "");
+  if (!parsed.ok) {
+    return (
+      <p className="rounded-xl border border-dashed border-border-strong px-4 py-3 text-sm text-foreground-muted">
+        Ilustrasi alur tidak bisa ditampilkan ({parsed.error}).
+      </p>
+    );
+  }
+  return <FlowPlayer spec={parsed.spec} caption={FLOW_CAPTION} />;
+}
+
 /**
- * `insert` places a block (an animated flow, say) just before the heading
- * whose anchor id is `beforeId`, or at the top if that heading isn't there.
- * The article is split around it so the block keeps its own styling instead
- * of inheriting the prose rules.
+ * Top-level ```flow blocks become animated message flows. The article is
+ * split around each one so the animation keeps its own styling instead of
+ * inheriting the prose rules.
  */
-export function ArticleRenderer({ content, insert }: { content: unknown; insert?: { beforeId: string; node: React.ReactNode } }) {
+export function ArticleRenderer({ content }: { content: unknown }) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const doc = content as TiptapNode;
   const closeLightbox = useCallback(() => setLightbox(null), []);
   const onImageClick = (src: string, alt: string) => setLightbox({ src, alt });
 
-  const blocks = doc?.content ?? [];
-  const found = insert ? blocks.findIndex((b) => b.type === "heading" && b.attrs?.id === insert.beforeId) : -1;
-  const at = insert ? Math.max(0, found) : blocks.length;
-  const part = (nodes: TiptapNode[], offset: number) =>
-    nodes.length > 0 && (
-      <div className="prose-article">
-        {nodes.map((child, i) => (
-          <RenderNode key={offset + i} node={child} index={offset + i} onImageClick={onImageClick} />
-        ))}
-      </div>
-    );
+  // Runs of prose between flow blocks, each with the index of its first block.
+  const sections: ({ kind: "prose"; start: number; nodes: TiptapNode[] } | { kind: "flow"; start: number; node: TiptapNode })[] = [];
+  (doc?.content ?? []).forEach((block, i) => {
+    const last = sections[sections.length - 1];
+    if (isFlowBlock(block)) sections.push({ kind: "flow", start: i, node: block });
+    else if (last?.kind === "prose") last.nodes.push(block);
+    else sections.push({ kind: "prose", start: i, nodes: [block] });
+  });
 
   return (
     <>
-      {part(blocks.slice(0, at), 0)}
-      {insert && <div className="my-10">{insert.node}</div>}
-      {part(blocks.slice(at), at)}
+      {sections.map((s) =>
+        s.kind === "flow" ? (
+          <div key={s.start} className="my-10">
+            <FlowBlock node={s.node} />
+          </div>
+        ) : (
+          <div key={s.start} className="prose-article">
+            {s.nodes.map((child, i) => (
+              <RenderNode key={s.start + i} node={child} index={s.start + i} onImageClick={onImageClick} />
+            ))}
+          </div>
+        ),
+      )}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />}
     </>

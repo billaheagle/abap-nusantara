@@ -65,14 +65,19 @@ export async function getPublishedArticles(filters: ArticleListFilters = {}) {
   return { items, total, page, pageSize: PAGE_SIZE, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
 }
 
-export async function getArticleBySlug(slug: string) {
+/**
+ * A published article by slug. With `preview` (an admin in draft mode) drafts
+ * are found too, and the series list includes unpublished parts.
+ */
+export async function getArticleBySlug(slug: string, { preview = false }: { preview?: boolean } = {}) {
+  const visible: Prisma.ArticleWhereInput = preview ? { status: { not: ArticleStatus.ARCHIVED } } : { status: ArticleStatus.PUBLISHED };
   return prisma.article.findFirst({
-    where: { slug, status: ArticleStatus.PUBLISHED },
+    where: { slug, ...visible },
     include: {
       series: {
         include: {
           articles: {
-            where: { status: ArticleStatus.PUBLISHED },
+            where: visible,
             select: { id: true, title: true, slug: true, seriesOrder: true },
             orderBy: { seriesOrder: "asc" },
           },

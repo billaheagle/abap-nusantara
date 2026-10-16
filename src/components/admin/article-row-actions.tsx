@@ -30,10 +30,15 @@ export function ArticleRowActions({ articleId, status, slug }: { articleId: stri
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 md:justify-end">
-      {status === "PUBLISHED" && (
+      {status === "PUBLISHED" ? (
         <Link href={`/articles/${slug}`} target="_blank" className="admin-btn" title="View on site">
           <Eye /> View
         </Link>
+      ) : (
+        // A plain link: draft mode is switched on by visiting the route, so it must not be prefetched.
+        <a href={`/api/admin/preview?slug=${slug}`} target="_blank" className="admin-btn" title="Preview the draft as it will look published">
+          <Eye /> Preview
+        </a>
       )}
       <Link href={`/admin/articles/${articleId}`} className="admin-btn admin-btn-brand">
         <Pencil /> Edit

@@ -28,7 +28,7 @@ export default async function EditArticlePage({ params }: PageProps) {
           </Link>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">Edit article</h1>
         </div>
-        {article.status === "PUBLISHED" && (
+        {article.status === "PUBLISHED" ? (
           <Link
             href={`/articles/${article.slug}`}
             target="_blank"
@@ -36,6 +36,14 @@ export default async function EditArticlePage({ params }: PageProps) {
           >
             View live ↗
           </Link>
+        ) : (
+          <a
+            href={`/api/admin/preview?slug=${article.slug}`}
+            target="_blank"
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:border-brand hover:text-brand"
+          >
+            Preview draft ↗
+          </a>
         )}
       </div>
       <div className="flex-1">

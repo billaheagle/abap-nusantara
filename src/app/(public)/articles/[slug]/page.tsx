@@ -6,14 +6,14 @@ import { id as localeId } from "date-fns/locale";
 import { ArrowLeft, ArrowRight, ListTree } from "lucide-react";
 import { GithubIcon } from "@/components/ui/github-icon";
 import { getArticleBySlug, getRelatedArticles } from "@/features/articles/queries";
+import { isAdminPreview } from "@/lib/auth/preview";
+import { PreviewBanner } from "@/components/article/preview-banner";
 import { ArticleRenderer } from "@/components/article/article-renderer";
 import { highlightCodeBlocks } from "@/lib/editor/highlight";
 import { addImageDimensions } from "@/lib/editor/image-dimensions";
 import { addHeadingIds } from "@/lib/editor/headings";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
-import { FlowPlayer } from "@/components/flows/flow-player";
-import { FLOWS } from "@/lib/flows/specs";
 import { LikeButton } from "@/components/article/like-button";
 import { ViewTracker } from "@/components/article/view-tracker";
 import { ArticleCard } from "@/components/ui/article-card";
@@ -33,8 +33,10 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const preview = await isAdminPreview();
+  const article = await getArticleBySlug(slug, { preview });
   if (!article) return {};
+  if (preview) return { title: `Pratinjau: ${article.title}`, robots: { index: false, follow: false } };
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const url = `${siteUrl}/articles/${article.slug}`;
@@ -63,7 +65,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const preview = await isAdminPreview();
+  const article = await getArticleBySlug(slug, { preview });
   if (!article) notFound();
 
   const csrfToken = issueCsrfToken();
@@ -177,7 +180,7 @@ export default async function ArticlePage({ params }: PageProps) {
     <article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-      <ViewTracker articleId={article.id} />
+      {preview ? <PreviewBanner slug={article.slug} published={article.status === "PUBLISHED"} /> : <ViewTracker articleId={article.id} />}
       <ReadingProgressBar />
 
       <header className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-10">
@@ -275,17 +278,7 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
 
           <div id="article-body">
-            <ArticleRenderer
-              content={content}
-              insert={
-                FLOWS[article.slug]
-                  ? {
-                      beforeId: FLOWS[article.slug].before,
-                      node: <FlowPlayer slug={article.slug} caption="Ikuti satu pesan melewati iFlow di artikel ini. Klik titik langkah untuk berhenti di satu tahap." />,
-                    }
-                  : undefined
-              }
-            />
+            <ArticleRenderer content={content} />
           </div>
 
           {article.tags.length > 0 && (

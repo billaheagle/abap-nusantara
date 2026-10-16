@@ -28,6 +28,10 @@
  * Category, tags and series must already exist (see prisma/seed.ts);
  * unknown values are reported as errors rather than created on the fly.
  *
+ * Flows: a ```flow fenced block holds the JSON for an animated message flow
+ * (src/lib/flows/schema.ts). It must sit at the top level of the article;
+ * a block that does not parse or validate stops the import for that file.
+ *
  * Series covers: every <content>/assets/series/<series-slug>.png is copied to
  * public/series/<series-slug>.png and set as that series' coverImage (made by
  * tools/cover/generate-covers.mjs --series in the content repo).
@@ -46,6 +50,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import readingTime from "reading-time";
 import { articleInputSchema } from "../src/lib/validation/schemas";
 import { extractPlainTextFromTiptap } from "../src/lib/editor/serialize";
+import { FLOW_LANGUAGE, parseFlow } from "../src/lib/flows/schema";
 import { markdownToTiptap, type TiptapNode } from "./lib/markdown-to-tiptap";
 
 const PUBLISHED_DIR = "03-published";
@@ -156,6 +161,22 @@ function parseFrontmatter(fields: Record<string, string>, file: string): Frontma
   };
 }
 
+/** Every ```flow block must be top-level and valid; the error says which block and what is wrong. */
+function checkFlowBlocks(doc: TiptapNode, file: string) {
+  const isFlow = (n: TiptapNode) => n.type === "codeBlock" && n.attrs?.language === FLOW_LANGUAGE;
+  const nested = (n: TiptapNode): boolean => (n.content ?? []).some((c) => isFlow(c) || nested(c));
+  let count = 0;
+  for (const block of doc.content ?? []) {
+    if (isFlow(block)) {
+      count++;
+      const result = parseFlow(block.content?.map((c) => c.text ?? "").join("") ?? "");
+      if (!result.ok) throw new Error(`${file}: flow block ${count} — ${result.error}`);
+    } else if (nested(block)) {
+      throw new Error(`${file}: a flow block must not be inside a list, quote or table`);
+    }
+  }
+}
+
 async function parseArticle(file: string, siteRoot: string): Promise<ParsedArticle> {
   const { fields, body } = splitFrontmatter(await readFile(file, "utf8"), file);
   const meta = parseFrontmatter(fields, file);
@@ -187,6 +208,8 @@ async function parseArticle(file: string, siteRoot: string): Promise<ParsedArtic
   } catch (e) {
     throw new Error(`${file}: converted content does not fit the editor schema — ${(e as Error).message}`);
   }
+
+  checkFlowBlocks(contentJson, file);
 
   let coverImage: string | undefined;
   if (meta.cover) {

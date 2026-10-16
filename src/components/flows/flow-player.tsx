@@ -15,12 +15,13 @@ import {
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
-import { FLOWS, type FlowIcon } from "@/lib/flows/specs";
+import type { FlowIcon, FlowSpec } from "@/lib/flows/schema";
 
 /**
  * One message walking through an iFlow, step by step: the envelope moves to
  * the active step and the three panels below show what the message carries
- * there. Specs live in lib/flows/specs.ts, keyed by article slug.
+ * there. Articles supply the spec from their ```flow block (lib/flows/schema.ts);
+ * the home hero uses lib/flows/home-flow.ts.
  */
 
 const ICONS: Record<FlowIcon, LucideIcon> = {
@@ -83,9 +84,8 @@ function Slot({ title, note, value }: { title: string; note: string; value: stri
   );
 }
 
-export function FlowPlayer({ slug, caption }: { slug: string; caption?: React.ReactNode }) {
-  const spec = FLOWS[slug];
-  const steps = spec?.steps ?? [];
+export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.ReactNode }) {
+  const steps = spec.steps;
 
   const reduced = useSyncExternalStore(
     subscribeReduced,
@@ -106,8 +106,6 @@ export function FlowPlayer({ slug, caption }: { slug: string; caption?: React.Re
     const t = setTimeout(() => setAutoStep((s) => (s + 1) % steps.length), autoStep === steps.length - 1 ? 3400 : 2600);
     return () => clearTimeout(t);
   }, [playing, autoStep, steps.length]);
-
-  if (!spec) return null;
 
   const togglePlay = () => {
     if (playing) setChosen({ step, playing: false });

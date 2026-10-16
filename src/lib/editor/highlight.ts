@@ -1,5 +1,6 @@
 import { bundledLanguages, bundledLanguagesAlias, codeToTokens } from "shiki";
 import { CODE_THEME } from "./highlight-theme";
+import { FLOW_LANGUAGE } from "@/lib/flows/schema";
 
 /**
  * Server-side syntax highlighting for article code blocks.
@@ -51,6 +52,8 @@ async function highlight(code: string, lang: unknown): Promise<HighlightedCode> 
 /** Returns a copy of the Tiptap doc with `attrs.highlighted` on every codeBlock. */
 export async function highlightCodeBlocks(doc: unknown): Promise<unknown> {
   async function walk(node: Node): Promise<Node> {
+    // ```flow blocks are drawn as animations, not shown as code.
+    if (node.type === "codeBlock" && node.attrs?.language === FLOW_LANGUAGE) return node;
     if (node.type === "codeBlock") {
       const code = node.content?.map((c) => c.text ?? "").join("") ?? "";
       try {

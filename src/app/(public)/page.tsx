@@ -5,6 +5,7 @@ import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 import { FlowPlayer } from "@/components/flows/flow-player";
+import { HOME_FLOW } from "@/lib/flows/home-flow";
 import { AlphaTry } from "@/components/home/alpha-try";
 import { ToolIcon } from "@/components/tools/tool-icon";
 import { prisma } from "@/lib/db/prisma";
@@ -125,7 +126,7 @@ export default async function HomePage() {
           </div>
 
           <FlowPlayer
-            slug={IFLOW_ARTICLE_SLUG}
+            spec={HOME_FLOW}
             caption={
               iflowArticle && (
                 <>
