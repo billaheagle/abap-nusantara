@@ -12,6 +12,8 @@ import { addImageDimensions } from "@/lib/editor/image-dimensions";
 import { addHeadingIds } from "@/lib/editor/headings";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { FlowPlayer } from "@/components/flows/flow-player";
+import { FLOWS } from "@/lib/flows/specs";
 import { LikeButton } from "@/components/article/like-button";
 import { ViewTracker } from "@/components/article/view-tracker";
 import { ArticleCard } from "@/components/ui/article-card";
@@ -131,26 +133,38 @@ export default async function ArticlePage({ params }: PageProps) {
         <Link href={`/series/${article.series.slug}`} className="block px-1 text-sm font-bold leading-snug hover:text-brand-dark">
           {article.series.title}
         </Link>
-        <ol className="mt-2.5 grid gap-0.5">
+        {/* A timeline: read parts in indigo, the current one in turmeric, the rest outlined. */}
+        <ol className="mt-3 grid">
           {seriesArticles.map((a, i) => {
             const state = a.id === article.id ? "cur" : i < currentIndexInSeries ? "done" : "todo";
+            const isNext = i === currentIndexInSeries + 1;
             return (
-              <li key={a.id}>
+              <li
+                key={a.id}
+                className="relative pb-2.5 last:pb-0 before:absolute before:left-[10.5px] before:top-6 before:bottom-0 before:w-px before:bg-border last:before:hidden"
+              >
                 <Link
                   href={`/articles/${a.slug}`}
                   aria-current={state === "cur" ? "page" : undefined}
-                  className={`grid grid-cols-[22px_minmax(0,1fr)] gap-1.5 rounded-lg px-1 py-[5px] text-[0.8125rem] leading-snug transition-colors hover:text-foreground ${
-                    state === "cur" ? "bg-surface font-semibold text-foreground" : "text-foreground-muted"
+                  className={`group/part grid grid-cols-[22px_minmax(0,1fr)] gap-2.5 text-[0.8125rem] leading-snug ${
+                    state === "cur" ? "font-semibold text-foreground" : "text-foreground-muted"
                   }`}
                 >
                   <span
-                    className={`grid h-5 w-5 place-items-center rounded-full text-[0.6875rem] font-bold tabular-nums ${
-                      state === "cur" ? "bg-kunyit text-[#241800]" : state === "done" ? "bg-brand-tint text-brand-dark" : "bg-surface"
+                    className={`relative z-[1] grid h-[22px] w-[22px] place-items-center rounded-full text-[0.6875rem] font-bold tabular-nums ${
+                      state === "cur"
+                        ? "bg-kunyit text-[#241800] shadow-[0_0_0_4px_rgb(242_182_50/0.2)]"
+                        : state === "done"
+                          ? "bg-brand text-white"
+                          : "border border-border-strong bg-surface-elevated"
                     }`}
                   >
                     {a.seriesOrder ?? i + 1}
                   </span>
-                  {a.title}
+                  <span className="pt-0.5">
+                    <span className={state === "cur" ? "" : "transition-colors group-hover/part:text-brand-dark"}>{a.title}</span>
+                    {isNext && <span className="mt-0.5 block text-xs font-semibold text-brand-dark">Berikutnya →</span>}
+                  </span>
                 </Link>
               </li>
             );
@@ -261,7 +275,17 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
 
           <div id="article-body">
-            <ArticleRenderer content={content} />
+            <ArticleRenderer
+              content={content}
+              insert={
+                FLOWS[article.slug]
+                  ? {
+                      beforeId: FLOWS[article.slug].before,
+                      node: <FlowPlayer slug={article.slug} caption="Ikuti satu pesan melewati iFlow di artikel ini. Klik titik langkah untuk berhenti di satu tahap." />,
+                    }
+                  : undefined
+              }
+            />
           </div>
 
           {article.tags.length > 0 && (

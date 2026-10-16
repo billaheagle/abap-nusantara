@@ -504,6 +504,8 @@ input.tool-input.tool-mono {
   font-size: var(--read-size);
   line-height: 1.78;
   transition: font-size 0.2s;
+  /* Long URLs break only when they don't fit, instead of widening the page on phones. */
+  overflow-wrap: break-word;
 }
 @media (max-width: 640px) {
   .prose-article { font-size: calc(var(--read-size) - 0.0625rem); line-height: 1.72; }
@@ -513,7 +515,6 @@ input.tool-input.tool-mono {
 .prose-article h4 {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-variation-settings: "wdth" 98;
-  scroll-margin-top: 6rem;
 }
 .prose-article h2 {
   font-size: 1.5em;
@@ -576,6 +577,8 @@ input.tool-input.tool-mono {
   padding: 0.1rem 0.4rem;
   font-family: var(--font-mono);
   font-size: 0.8em;
+  /* Hashes and tokens have no natural break points; let them wrap rather than widen the page. */
+  overflow-wrap: anywhere;
 }
 .prose-article pre {
   background: var(--code-bg);

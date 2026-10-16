@@ -4,7 +4,7 @@ import { getPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
-import { IflowPlayer } from "@/components/home/iflow-player";
+import { FlowPlayer } from "@/components/flows/flow-player";
 import { AlphaTry } from "@/components/home/alpha-try";
 import { ToolIcon } from "@/components/tools/tool-icon";
 import { prisma } from "@/lib/db/prisma";
@@ -124,7 +124,20 @@ export default async function HomePage() {
             </dl>
           </div>
 
-          <IflowPlayer articleHref={iflowArticle ? `/articles/${iflowArticle.slug}` : undefined} articleTitle={iflowArticle?.title} />
+          <FlowPlayer
+            slug={IFLOW_ARTICLE_SLUG}
+            caption={
+              iflowArticle && (
+                <>
+                  Satu pesan melewati iFlow dari{" "}
+                  <Link href={`/articles/${iflowArticle.slug}`} className="font-semibold text-ink-foreground underline decoration-kunyit underline-offset-[3px]">
+                    {iflowArticle.title}
+                  </Link>
+                  .
+                </>
+              )
+            }
+          />
         </div>
       </section>
 

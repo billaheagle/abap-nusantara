@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { TocHeading } from "@/lib/editor/headings";
 
 /** The element whose scroll position counts as reading progress. */
@@ -58,21 +58,41 @@ export function ReadingProgressBar() {
   );
 }
 
+/**
+ * A heading counts as reached once its top passes this line. Anchor jumps
+ * stop headings at html { scroll-padding-top: 6rem } (96px), so the line sits
+ * a little below that.
+ */
+const SPY_LINE = 120;
+
 /** Table of contents that highlights the section being read. */
 export function ArticleToc({ headings }: { headings: TocHeading[] }) {
   const [active, setActive] = useState(headings[0]?.id);
+  // While a clicked link is scrolling into place, keep its highlight steady.
+  const lockUntil = useRef(0);
 
   useEffect(() => {
     const els = headings.map((h) => document.getElementById(h.id)).filter((el): el is HTMLElement => !!el);
     if (els.length === 0) return;
     const onScroll = () => {
+      if (Date.now() < lockUntil.current) return;
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       let current = els[0].id;
-      for (const el of els) if (el.getBoundingClientRect().top < 140) current = el.id;
+      for (const el of els) if (el.getBoundingClientRect().top <= SPY_LINE) current = el.id;
+      // A short last section may never reach the line; the end of the page means it's being read.
+      if (atBottom && els[els.length - 1].getBoundingClientRect().top < window.innerHeight) current = els[els.length - 1].id;
       setActive(current);
+    };
+    const onScrollEnd = () => {
+      lockUntil.current = 0;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scrollend", onScrollEnd);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", onScrollEnd);
+    };
   }, [headings]);
 
   return (
@@ -81,6 +101,11 @@ export function ArticleToc({ headings }: { headings: TocHeading[] }) {
         <li key={h.id}>
           <a
             href={`#${h.id}`}
+            onClick={() => {
+              setActive(h.id);
+              // Released early by scrollend where supported.
+              lockUntil.current = Date.now() + 1200;
+            }}
             aria-current={active === h.id ? "location" : undefined}
             className={`block rounded-[10px] py-[7px] pr-3 text-sm leading-snug text-foreground-muted transition-colors hover:bg-surface hover:text-foreground aria-[current=location]:bg-surface-elevated aria-[current=location]:font-semibold aria-[current=location]:text-foreground aria-[current=location]:shadow-[var(--shadow-1)] ${
               h.level === 3 ? "pl-6" : "pl-3"

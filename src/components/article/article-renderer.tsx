@@ -172,16 +172,37 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
   }
 }
 
-export function ArticleRenderer({ content }: { content: unknown }) {
+/**
+ * `insert` places a block (an animated flow, say) just before the heading
+ * whose anchor id is `beforeId`, or at the top if that heading isn't there.
+ * The article is split around it so the block keeps its own styling instead
+ * of inheriting the prose rules.
+ */
+export function ArticleRenderer({ content, insert }: { content: unknown; insert?: { beforeId: string; node: React.ReactNode } }) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
   const doc = content as TiptapNode;
   const closeLightbox = useCallback(() => setLightbox(null), []);
+  const onImageClick = (src: string, alt: string) => setLightbox({ src, alt });
+
+  const blocks = doc?.content ?? [];
+  const found = insert ? blocks.findIndex((b) => b.type === "heading" && b.attrs?.id === insert.beforeId) : -1;
+  const at = insert ? Math.max(0, found) : blocks.length;
+  const part = (nodes: TiptapNode[], offset: number) =>
+    nodes.length > 0 && (
+      <div className="prose-article">
+        {nodes.map((child, i) => (
+          <RenderNode key={offset + i} node={child} index={offset + i} onImageClick={onImageClick} />
+        ))}
+      </div>
+    );
 
   return (
-    <div className="prose-article">
-      <RenderNode node={doc} index={0} onImageClick={(src, alt) => setLightbox({ src, alt })} />
+    <>
+      {part(blocks.slice(0, at), 0)}
+      {insert && <div className="my-10">{insert.node}</div>}
+      {part(blocks.slice(at), at)}
 
       {lightbox && <ImageLightbox src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />}
-    </div>
+    </>
   );
 }
