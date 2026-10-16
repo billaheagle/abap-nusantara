@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { tagHasPublishedArticles } from "@/features/articles/queries";
 
-export const metadata: Metadata = { title: "Tags" };
+export const metadata: Metadata = { title: "Tag" };
 export const revalidate = 60;
 
 export default async function TagsIndexPage() {
@@ -15,7 +15,7 @@ export default async function TagsIndexPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-8">Tags</h1>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-8">Tag</h1>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
           <Link
@@ -26,7 +26,7 @@ export default async function TagsIndexPage() {
             #{tag.name} <span className="text-xs">({tag._count.articles})</span>
           </Link>
         ))}
-        {tags.length === 0 && <p className="text-sm text-foreground-muted">No tags yet.</p>}
+        {tags.length === 0 && <p className="text-sm text-foreground-muted">Belum ada tag.</p>}
       </div>
     </div>
   );

@@ -69,41 +69,11 @@
 
 /*
   Dark theme: night indigo ground, raised surfaces a step lighter, the same
-  turmeric. Applied by data-theme="dark" on <html> (set before paint by the
-  script in app/layout.tsx); the media query covers visitors without JS.
-  The admin pins data-theme="light" on its own wrapper.
+  turmeric. Light is the default; dark applies only when the reader picks it
+  with the header toggle (data-theme="dark" on <html>, set before paint by the
+  script in app/layout.tsx). The admin pins data-theme="light" on its own
+  wrapper.
 */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-    --background: #0b0e24;
-    --surface: #1b2050;
-    --surface-elevated: #141839;
-    --border: #252a5a;
-    --border-strong: #353b75;
-    --foreground: #eceeff;
-    --foreground-muted: #a0a6cf;
-    --brand: #6b74f2;
-    --brand-dark: #aeb4ff;
-    --brand-tint: #1f2560;
-    --gold-strong: #f5c55a;
-    --gold-tint: #3a2e10;
-    --accent-red: #ff6b70;
-    --accent-red-tint: #3a1620;
-    --ink: #161b46;
-    --ink-elevated: #1f2558;
-    --ink-border: #2e357a;
-    --code-bg: #070a1e;
-    --positive: #4cc38a;
-    --positive-tint: #12301f;
-    --critical: #e0a040;
-    --critical-tint: #33260c;
-    --negative: #ff6b5e;
-    --negative-tint: #3a1512;
-    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.35);
-    --shadow-2: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 34px -10px rgb(0 0 0 / 0.65);
-  }
-}
 [data-theme="dark"] {
   color-scheme: dark;
   --background: #0b0e24;

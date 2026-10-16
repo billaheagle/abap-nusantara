@@ -178,7 +178,7 @@ export function ImageLightbox({ src, alt, onClose }: { src: string; alt: string;
       ref={rootRef}
       role="dialog"
       aria-modal="true"
-      aria-label={alt ? `Image: ${alt}` : "Image preview"}
+      aria-label={alt ? `Gambar: ${alt}` : "Pratinjau gambar"}
       className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm"
     >
       {/* Stage */}
@@ -219,7 +219,7 @@ export function ImageLightbox({ src, alt, onClose }: { src: string; alt: string;
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close image preview"
+        aria-label="Tutup pratinjau gambar"
         className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/90 backdrop-blur transition-colors hover:bg-white/20 hover:text-white"
       >
         <X className="h-5 w-5" />
@@ -247,7 +247,7 @@ export function ImageLightbox({ src, alt, onClose }: { src: string; alt: string;
           <ToolButton label="Reset (0)" onClick={() => setView(RESET)} disabled={!zoomed}>
             <RotateCcw />
           </ToolButton>
-          <ToolButton label={isFullscreen ? "Exit full screen (F)" : "Full screen (F)"} onClick={toggleFullscreen}>
+          <ToolButton label={isFullscreen ? "Keluar layar penuh (F)" : "Layar penuh (F)"} onClick={toggleFullscreen}>
             {isFullscreen ? <Minimize /> : <Maximize />}
           </ToolButton>
         </div>

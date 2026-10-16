@@ -9,13 +9,13 @@ import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 
 export async function toggleLikeAction(articleId: string): Promise<{ liked: boolean; count: number; error?: string }> {
   const parsed = likeSchema.safeParse({ articleId });
-  if (!parsed.success) return { liked: false, count: 0, error: "Invalid article" };
+  if (!parsed.success) return { liked: false, count: 0, error: "Artikel tidak valid" };
 
   const requestHeaders = await headers();
   const ip = getClientIp(requestHeaders);
   // Secondary abuse signal on top of the anon-cookie uniqueness constraint below.
   const { allowed } = rateLimit(`like:${ip}`, 20, 60 * 1000);
-  if (!allowed) return { liked: false, count: 0, error: "Too many requests — please slow down." };
+  if (!allowed) return { liked: false, count: 0, error: "Terlalu banyak permintaan. Tunggu sebentar." };
 
   const anonHash = await getOrCreateAnonHash();
 

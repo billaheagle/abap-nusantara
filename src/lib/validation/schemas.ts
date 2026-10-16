@@ -8,9 +8,9 @@ export const loginSchema = z.object({
 export const commentSchema = z.object({
   articleId: z.string().cuid(),
   parentCommentId: z.string().cuid().nullable().optional(),
-  authorName: z.string().trim().min(1, "Name is required").max(60),
-  authorEmail: z.string().trim().email("Enter a valid email").max(255),
-  body: z.string().trim().min(2, "Comment is too short").max(2000, "Comment is too long (max 2000 characters)"),
+  authorName: z.string().trim().min(1, "Nama wajib diisi").max(60),
+  authorEmail: z.string().trim().email("Masukkan email yang valid").max(255),
+  body: z.string().trim().min(2, "Komentar terlalu pendek").max(2000, "Komentar terlalu panjang (maks. 2000 karakter)"),
   csrfToken: z.string().min(1),
   // Honeypot field — real users never fill this in; bots often do.
   website: z.string().max(0, "").optional(),

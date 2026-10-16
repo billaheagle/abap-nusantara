@@ -52,8 +52,8 @@ export function ArticlesFilterBar({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search articles…"
-            aria-label="Search articles"
+            placeholder="Cari artikel…"
+            aria-label="Cari artikel"
             className="h-[2.375rem] w-full rounded-[var(--radius-sm)] border border-border bg-surface-elevated pl-9 pr-3 text-sm transition-colors hover:border-border-strong focus:border-brand focus:outline-none focus:ring-[3px] focus:ring-brand/15"
           />
         </div>
@@ -61,18 +61,19 @@ export function ArticlesFilterBar({
           type="submit"
           className="h-[2.375rem] rounded-[var(--radius-sm)] bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
         >
-          Search
+          Cari
         </button>
       </form>
 
       <div className="flex flex-wrap items-center gap-2">
         <FilterSelect
-          label="Category"
+          label="Kategori"
           icon={<FolderTree />}
           value={current.category ?? ""}
           onChange={(v) => updateParam("category", v)}
           searchable={categories.length > 8}
-          options={[{ value: "", label: "All categories" }, ...categories.map((c) => ({ value: c.slug, label: c.name }))]}
+          searchPlaceholder="Cari kategori…"
+          options={[{ value: "", label: "Semua kategori" }, ...categories.map((c) => ({ value: c.slug, label: c.name }))]}
         />
         <FilterSelect
           label="Tag"
@@ -80,17 +81,18 @@ export function ArticlesFilterBar({
           value={current.tag ?? ""}
           onChange={(v) => updateParam("tag", v)}
           searchable={tags.length > 8}
-          options={[{ value: "", label: "All tags" }, ...tags.map((t) => ({ value: t.slug, label: `#${t.name}` }))]}
+          searchPlaceholder="Cari tag…"
+          options={[{ value: "", label: "Semua tag" }, ...tags.map((t) => ({ value: t.slug, label: `#${t.name}` }))]}
         />
         <FilterSelect
-          label="Sort"
+          label="Urutan"
           icon={<ArrowDownUp />}
           value={current.sort ?? "newest"}
           defaultValue="newest"
           onChange={(v) => updateParam("sort", v === "newest" ? "" : v)}
           options={[
-            { value: "newest", label: "Newest first" },
-            { value: "oldest", label: "Oldest first" },
+            { value: "newest", label: "Terbaru dulu" },
+            { value: "oldest", label: "Terlama dulu" },
           ]}
         />
         {hasFilters && (
@@ -102,7 +104,7 @@ export function ArticlesFilterBar({
             }}
             className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
           >
-            <X className="h-3.5 w-3.5" /> Clear filters
+            <X className="h-3.5 w-3.5" /> Hapus filter
           </button>
         )}
       </div>

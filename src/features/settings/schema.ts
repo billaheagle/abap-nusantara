@@ -71,9 +71,9 @@ export const GENERAL_DEFAULTS: GeneralSettings = {
   brand: {
     name: "ABAP",
     accent: "Nusantara",
-    seoTitle: "ABAP Nusantara — Learning SAP. Building Things. Sharing the Journey.",
+    seoTitle: "ABAP Nusantara — Belajar SAP. Membangun. Berbagi perjalanannya.",
     seoDescription:
-      "A personal technical blog documenting the journey of learning SAP BTP, ABAP, Integration Suite/CPI, OData, CAP, and Fiori/UI5 — from an Indonesian developer's desk.",
+      "Blog teknis pribadi tentang belajar SAP BTP, ABAP, Integration Suite/CPI, OData, CAP, dan Fiori/UI5, ditulis dari meja developer Indonesia.",
   },
   links: {
     github: "https://github.com",
@@ -82,17 +82,17 @@ export const GENERAL_DEFAULTS: GeneralSettings = {
     whatsapp: "6281317714843",
   },
   hero: {
-    titleLine1: "Learning SAP.",
-    titleLine2: "Building things.",
-    titleHighlight: "Sharing the journey.",
+    titleLine1: "Belajar SAP.",
+    titleLine2: "Membangun.",
+    titleHighlight: "Berbagi perjalanannya.",
     description:
-      "A personal technical blog documenting hands-on work with SAP BTP, ABAP, Integration Suite / CPI, OData, CAP, and Fiori/UI5 — written from an Indonesian developer's desk.",
-    primaryCtaLabel: "Read the articles",
+      "Catatan praktik SAP BTP, ABAP, Integration Suite/CPI, OData, CAP, dan Fiori dari meja developer Indonesia. Ditulis untuk ABAPer yang mau melangkah ke integrasi.",
+    primaryCtaLabel: "Lihat semua artikel",
   },
   home: {
-    featuredTitle: "Start here",
-    latestTitle: "Fresh from the notebook",
-    toolsTitle: "Developer tools",
+    featuredTitle: "Belajar berurutan",
+    latestTitle: "Terbaru",
+    toolsTitle: "Tools untuk kerja harian",
   },
 };
 
@@ -108,12 +108,12 @@ export const aboutSchema = z.object({
 export type AboutSettings = z.infer<typeof aboutSchema>;
 
 export const ABOUT_DEFAULTS: AboutSettings = {
-  title: "About ABAP Nusantara",
-  metaDescription: "About ABAP Nusantara — a personal SAP BTP and ABAP learning journey blog.",
+  title: "Tentang ABAP Nusantara",
+  metaDescription: "Tentang ABAP Nusantara, blog pribadi perjalanan belajar SAP BTP dan ABAP.",
   body: [
-    "ABAP Nusantara is a personal technical blog documenting the journey of learning and working with SAP Business Technology Platform — ABAP, Integration Suite / CPI, OData, CAP, Fiori/UI5, and the wider SAP developer ecosystem.",
-    "The name combines ABAP with “Nusantara,” the traditional term for the Indonesian archipelago — this is SAP development notes written from an Indonesian developer's desk, shared in the hope they help someone else further along (or just starting) the same path.",
-    "Articles here are grouped into series when they form a multi-part tutorial, and tagged and categorized so related topics are easy to find. Over time this site will also grow to include small developer tools — RFC testers, formatters, and CPI helpers — alongside the writing.",
+    "ABAP Nusantara adalah blog teknis pribadi yang mencatat perjalanan belajar dan bekerja dengan SAP Business Technology Platform: ABAP, Integration Suite/CPI, OData, CAP, Fiori/UI5, dan ekosistem developer SAP yang lebih luas.",
+    "Namanya gabungan ABAP dan Nusantara, sebutan untuk kepulauan Indonesia. Isinya catatan pengembangan SAP dari meja developer Indonesia, dibagikan supaya berguna bagi siapa pun yang sedang menempuh (atau baru memulai) jalan yang sama.",
+    "Artikel yang membentuk tutorial berseri dikelompokkan dalam seri, dan semuanya diberi tag dan kategori supaya topik yang berkaitan mudah ditemukan. Di samping tulisan, situs ini juga punya tools kecil untuk kerja harian developer SAP.",
   ].join("\n\n"),
   showGithubButton: true,
 };
@@ -139,11 +139,11 @@ export type HeaderSettings = z.infer<typeof headerSchema>;
 
 export const HEADER_DEFAULTS: HeaderSettings = {
   links: [
-    { label: "Articles", href: "/articles", hidden: false },
-    { label: "Series", href: "/series", hidden: false },
-    { label: "Categories", href: "/categories", hidden: false },
+    { label: "Artikel", href: "/articles", hidden: false },
+    { label: "Seri", href: "/series", hidden: false },
+    { label: "Kategori", href: "/categories", hidden: false },
     { label: "Tools", href: "/tools", hidden: false },
-    { label: "About", href: "/about", hidden: false },
+    { label: "Tentang", href: "/about", hidden: false },
     { label: "Hire Me", href: "/hire-me", hidden: false },
   ],
   showSearch: true,
@@ -162,16 +162,16 @@ export const footerSchema = z.object({
 export type FooterSettings = z.infer<typeof footerSchema>;
 
 export const FOOTER_DEFAULTS: FooterSettings = {
-  tagline: "Learning SAP. Building things. Sharing the journey.",
+  tagline: "Catatan belajar SAP dari meja developer Indonesia.",
   links: [
-    { label: "Articles", href: "/articles" },
-    { label: "Series", href: "/series" },
-    { label: "About", href: "/about" },
+    { label: "Artikel", href: "/articles" },
+    { label: "Seri", href: "/series" },
+    { label: "Tentang", href: "/about" },
     { label: "Hire Me", href: "/hire-me" },
   ],
   showAdminLink: true,
   showSocialIcons: false,
-  copyright: "ABAP Nusantara. Built with Next.js.",
+  copyright: "ABAP Nusantara.",
 };
 
 // ---- Hire me ---------------------------------------------------------------

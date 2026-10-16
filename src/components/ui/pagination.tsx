@@ -13,13 +13,13 @@ export function Pagination({ page, totalPages, basePath, searchParams = {} }: { 
   }
 
   return (
-    <nav className="flex items-center justify-center gap-2 pt-10" aria-label="Pagination">
+    <nav className="flex items-center justify-center gap-2 pt-10" aria-label="Halaman">
       <Link
         href={hrefFor(Math.max(1, page - 1))}
         aria-disabled={page <= 1}
         className={`px-4 py-2 text-sm font-medium rounded-full border border-border ${page <= 1 ? "pointer-events-none opacity-40" : "hover:border-brand hover:text-brand"}`}
       >
-        Previous
+        Sebelumnya
       </Link>
       <span className="text-sm font-mono text-foreground-muted px-3">
         {page} / {totalPages}
@@ -29,7 +29,7 @@ export function Pagination({ page, totalPages, basePath, searchParams = {} }: { 
         aria-disabled={page >= totalPages}
         className={`px-4 py-2 text-sm font-medium rounded-full border border-border ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:border-brand hover:text-brand"}`}
       >
-        Next
+        Berikutnya
       </Link>
     </nav>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import { CommentForm } from "@/components/comments/comment-form";
 
 export interface CommentNode {
@@ -40,14 +41,14 @@ function CommentItem({ comment, articleId, csrfToken, depth }: { comment: Commen
         <div className="rounded-md border border-border bg-surface-elevated px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-sm">{comment.authorName}</span>
-            <span className="text-xs text-foreground-muted">{formatDistanceToNow(comment.createdAt, { addSuffix: true })}</span>
+            <span className="text-xs text-foreground-muted">{formatDistanceToNow(comment.createdAt, { addSuffix: true, locale: localeId })}</span>
           </div>
           <p className="mt-1 text-sm whitespace-pre-wrap break-words">{comment.body}</p>
         </div>
 
         {canNestFurther && (
           <button type="button" onClick={() => setReplying((v) => !v)} className="mt-1 text-xs font-medium text-brand hover:underline">
-            {replying ? "Cancel" : "Reply"}
+            {replying ? "Batal" : "Balas"}
           </button>
         )}
 
@@ -71,7 +72,7 @@ function CommentItem({ comment, articleId, csrfToken, depth }: { comment: Commen
 
 export function CommentThread({ comments, articleId, csrfToken }: { comments: CommentNode[]; articleId: string; csrfToken: string }) {
   if (comments.length === 0) {
-    return <p className="text-sm text-foreground-muted">No comments yet — be the first to share your thoughts.</p>;
+    return <p className="text-sm text-foreground-muted">Belum ada komentar. Jadilah yang pertama berbagi pendapat.</p>;
   }
   return (
     <ul className="space-y-5">

@@ -7,9 +7,9 @@ import { getSetting } from "@/features/settings/queries";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export const metadata: Metadata = {
-  title: "Developer Tools",
+  title: "Tools",
   description:
-    "A growing set of browser-based utilities for SAP development — SAP date conversion, ALPHA exits, OData query building, payload formatting, JWT decoding and more. Nothing you paste leaves your browser.",
+    "Kumpulan alat bantu pengembangan SAP yang jalan di browser: konversi tanggal SAP, conversion exit ALPHA, penyusun query OData, format payload, decode JWT, dan lainnya. Data yang kamu tempel tidak keluar dari browser.",
 };
 
 export default async function ToolsPage() {
@@ -22,17 +22,17 @@ export default async function ToolsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.05]">Developer tools for SAP</h1>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.05]">Tools untuk developer SAP</h1>
       <p className="mt-3 max-w-2xl text-foreground-muted">
-        Small, focused utilities for everyday ABAP, OData and Integration Suite work — built alongside the articles.
+        Alat bantu kecil untuk kerja harian ABAP, OData, dan Integration Suite, dibuat sejalan dengan artikel-artikelnya.
       </p>
       <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-tint px-3 py-1 text-xs font-medium text-brand">
-        <ShieldCheck className="h-3.5 w-3.5" /> Every tool runs entirely in your browser — nothing you paste is uploaded
+        <ShieldCheck className="h-3.5 w-3.5" /> Semua tool berjalan di browser, data yang kamu tempel tidak diunggah
       </p>
 
       <div className="mt-12 space-y-12">
         {byCategory.length === 0 && (
-          <EmptyState icon={FlaskConical} title="Tools are being tuned up" description="Check back soon — the developer tools will be back shortly." />
+          <EmptyState icon={FlaskConical} title="Tools sedang dirapikan" description="Coba lagi sebentar lagi, tools-nya akan segera kembali." />
         )}
         {byCategory.map(({ category, tools }) => (
           <section key={category}>

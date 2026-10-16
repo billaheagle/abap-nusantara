@@ -6,8 +6,8 @@ import { ArticlesFilterBar } from "@/components/article/articles-filter-bar";
 import { prisma } from "@/lib/db/prisma";
 
 export const metadata: Metadata = {
-  title: "Articles",
-  description: "All articles on SAP BTP, ABAP, Integration Suite/CPI, OData, CAP, and Fiori/UI5.",
+  title: "Artikel",
+  description: "Semua artikel tentang SAP BTP, ABAP, Integration Suite/CPI, OData, CAP, dan Fiori/UI5.",
 };
 
 export const revalidate = 60;
@@ -29,13 +29,13 @@ export default async function ArticlesPage({ searchParams }: PageProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-14">
-      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-3">All articles</h1>
-      <p className="text-foreground-muted mb-8">Tutorials and notes from building on SAP BTP.</p>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-3">Semua artikel</h1>
+      <p className="text-foreground-muted mb-8">Tutorial dan catatan dari pekerjaan nyata di SAP BTP.</p>
 
       <ArticlesFilterBar categories={categories} tags={tags} current={{ q: params.q, category: params.category, tag: params.tag, sort }} />
 
       {items.length === 0 ? (
-        <p className="text-foreground-muted text-sm mt-10">No articles match your filters.</p>
+        <p className="text-foreground-muted text-sm mt-10">Tidak ada artikel yang cocok dengan filter ini.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:gap-[18px] md:grid-cols-2 lg:grid-cols-3 mt-8">
           {items.map((article) => (

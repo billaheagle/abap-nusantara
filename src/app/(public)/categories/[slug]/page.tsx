@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const category = await prisma.category.findFirst({ where: { slug, ...hasPublishedArticles } });
   if (!category) return {};
-  return { title: category.name, description: category.description ?? `Articles in ${category.name}.` };
+  return { title: category.name, description: category.description ?? `Artikel di kategori ${category.name}.` };
 }
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
@@ -35,7 +35,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       {category.description && <p className="text-foreground-muted mt-3 max-w-2xl">{category.description}</p>}
 
       {items.length === 0 ? (
-        <p className="text-foreground-muted text-sm mt-10">No articles in this category yet.</p>
+        <p className="text-foreground-muted text-sm mt-10">Belum ada artikel di kategori ini.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:gap-[18px] md:grid-cols-2 lg:grid-cols-3 mt-10">
           {items.map((article) => (

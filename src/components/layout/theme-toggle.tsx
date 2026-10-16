@@ -23,25 +23,22 @@ function subscribe(listener: () => void) {
 }
 
 /**
- * Switches between light and dark. The first choice is saved; until then the
- * site follows the system setting (the inline script in app/layout.tsx sets
- * the starting value before paint).
+ * Switches between light and dark and remembers the choice. The site starts
+ * light; the inline script in app/layout.tsx restores a saved dark choice
+ * before paint.
  */
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const theme = useSyncExternalStore(subscribe, current, () => "light" as Theme);
 
-  // Follow the system setting while the reader hasn't picked one.
+  // React re-renders <html> on the client for some not-found pages, which
+  // drops the attribute the inline script set. Put the saved choice back.
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      let saved: string | null = null;
-      try {
-        saved = localStorage.getItem(KEY);
-      } catch {}
-      if (saved !== "light" && saved !== "dark") set(mq.matches ? "dark" : "light");
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    if (document.documentElement.hasAttribute("data-theme")) return;
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(KEY);
+    } catch {}
+    set(saved === "dark" ? "dark" : "light");
   }, []);
 
   const next: Theme = theme === "dark" ? "light" : "dark";

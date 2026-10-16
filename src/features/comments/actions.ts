@@ -23,25 +23,25 @@ export async function submitCommentAction(_prev: CommentFormState, formData: For
 
   const parsed = commentSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid comment" };
+    return { error: parsed.error.issues[0]?.message ?? "Komentar tidak valid" };
   }
   const data = parsed.data;
 
   const csrfOk = verifyCsrfToken(data.csrfToken);
-  if (!csrfOk) return { error: "Your session expired — please reload the page and try again." };
+  if (!csrfOk) return { error: "Sesi sudah kedaluwarsa. Muat ulang halaman, lalu coba lagi." };
 
   // "ABAP Nusantara", "admin", "moderator", … are reserved for the site owner.
   if (isReservedAuthorName(data.authorName)) {
-    return { error: "That name is reserved — please comment under a different name." };
+    return { error: "Nama itu tidak bisa dipakai. Gunakan nama lain untuk berkomentar." };
   }
 
   const requestHeaders = await headers();
   const ip = getClientIp(requestHeaders);
   const { allowed } = rateLimit(`comment:${ip}`, 5, 10 * 60 * 1000); // 5 comments / 10 min / IP
-  if (!allowed) return { error: "You're commenting too quickly. Please wait a bit and try again." };
+  if (!allowed) return { error: "Komentar terlalu cepat. Tunggu sebentar, lalu coba lagi." };
 
   const article = await prisma.article.findUnique({ where: { id: data.articleId }, select: { id: true, status: true } });
-  if (!article || article.status !== "PUBLISHED") return { error: "This article does not accept comments." };
+  if (!article || article.status !== "PUBLISHED") return { error: "Artikel ini tidak menerima komentar." };
 
   if (data.parentCommentId) {
     let depth = 1;
@@ -51,11 +51,11 @@ export async function submitCommentAction(_prev: CommentFormState, formData: For
         where: { id: currentParentId },
         select: { parentCommentId: true },
       });
-      if (!parent) return { error: "The comment you're replying to no longer exists." };
+      if (!parent) return { error: "Komentar yang kamu balas sudah tidak ada." };
       currentParentId = parent.parentCommentId;
       depth += 1;
     }
-    if (depth > MAX_NESTING_DEPTH) return { error: "This thread is too deep to reply to further." };
+    if (depth > MAX_NESTING_DEPTH) return { error: "Balasan di utas ini sudah terlalu dalam." };
   }
 
   await prisma.comment.create({

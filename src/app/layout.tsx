@@ -10,16 +10,21 @@ const bricolage = Bricolage_Grotesque({
   axes: ["wdth", "opsz"],
 });
 
-// Article body: a serif designed for long reading on screens.
+// Article body: a serif designed for long reading on screens. Only article
+// pages use it, so it isn't preloaded everywhere; the browser fetches it when
+// text set in it appears.
 const literata = Literata({
   variable: "--font-literata",
   subsets: ["latin"],
   axes: ["opsz"],
+  preload: false,
 });
 
+// Code and tool output only — same reasoning as Literata.
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
+  preload: false,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -38,12 +43,14 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       siteName,
-      locale: "en_US",
-      images: [{ url: "/brand/logo-512.png", width: 512, height: 512, alt: siteName }],
+      locale: "id_ID",
+      // Wide share card for every page that has no image of its own (articles
+      // use their cover, series pages their series cover).
+      images: [{ url: "/brand/og-default.png", width: 1200, height: 630, alt: siteName }],
     },
     twitter: {
       card: "summary_large_image",
-      images: ["/brand/logo-512.png"],
+      images: ["/brand/og-default.png"],
     },
     icons: {
       icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/brand/logo.svg", type: "image/svg+xml" }],
@@ -57,20 +64,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f5fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0e24" },
-  ],
+  themeColor: "#f4f5fa",
 };
 
-// Sets data-theme on <html> before first paint: the reader's saved choice,
-// otherwise their system setting. Kept tiny and inline so there's no flash.
-const themeScript = `(function(){try{var t=localStorage.getItem("an-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
+// Sets data-theme on <html> before first paint: dark only when the reader
+// picked it with the header toggle, light otherwise. Kept tiny and inline so
+// there's no flash.
+const themeScript = `(function(){try{document.documentElement.setAttribute("data-theme",localStorage.getItem("an-theme")==="dark"?"dark":"light")}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${bricolage.variable} ${literata.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >

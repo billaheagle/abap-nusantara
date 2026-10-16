@@ -31,7 +31,7 @@ export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: {
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label htmlFor="authorName" className="block text-sm font-medium mb-1">
-            Name
+            Nama
           </label>
           <input
             id="authorName"
@@ -43,7 +43,7 @@ export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: {
         </div>
         <div>
           <label htmlFor="authorEmail" className="block text-sm font-medium mb-1">
-            Email <span className="text-foreground-muted font-normal">(not published)</span>
+            Email <span className="text-foreground-muted font-normal">(tidak ditampilkan)</span>
           </label>
           <input
             id="authorEmail"
@@ -58,7 +58,7 @@ export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: {
 
       <div>
         <label htmlFor="body" className="block text-sm font-medium mb-1">
-          Comment
+          Komentar
         </label>
         <textarea
           id="body"
@@ -71,14 +71,14 @@ export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: {
       </div>
 
       {state.error && <p className="text-sm text-accent-red">{state.error}</p>}
-      {state.success && <p className="text-sm text-brand">Thanks! Your comment is awaiting moderation.</p>}
+      {state.success && <p className="text-sm text-brand">Terima kasih! Komentarmu akan tampil setelah dimoderasi.</p>}
 
       <button
         type="submit"
         disabled={isPending}
         className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark transition-colors disabled:opacity-50"
       >
-        {isPending ? "Submitting…" : parentCommentId ? "Reply" : "Post Comment"}
+        {isPending ? "Mengirim…" : parentCommentId ? "Balas" : "Kirim komentar"}
       </button>
     </form>
   );

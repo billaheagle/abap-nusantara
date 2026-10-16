@@ -15,7 +15,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // /admin/login renders through this same layout with no session — show it
   // bare (its own page centres itself full-screen).
-  if (!session) return <div data-theme="light">{children}</div>;
+  if (!session)
+    return (
+      <div data-theme="light" lang="en">
+        {children}
+      </div>
+    );
 
   const [pendingComments, { brand }] = await Promise.all([
     prisma.comment.count({ where: { status: "PENDING" } }),
@@ -24,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     // The admin stays in the light theme whatever the public site uses.
-    <div data-theme="light" className="flex min-h-screen flex-col bg-background">
+    <div data-theme="light" lang="en" className="flex min-h-screen flex-col bg-background">
       {/* Fiori shell bar */}
       <header className="admin-shell sticky top-0 z-30 flex h-14 items-center justify-between gap-4 px-4">
         <Link href="/admin/dashboard" className="flex min-w-0 items-center gap-2.5 rounded-md">

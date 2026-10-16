@@ -6,7 +6,7 @@ import { paragraphs } from "@/features/settings/schema";
 
 export async function generateMetadata(): Promise<Metadata> {
   const about = await getSetting("about");
-  return { title: "About", description: about.metaDescription || undefined };
+  return { title: "Tentang", description: about.metaDescription || undefined };
 }
 
 export default async function AboutPage() {

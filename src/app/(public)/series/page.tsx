@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { hasPublishedArticles } from "@/features/articles/queries";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 
-export const metadata: Metadata = { title: "Series" };
+export const metadata: Metadata = { title: "Seri" };
 export const revalidate = 60;
 
 export default async function SeriesListPage() {

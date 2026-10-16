@@ -25,6 +25,7 @@ export function FilterSelect({
   icon,
   defaultValue = "",
   searchable = false,
+  searchPlaceholder,
   label,
   align = "left",
 }: {
@@ -34,6 +35,8 @@ export function FilterSelect({
   icon?: ReactNode;
   defaultValue?: string;
   searchable?: boolean;
+  /** Placeholder for the search box; defaults to "Search <label>…". */
+  searchPlaceholder?: string;
   /** Accessible name for the control, e.g. "Status". */
   label: string;
   /** Which edge the panel aligns to — "right" for controls near the right edge. */
@@ -155,7 +158,7 @@ export function FilterSelect({
                   setQuery(e.target.value);
                   setActiveIndex(0);
                 }}
-                placeholder={`Search ${label.toLowerCase()}…`}
+                placeholder={searchPlaceholder ?? `Search ${label.toLowerCase()}…`}
                 aria-controls={listId}
                 aria-activedescendant={visible[activeIndex] ? `${listId}-${activeIndex}` : undefined}
                 className="w-full rounded-md bg-surface py-1.5 pl-7 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"

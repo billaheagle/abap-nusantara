@@ -372,7 +372,8 @@ export default async function HireMePage() {
   }
 
   return (
-    <div>
+    // The rest of the site is Indonesian; this page is written for clients in English.
+    <div lang="en">
       {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
 
       {/* Hero */}

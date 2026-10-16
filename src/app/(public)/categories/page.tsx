@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { hasPublishedArticles } from "@/features/articles/queries";
 
-export const metadata: Metadata = { title: "Categories" };
+export const metadata: Metadata = { title: "Kategori" };
 export const revalidate = 60;
 
 export default async function CategoriesPage() {
@@ -15,12 +15,12 @@ export default async function CategoriesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-8">Categories</h1>
+      <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold mb-8">Kategori</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((cat) => (
           <Link key={cat.id} href={`/categories/${cat.slug}`} className="rounded-md border border-border p-4 hover:border-brand transition-colors">
             <h2 className="font-semibold">{cat.name}</h2>
-            <p className="text-sm text-foreground-muted mt-1">{cat._count.articles} articles</p>
+            <p className="text-sm text-foreground-muted mt-1">{cat._count.articles} artikel</p>
           </Link>
         ))}
       </div>

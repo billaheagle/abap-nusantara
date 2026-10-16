@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const tag = await prisma.tag.findFirst({ where: { slug, ...tagHasPublishedArticles } });
   if (!tag) return {};
-  return { title: `#${tag.name}`, description: `Articles tagged with ${tag.name}.` };
+  return { title: `#${tag.name}`, description: `Artikel dengan tag ${tag.name}.` };
 }
 
 export default async function TagPage({ params, searchParams }: PageProps) {
@@ -34,7 +34,7 @@ export default async function TagPage({ params, searchParams }: PageProps) {
       <h1 className="display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.05] font-bold">#{tag.name}</h1>
 
       {items.length === 0 ? (
-        <p className="text-foreground-muted text-sm mt-10">No articles with this tag yet.</p>
+        <p className="text-foreground-muted text-sm mt-10">Belum ada artikel dengan tag ini.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:gap-[18px] md:grid-cols-2 lg:grid-cols-3 mt-10">
           {items.map((article) => (

@@ -29,7 +29,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const series = await getSeries(slug);
   if (!series) return {};
-  return { title: series.title, description: series.description ?? undefined };
+  const images = series.coverImage ? [{ url: series.coverImage, width: 1600, height: 900, alt: series.title }] : undefined;
+  return {
+    title: series.title,
+    description: series.description ?? undefined,
+    openGraph: { title: series.title, description: series.description ?? undefined, images },
+    twitter: { card: "summary_large_image", title: series.title, images: images?.map((i) => i.url) },
+  };
 }
 
 export default async function SeriesDetailPage({ params }: PageProps) {

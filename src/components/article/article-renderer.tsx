@@ -147,7 +147,7 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
           onClick={() => onImageClick(src, alt)}
           className="group relative mx-auto my-6 block max-w-full cursor-zoom-in"
           style={known ? { width } : { width: "100%" }}
-          aria-label={`View larger image: ${alt || "article image"}`}
+          aria-label={`Perbesar gambar: ${alt || "gambar artikel"}`}
         >
           <Image
             src={src}

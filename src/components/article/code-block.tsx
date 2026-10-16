@@ -63,9 +63,9 @@ export function CodeBlock({ code, language, highlighted }: { code: string; langu
     <div className="code-block" style={highlighted?.bg ? { background: highlighted.bg } : undefined}>
       <div className="code-block-header">
         <span className="code-block-lang">{label}</span>
-        <button type="button" onClick={copy} className="code-block-copy" aria-label={copied ? "Copied" : "Copy code"}>
+        <button type="button" onClick={copy} className="code-block-copy" aria-label={copied ? "Kode tersalin" : "Salin kode"}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          <span>{copied ? "Copied!" : "Copy"}</span>
+          <span>{copied ? "Tersalin" : "Salin"}</span>
         </button>
       </div>
       <pre style={highlighted?.fg ? { color: highlighted.fg } : undefined}>
