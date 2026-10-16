@@ -70,7 +70,7 @@ function readStructured(el: Element): EdmStructured {
 export function parseEdmx(xml: string): EdmModel {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
   const err = doc.querySelector("parsererror");
-  if (err) throw new Error(err.textContent?.replace(/\s+/g, " ").trim() || "Invalid XML");
+  if (err) throw new Error(err.textContent?.replace(/\s+/g, " ").trim() || "XML tidak valid");
 
   const edmx = tag(doc, "Edmx")[0];
   const version = edmx?.getAttribute("Version") ?? doc.documentElement.getAttribute("Version") ?? "unknown";
@@ -108,7 +108,7 @@ export function parseEdmx(xml: string): EdmModel {
   ];
 
   if (entityTypes.length === 0 && complexTypes.length === 0 && entitySets.length === 0) {
-    throw new Error("No EDM types found. Is this a $metadata document?");
+    throw new Error("Tidak ada tipe EDM yang ditemukan. Apakah ini dokumen $metadata?");
   }
 
   return { version, namespaces, entityTypes, complexTypes, entitySets, operations };

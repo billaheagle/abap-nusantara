@@ -22,35 +22,35 @@ export function SapCodesTool() {
           value={tab}
           onChange={setTab}
           options={[
-            { value: "lang", label: "Languages" },
-            { value: "country", label: "Countries" },
-            { value: "currency", label: "Currencies" },
+            { value: "lang", label: "Bahasa" },
+            { value: "country", label: "Negara" },
+            { value: "currency", label: "Mata uang" },
           ]}
         />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…" className="tool-input max-w-xs" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari…" className="tool-input max-w-xs" />
       </div>
 
       {tab === "lang" && (
-        <Panel title="SAP language keys ↔ ISO 639-1">
+        <Panel title="Language key SAP ↔ ISO 639-1">
           <Table
-            head={["SAP key", "ISO", "Language"]}
+            head={["Key SAP", "ISO", "Bahasa"]}
             rows={langs.map((l) => [l.sap, l.iso2, l.name])}
           />
         </Panel>
       )}
       {tab === "country" && (
-        <Panel title="ISO 3166 country codes">
-          <Table head={["α-2", "α-3", "Numeric", "Country"]} rows={countries.map((c) => [c.iso2, c.iso3, c.num, c.name])} />
+        <Panel title="Kode negara ISO 3166">
+          <Table head={["α-2", "α-3", "Numerik", "Negara"]} rows={countries.map((c) => [c.iso2, c.iso3, c.num, c.name])} />
         </Panel>
       )}
       {tab === "currency" && (
-        <Panel title="ISO 4217 currencies">
+        <Panel title="Mata uang ISO 4217">
           <Table
-            head={["Code", "Numeric", "Decimals", "Currency"]}
+            head={["Kode", "Numerik", "Desimal", "Mata uang"]}
             rows={currencies.map((c) => [c.code, c.num, String(c.decimals), c.name])}
           />
           <p className="mt-3 text-xs text-foreground-muted">
-            Currencies where <span className="font-medium text-foreground">decimals ≠ 2</span> need a matching entry in table <code className="tool-code">TCURX</code>, otherwise SAP stores and displays them with the wrong scale.
+            Mata uang dengan <span className="font-medium text-foreground">desimal ≠ 2</span> butuh entri yang sesuai di tabel <code className="tool-code">TCURX</code>; kalau tidak, SAP menyimpan dan menampilkannya dengan skala yang salah.
           </p>
         </Panel>
       )}
@@ -77,7 +77,7 @@ function Table({ head, rows }: { head: string[]; rows: string[][] }) {
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={head.length} className="px-3 py-8 text-center font-sans text-foreground-muted">No match.</td>
+              <td colSpan={head.length} className="px-3 py-8 text-center font-sans text-foreground-muted">Tidak ada yang cocok.</td>
             </tr>
           )}
         </tbody>

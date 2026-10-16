@@ -17,18 +17,18 @@ export function AlphaConverter() {
       <Panel>
         <div className="flex flex-wrap items-end gap-4">
           <div className="w-full sm:w-auto">
-            <span className="mb-1 block text-xs font-medium text-foreground-muted">Direction</span>
+            <span className="mb-1 block text-xs font-medium text-foreground-muted">Arah</span>
             <Segmented<AlphaMode>
               value={mode}
               onChange={setMode}
               options={[
-                { value: "input", label: "ALPHA input (add zeros)" },
-                { value: "output", label: "ALPHA output (strip zeros)" },
-                { value: "numc", label: "NUMC pad" },
+                { value: "input", label: "ALPHA input (tambah nol)" },
+                { value: "output", label: "ALPHA output (buang nol)" },
+                { value: "numc", label: "Isi NUMC" },
               ]}
             />
           </div>
-          <Field label="Field length">
+          <Field label="Panjang field">
             <input
               type="number"
               min={1}
@@ -43,7 +43,7 @@ export function AlphaConverter() {
             value=""
             className="tool-input w-auto"
           >
-            <option value="">Common fields…</option>
+            <option value="">Field umum…</option>
             {COMMON_FIELDS.map((f) => (
               <option key={f.label} value={f.length}>{f.label}</option>
             ))}
@@ -51,15 +51,15 @@ export function AlphaConverter() {
         </div>
         <p className="mt-3 text-xs text-foreground-muted">
           {mode === "input"
-            ? "Purely numeric values are right-justified and zero-padded to the field length. Values containing letters are passed through untouched — exactly like CONVERSION_EXIT_ALPHA_INPUT."
+            ? "Nilai yang murni angka dirata-kanankan dan diisi nol sampai panjang field. Nilai yang mengandung huruf dibiarkan apa adanya, persis seperti CONVERSION_EXIT_ALPHA_INPUT."
             : mode === "output"
-              ? "Leading zeros are removed from purely numeric values. Alphanumeric values are left as-is."
-              : "Non-digits are stripped, then the value is left-padded with zeros to the field length (overflow is truncated from the left)."}
+              ? "Nol di depan dibuang dari nilai yang murni angka. Nilai alfanumerik dibiarkan apa adanya."
+              : "Karakter selain angka dibuang, lalu nilainya diisi nol di depan sampai panjang field (kelebihannya dipotong dari kiri)."}
         </p>
       </Panel>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Panel title="Values (one per line)">
+        <Panel title="Nilai (satu per baris)">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -68,14 +68,14 @@ export function AlphaConverter() {
             className="tool-input tool-mono resize-y"
           />
         </Panel>
-        <Panel title="Result" action={<CopyButton value={allOut} label="Copy all" />}>
+        <Panel title="Hasil" action={<CopyButton value={allOut} label="Salin semua" />}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="admin-th text-left">
                   <th className="py-1.5 pr-3">Input</th>
                   <th className="py-1.5 pr-3">Output</th>
-                  <th className="py-1.5">Note</th>
+                  <th className="py-1.5">Catatan</th>
                 </tr>
               </thead>
               <tbody className="font-mono text-[0.8125rem]">

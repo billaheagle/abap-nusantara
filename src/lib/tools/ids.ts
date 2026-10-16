@@ -1,11 +1,11 @@
 export type GuidFlavour = "raw16" | "char32" | "char22" | "uuidv4" | "uuidUpper";
 
 export const GUID_FLAVOURS: { value: GuidFlavour; label: string; note: string }[] = [
-  { value: "char32", label: "SAP GUID · CHAR32", note: "32 uppercase hex chars — cl_system_uuid=>create_uuid_c32_static" },
-  { value: "raw16", label: "SAP GUID · RAW16 (hex)", note: "Same 16 bytes as CHAR32; stored in RAW(16) columns" },
-  { value: "char22", label: "SAP GUID · CHAR22", note: "Base64-ish 22-char form — create_uuid_c22_static" },
-  { value: "uuidv4", label: "UUID v4 (lowercase, dashed)", note: "RFC 4122 — Edm.Guid / CAP style" },
-  { value: "uuidUpper", label: "UUID v4 (uppercase, dashed)", note: "8-4-4-4-12, uppercase" },
+  { value: "char32", label: "SAP GUID · CHAR32", note: "32 karakter hex huruf besar — cl_system_uuid=>create_uuid_c32_static" },
+  { value: "raw16", label: "SAP GUID · RAW16 (hex)", note: "16 byte yang sama dengan CHAR32; disimpan di kolom RAW(16)" },
+  { value: "char22", label: "SAP GUID · CHAR22", note: "Bentuk 22 karakter mirip Base64 — create_uuid_c22_static" },
+  { value: "uuidv4", label: "UUID v4 (huruf kecil, pakai strip)", note: "RFC 4122 — gaya Edm.Guid / CAP" },
+  { value: "uuidUpper", label: "UUID v4 (huruf besar, pakai strip)", note: "8-4-4-4-12, huruf besar" },
 ];
 
 function randomBytes(n: number): Uint8Array {

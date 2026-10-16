@@ -3,15 +3,15 @@
 export type ODataVersion = "v2" | "v4";
 
 export const FILTER_OPS = [
-  { value: "eq", label: "= equals" },
-  { value: "ne", label: "≠ not equals" },
-  { value: "gt", label: "> greater than" },
-  { value: "ge", label: "≥ greater or equal" },
-  { value: "lt", label: "< less than" },
-  { value: "le", label: "≤ less or equal" },
-  { value: "contains", label: "contains" },
-  { value: "startswith", label: "starts with" },
-  { value: "endswith", label: "ends with" },
+  { value: "eq", label: "= sama dengan" },
+  { value: "ne", label: "≠ tidak sama dengan" },
+  { value: "gt", label: "> lebih besar" },
+  { value: "ge", label: "≥ lebih besar atau sama" },
+  { value: "lt", label: "< lebih kecil" },
+  { value: "le", label: "≤ lebih kecil atau sama" },
+  { value: "contains", label: "mengandung" },
+  { value: "startswith", label: "diawali" },
+  { value: "endswith", label: "diakhiri" },
 ];
 
 export interface FilterRow {
@@ -94,20 +94,20 @@ function validateFilter(expr: string): string[] {
       if (c === "(") depth++;
       else if (c === ")") depth--;
       if (depth < 0) {
-        issues.push("Closing ')' without a matching '('.");
+        issues.push("Ada ')' tanpa pasangan '('.");
         depth = 0;
       }
     }
   }
-  if (inString) issues.push("Unterminated string literal — check your single quotes.");
-  if (depth > 0) issues.push(`${depth} unclosed '(' — parentheses are unbalanced.`);
+  if (inString) issues.push("String literal tidak ditutup. Periksa tanda kutip tunggalnya.");
+  if (depth > 0) issues.push(`${depth} '(' belum ditutup. Jumlah kurungnya tidak seimbang.`);
 
   const bareWords = expr
     .replace(/'[^']*'/g, "")
     .match(/\b(and|or|eq|ne|gt|ge|lt|le|not)\b/gi);
   const tokens = expr.replace(/'[^']*'/g, "").split(/\s+/).filter(Boolean);
   if (tokens.length >= 3 && !bareWords) {
-    issues.push("No recognised operator (eq, ne, gt, ge, lt, le, and, or) — is this a valid $filter?");
+    issues.push("Tidak ada operator yang dikenali (eq, ne, gt, ge, lt, le, and, or). Apakah ini $filter yang valid?");
   }
   return issues;
 }
@@ -141,16 +141,16 @@ export function buildQuery(input: ODataInput): BuiltQuery {
   if (orderby) params.push(["$orderby", orderby]);
 
   if (input.top.trim()) {
-    if (!/^\d+$/.test(input.top.trim())) warnings.push("$top should be a non-negative integer.");
+    if (!/^\d+$/.test(input.top.trim())) warnings.push("$top harus bilangan bulat, tidak boleh negatif.");
     params.push(["$top", input.top.trim()]);
   }
   if (input.skip.trim()) {
-    if (!/^\d+$/.test(input.skip.trim())) warnings.push("$skip should be a non-negative integer.");
+    if (!/^\d+$/.test(input.skip.trim())) warnings.push("$skip harus bilangan bulat, tidak boleh negatif.");
     params.push(["$skip", input.skip.trim()]);
   }
   if (input.count) params.push([input.version === "v2" ? "$inlinecount" : "$count", input.version === "v2" ? "allpages" : "true"]);
   if (input.search.trim()) {
-    if (input.version === "v2") warnings.push("$search is OData V4 only — SAP Gateway V2 uses the custom 'search' parameter instead.");
+    if (input.version === "v2") warnings.push("$search hanya ada di OData V4. SAP Gateway V2 memakai parameter custom 'search'.");
     params.push(["$search", input.search.trim()]);
   }
   if (input.format.trim()) params.push(["$format", input.format.trim()]);
@@ -162,5 +162,5 @@ export function buildQuery(input: ODataInput): BuiltQuery {
   const path = [base, set].filter(Boolean).join("/");
   const url = path ? `${path}${query ? `?${query}` : ""}` : query ? `?${query}` : "";
 
-  return { query: query || "(no parameters set)", url: url || "(set a base URL and entity set)", warnings };
+  return { query: query || "(belum ada parameter)", url: url || "(isi base URL dan entity set)", warnings };
 }

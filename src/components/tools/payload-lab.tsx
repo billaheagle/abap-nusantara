@@ -29,7 +29,7 @@ function safe(fn: () => string): { out: string; err: string | null } {
   try {
     return { out: fn(), err: null };
   } catch (e) {
-    return { out: "", err: e instanceof Error ? e.message : "Something went wrong" };
+    return { out: "", err: e instanceof Error ? e.message : "Terjadi kesalahan" };
   }
 }
 
@@ -43,7 +43,7 @@ export function PayloadLab() {
         onChange={setMode}
         options={[
           { value: "format", label: "Format" },
-          { value: "convert", label: "Convert" },
+          { value: "convert", label: "Konversi" },
           { value: "query", label: "Query" },
           { value: "encode", label: "Encode" },
           { value: "hash", label: "Hash" },
@@ -66,7 +66,7 @@ function FormatMode() {
   const [indent, setIndent] = useState(2);
 
   const pretty = safe(() => (lang === "json" ? formatJson(text, indent) : formatXml(text, indent)));
-  const mini = lang === "json" ? safe(() => minifyJson(text)) : { out: "", err: "Minify is JSON-only" };
+  const mini = lang === "json" ? safe(() => minifyJson(text)) : { out: "", err: "Minify hanya untuk JSON" };
 
   return (
     <div className="space-y-4">
@@ -84,13 +84,13 @@ function FormatMode() {
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
       </Panel>
       <Panel
-        title={pretty.err ? "Invalid" : "Formatted & validated ✓"}
+        title={pretty.err ? "Tidak valid" : "Sudah diformat dan valid ✓"}
         action={!pretty.err && <CopyButton value={pretty.out} />}
       >
         {pretty.err ? <p className="text-sm text-negative">{pretty.err}</p> : <CodeOutput code={pretty.out} lang={lang} />}
       </Panel>
       {lang === "json" && !mini.err && (
-        <Panel title="Minified" action={<CopyButton value={mini.out} />}>
+        <Panel title="Versi ringkas (minified)" action={<CopyButton value={mini.out} />}>
           <CodeOutput code={mini.out} lang="json" />
         </Panel>
       )}
@@ -118,12 +118,12 @@ function ConvertMode() {
         ]}
       />
       <p className="text-xs text-foreground-muted">
-        Attributes become <code className="tool-code">@name</code> keys; mixed text content becomes <code className="tool-code">#text</code>. Repeated elements collapse into an array.
+        Atribut menjadi key <code className="tool-code">@name</code>; isi teks campuran menjadi <code className="tool-code">#text</code>. Elemen yang berulang digabung menjadi array.
       </p>
       <Panel title="Input">
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
       </Panel>
-      <Panel title={result.err ? "Invalid" : "Output"} action={!result.err && <CopyButton value={result.out} />}>
+      <Panel title={result.err ? "Tidak valid" : "Output"} action={!result.err && <CopyButton value={result.out} />}>
         {result.err ? <p className="text-sm text-negative">{result.err}</p> : <CodeOutput code={result.out} lang={dir === "x2j" ? "json" : "xml"} />}
       </Panel>
     </div>
@@ -151,20 +151,20 @@ function QueryMode() {
           { value: "xml", label: "XPath" },
         ]}
       />
-      <Panel title="Document">
+      <Panel title="Dokumen">
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={7} spellCheck={false} className="tool-input tool-mono resize-y" />
       </Panel>
       <Field
-        label={lang === "json" ? "JSONPath expression" : "XPath expression"}
+        label={lang === "json" ? "Ekspresi JSONPath" : "Ekspresi XPath"}
         hint={
           lang === "json"
-            ? "Supports $ . [n] [*] and .. (recursive descent). Filter expressions [?(…)] are not supported yet."
-            : "Standard XPath 1.0. For namespaced documents use local-name(), e.g. //*[local-name()='Item']."
+            ? "Mendukung $ . [n] [*] dan .. (pencarian rekursif). Ekspresi filter [?(…)] belum didukung."
+            : "XPath 1.0 standar. Untuk dokumen dengan namespace pakai local-name(), misalnya //*[local-name()='Item']."
         }
       >
         <input value={expr} onChange={(e) => setExpr(e.target.value)} spellCheck={false} className="tool-input tool-mono" />
       </Field>
-      <Panel title={result.err ? "Error" : "Matches"}>
+      <Panel title={result.err ? "Error" : "Hasil yang cocok"}>
         {result.err ? <p className="text-sm text-negative">{result.err}</p> : <pre className="tool-output">{result.out}</pre>}
       </Panel>
     </div>
@@ -182,7 +182,7 @@ function EncodeMode() {
       else if (kind === "url") setEncoded(encodeURIComponent(text));
       else setEncoded(toHex(text));
     } catch (e) {
-      setEncoded(`Error: ${e instanceof Error ? e.message : "encode failed"}`);
+      setEncoded(`Error: ${e instanceof Error ? e.message : "encode gagal"}`);
     }
   }
   function decode() {
@@ -191,7 +191,7 @@ function EncodeMode() {
       else if (kind === "url") setText(decodeURIComponent(encoded));
       else setText(fromHex(encoded));
     } catch (e) {
-      setText(`Error: ${e instanceof Error ? e.message : "decode failed"}`);
+      setText(`Error: ${e instanceof Error ? e.message : "decode gagal"}`);
     }
   }
 
@@ -206,11 +206,11 @@ function EncodeMode() {
           { value: "hex", label: "Hex" },
         ]}
       />
-      <Panel title="Plain text" action={<button type="button" onClick={run} className="rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">Encode ↓</button>}>
+      <Panel title="Teks biasa" action={<button type="button" onClick={run} className="rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">Encode ↓</button>}>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} spellCheck={false} className="tool-input tool-mono resize-y" />
       </Panel>
       <Panel
-        title="Encoded"
+        title="Hasil encode"
         action={
           <div className="flex gap-2">
             <button type="button" onClick={decode} className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:border-brand hover:text-brand">Decode ↑</button>
@@ -242,17 +242,17 @@ function HashMode() {
 
   return (
     <div className="space-y-4">
-      <Panel title="Text to hash">
+      <Panel title="Teks yang di-hash">
         <textarea
           value={text}
           onChange={(e) => run(e.target.value)}
           rows={4}
           spellCheck={false}
-          placeholder="Type or paste — hashes update live"
+          placeholder="Ketik atau tempel, hash langsung diperbarui"
           className="tool-input tool-mono resize-y"
         />
       </Panel>
-      <Panel title="Digests (hex)">
+      <Panel title="Hasil hash (hex)">
         <table className="w-full text-sm">
           <tbody>
             {HASH_ALGOS.map((a) => (
@@ -277,14 +277,14 @@ function DiffMode() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Panel title="Before">
+        <Panel title="Sebelum">
           <textarea value={a} onChange={(e) => setA(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
         </Panel>
-        <Panel title="After">
+        <Panel title="Sesudah">
           <textarea value={b} onChange={(e) => setB(e.target.value)} rows={8} spellCheck={false} className="tool-input tool-mono resize-y" />
         </Panel>
       </div>
-      <Panel title="Line diff">
+      <Panel title="Perbedaan per baris">
         <pre className="tool-output">
           {lines.map((l, i) => (
             <div

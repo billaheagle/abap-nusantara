@@ -16,13 +16,13 @@ function b64urlToJson(segment: string): Record<string, unknown> {
 
 export function decodeJwt(token: string): JwtParts | { error: string } {
   const t = token.trim().replace(/^Bearer\s+/i, "");
-  if (!t) return { error: "Paste a token above." };
+  if (!t) return { error: "Tempel token di atas." };
   const parts = t.split(".");
-  if (parts.length !== 3) return { error: "A JWT has three dot-separated parts: header.payload.signature." };
+  if (parts.length !== 3) return { error: "JWT terdiri dari tiga bagian yang dipisah titik: header.payload.signature." };
   try {
     return { header: b64urlToJson(parts[0]), payload: b64urlToJson(parts[1]), signature: parts[2] };
   } catch {
-    return { error: "The header or payload is not valid base64url-encoded JSON." };
+    return { error: "Header atau payload bukan JSON yang di-encode base64url dengan benar." };
   }
 }
 
@@ -38,26 +38,26 @@ function relative(d: Date): string {
   const diff = d.getTime() - Date.now();
   const abs = Math.abs(diff);
   const units: [number, string][] = [
-    [864e5, "day"],
-    [36e5, "hour"],
-    [6e4, "minute"],
-    [1e3, "second"],
+    [864e5, "hari"],
+    [36e5, "jam"],
+    [6e4, "menit"],
+    [1e3, "detik"],
   ];
   for (const [ms, name] of units) {
-    if (abs >= ms || name === "second") {
+    if (abs >= ms || name === "detik") {
       const n = Math.round(abs / ms);
-      return diff >= 0 ? `in ${n} ${name}${n === 1 ? "" : "s"}` : `${n} ${name}${n === 1 ? "" : "s"} ago`;
+      return diff >= 0 ? `${n} ${name} lagi` : `${n} ${name} lalu`;
     }
   }
-  return "now";
+  return "sekarang";
 }
 
 export function timeClaims(payload: Record<string, unknown>): TimeClaim[] {
   const defs: [string, string][] = [
-    ["iat", "Issued at"],
-    ["nbf", "Not before"],
-    ["exp", "Expires"],
-    ["auth_time", "Authenticated at"],
+    ["iat", "Diterbitkan"],
+    ["nbf", "Berlaku mulai"],
+    ["exp", "Kedaluwarsa"],
+    ["auth_time", "Diautentikasi"],
   ];
   const now = Date.now();
   return defs

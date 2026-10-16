@@ -11,9 +11,9 @@ export interface Bapiret2Message {
 export const SEVERITY_LABEL: Record<string, string> = {
   E: "Error",
   A: "Abort",
-  W: "Warning",
-  I: "Information",
-  S: "Success",
+  W: "Peringatan",
+  I: "Informasi",
+  S: "Berhasil",
 };
 
 const SEVERITY_RANK: Record<string, number> = { A: 0, E: 1, W: 2, I: 3, S: 4 };
@@ -38,7 +38,7 @@ export function parseBapiret2(input: string): { messages: Bapiret2Message[]; err
         })),
       };
     } catch {
-      return { messages: [], error: "Looks like JSON but could not be parsed." };
+      return { messages: [], error: "Terlihat seperti JSON, tapi tidak bisa dibaca." };
     }
   }
 
@@ -74,15 +74,15 @@ export function buildMessageSnippets(cls: string, num: string, type: Severity): 
   const n = num || "001";
   return [
     {
-      label: "Classic MESSAGE statement",
+      label: "Statement MESSAGE klasik",
       code: `MESSAGE ${type}${n}(${c}) WITH lv_v1 lv_v2.`,
     },
     {
-      label: "MESSAGE … INTO (no dialog)",
+      label: "MESSAGE … INTO (tanpa dialog)",
       code: `MESSAGE ${type}${n}(${c}) WITH lv_v1 INTO DATA(lv_msg).`,
     },
     {
-      label: "Raise as exception (T100 message)",
+      label: "Dilempar sebagai exception (T100 message)",
       code: `RAISE EXCEPTION TYPE cx_my_exception\n  MESSAGE ${type}${n}(${c}) WITH lv_v1 lv_v2.`,
     },
     {
@@ -90,7 +90,7 @@ export function buildMessageSnippets(cls: string, num: string, type: Severity): 
       code: `APPEND VALUE #( %tky = key-%tky\n                %msg = new_message( id       = '${c}'\n                                    number   = '${n}'\n                                    severity = if_abap_behv_message=>severity-${type === "E" ? "error" : type === "W" ? "warning" : type === "S" ? "success" : "information"}\n                                    v1       = lv_v1 ) )\n       TO reported-entity.`,
     },
     {
-      label: "BAPIRET2 fill",
+      label: "Mengisi BAPIRET2",
       code: `APPEND VALUE bapiret2( type   = '${type}'\n                       id     = '${c}'\n                       number = '${n}'\n                       message_v1 = lv_v1 ) TO et_return.`,
     },
   ];

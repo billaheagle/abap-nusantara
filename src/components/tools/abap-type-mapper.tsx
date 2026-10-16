@@ -21,7 +21,7 @@ export function AbapTypeMapper() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Filter — e.g. 'decimal', 'DATS', 'Edm.Guid', 'currency'"
+          placeholder="Filter, misalnya 'decimal', 'DATS', 'Edm.Guid', 'currency'"
           className="tool-input"
         />
       </Panel>
@@ -49,7 +49,7 @@ export function AbapTypeMapper() {
             </dl>
           </div>
         ))}
-        {rows.length === 0 && <p className="tool-panel px-3 py-8 text-center text-sm text-foreground-muted">No type matches “{q}”.</p>}
+        {rows.length === 0 && <p className="tool-panel px-3 py-8 text-center text-sm text-foreground-muted">Tidak ada tipe yang cocok dengan “{q}”.</p>}
       </div>
 
       <div className="tool-panel hidden overflow-x-auto md:block">
@@ -77,7 +77,7 @@ export function AbapTypeMapper() {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-foreground-muted">No type matches “{q}”.</td>
+                <td colSpan={6} className="px-3 py-8 text-center text-foreground-muted">Tidak ada tipe yang cocok dengan “{q}”.</td>
               </tr>
             )}
           </tbody>
@@ -87,7 +87,7 @@ export function AbapTypeMapper() {
       <div className="space-y-2">
         {rows.map((r) => (
           <details key={r.abap} className="tool-panel px-4 py-2 text-sm">
-            <summary className="cursor-pointer font-mono text-[0.8125rem]">{r.abap} <span className="text-foreground-muted">— notes</span></summary>
+            <summary className="cursor-pointer font-mono text-[0.8125rem]">{r.abap} <span className="text-foreground-muted">— catatan</span></summary>
             <p className="mt-2 text-foreground-muted">{r.notes}</p>
           </details>
         ))}

@@ -10,7 +10,7 @@ export function CdsAnnotationsTool() {
   const [tab, setTab] = useState<"reference" | "generator">("reference");
   return (
     <div className="space-y-5">
-      <Segmented value={tab} onChange={setTab} options={[{ value: "reference", label: "Annotation reference" }, { value: "generator", label: "List Report generator" }]} />
+      <Segmented value={tab} onChange={setTab} options={[{ value: "reference", label: "Referensi annotation" }, { value: "generator", label: "Generator List Report" }]} />
       {tab === "reference" ? <Reference /> : <Generator />}
     </div>
   );
@@ -29,7 +29,7 @@ function Reference() {
   return (
     <div className="space-y-4">
       <Panel>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search — 'lineItem', 'currency', 'search', 'value help'…" className="tool-input" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari, misalnya 'lineItem', 'currency', 'search', 'value help'…" className="tool-input" />
       </Panel>
       {groups.map(({ group, items }) => (
         <Panel key={group} title={group}>
@@ -47,7 +47,7 @@ function Reference() {
           </div>
         </Panel>
       ))}
-      {groups.length === 0 && <p className="text-sm text-foreground-muted">No annotation matches “{q}”.</p>}
+      {groups.length === 0 && <p className="text-sm text-foreground-muted">Tidak ada annotation yang cocok dengan “{q}”.</p>}
     </div>
   );
 }
@@ -67,16 +67,16 @@ function Generator() {
   return (
     <div className="space-y-4">
       <Panel>
-        <Field label="Source entity / view"><input value={entity} onChange={(e) => setEntity(e.target.value)} className="tool-input tool-mono" /></Field>
+        <Field label="Entity atau view sumber"><input value={entity} onChange={(e) => setEntity(e.target.value)} className="tool-input tool-mono" /></Field>
       </Panel>
-      <Panel title="Fields">
+      <Panel title="Field">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="admin-th text-left">
                 <th className="px-2 py-1.5">Field</th>
                 <th className="px-2 py-1.5">Label</th>
-                <th className="px-2 py-1.5 text-center">Column</th>
+                <th className="px-2 py-1.5 text-center">Kolom</th>
                 <th className="px-2 py-1.5 text-center">Filter</th>
                 <th className="px-2 py-1.5 text-center">Object Page</th>
                 <th className="px-2 py-1.5" />
@@ -90,7 +90,7 @@ function Generator() {
                   <td className="px-2 py-1.5 text-center"><input type="checkbox" checked={f.lineItem} onChange={(e) => patch(i, { lineItem: e.target.checked })} /></td>
                   <td className="px-2 py-1.5 text-center"><input type="checkbox" checked={f.selectionField} onChange={(e) => patch(i, { selectionField: e.target.checked })} /></td>
                   <td className="px-2 py-1.5 text-center"><input type="checkbox" checked={f.identification} onChange={(e) => patch(i, { identification: e.target.checked })} /></td>
-                  <td className="px-2 py-1.5"><button type="button" onClick={() => setFields(fields.filter((_, idx) => idx !== i))} className="text-foreground-muted hover:text-negative"><Trash2 className="h-4 w-4" /></button></td>
+                  <td className="px-2 py-1.5"><button type="button" aria-label="Hapus field" onClick={() => setFields(fields.filter((_, idx) => idx !== i))} className="text-foreground-muted hover:text-negative"><Trash2 className="h-4 w-4" /></button></td>
                 </tr>
               ))}
             </tbody>
@@ -101,10 +101,10 @@ function Generator() {
           onClick={() => setFields([...fields, { name: "Field", label: "", lineItem: true, selectionField: false, identification: false }])}
           className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
         >
-          <Plus className="h-3.5 w-3.5" /> Add field
+          <Plus className="h-3.5 w-3.5" /> Tambah field
         </button>
       </Panel>
-      <Panel title="Generated CDS" action={<CopyButton value={output} />}>
+      <Panel title="Hasil CDS" action={<CopyButton value={output} />}>
         <CodeOutput code={output} lang="abap" />
       </Panel>
     </div>

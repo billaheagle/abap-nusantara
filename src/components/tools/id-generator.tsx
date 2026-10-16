@@ -9,7 +9,7 @@ export function IdGenerator() {
   const [tab, setTab] = useState<"guid" | "range">("guid");
   return (
     <div className="space-y-5">
-      <Segmented value={tab} onChange={setTab} options={[{ value: "guid", label: "GUIDs" }, { value: "range", label: "Number range" }]} />
+      <Segmented value={tab} onChange={setTab} options={[{ value: "guid", label: "GUID" }, { value: "range", label: "Number range" }]} />
       {tab === "guid" ? <Guids /> : <Range />}
     </div>
   );
@@ -27,21 +27,21 @@ function Guids() {
     <div className="space-y-4">
       <Panel>
         <div className="flex flex-wrap items-end gap-4">
-          <Field label="Flavour">
+          <Field label="Jenis">
             <select value={flavour} onChange={(e) => setFlavour(e.target.value as GuidFlavour)} className="tool-input w-auto">
               {GUID_FLAVOURS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
           </Field>
-          <Field label="Count">
+          <Field label="Jumlah">
             <input type="number" min={1} max={500} value={count} onChange={(e) => setCount(Math.max(1, Math.min(500, Number(e.target.value) || 1)))} className="tool-input w-24" />
           </Field>
           <button type="button" onClick={regen} className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-dark">
-            <RefreshCw className="h-4 w-4" /> Generate
+            <RefreshCw className="h-4 w-4" /> Buat
           </button>
         </div>
         {note && <p className="mt-2 text-xs text-foreground-muted">{note}</p>}
       </Panel>
-      <Panel title={`${values.length} value${values.length === 1 ? "" : "s"}`} action={<CopyButton value={values.join("\n")} label="Copy all" />}>
+      <Panel title={`${values.length} nilai`} action={<CopyButton value={values.join("\n")} label="Salin semua" />}>
         <div className="space-y-1">
           {values.map((v, i) => (
             <div key={i} className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-1.5">
@@ -69,14 +69,14 @@ function Range() {
       <Panel>
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
           <Field label="Prefix"><input value={prefix} onChange={(e) => setPrefix(e.target.value)} className="tool-input tool-mono" /></Field>
-          <Field label="From"><input type="number" value={from} onChange={(e) => setFrom(Number(e.target.value) || 0)} className="tool-input" /></Field>
-          <Field label="Count"><input type="number" min={1} max={500} value={count} onChange={(e) => setCount(Math.max(1, Math.min(500, Number(e.target.value) || 1)))} className="tool-input" /></Field>
-          <Field label="Digits"><input type="number" min={1} max={30} value={width} onChange={(e) => setWidth(Math.max(1, Number(e.target.value) || 1))} className="tool-input" /></Field>
-          <Field label="Step"><input type="number" min={1} value={step} onChange={(e) => setStep(Math.max(1, Number(e.target.value) || 1))} className="tool-input" /></Field>
+          <Field label="Mulai dari"><input type="number" value={from} onChange={(e) => setFrom(Number(e.target.value) || 0)} className="tool-input" /></Field>
+          <Field label="Jumlah"><input type="number" min={1} max={500} value={count} onChange={(e) => setCount(Math.max(1, Math.min(500, Number(e.target.value) || 1)))} className="tool-input" /></Field>
+          <Field label="Jumlah digit"><input type="number" min={1} max={30} value={width} onChange={(e) => setWidth(Math.max(1, Number(e.target.value) || 1))} className="tool-input" /></Field>
+          <Field label="Kelipatan"><input type="number" min={1} value={step} onChange={(e) => setStep(Math.max(1, Number(e.target.value) || 1))} className="tool-input" /></Field>
         </div>
-        <p className="mt-2 text-xs text-foreground-muted">Mimics a NUMC / NRIV number range: fixed prefix + zero-padded incrementing counter.</p>
+        <p className="mt-2 text-xs text-foreground-muted">Meniru number range NUMC / NRIV: prefix tetap ditambah counter naik yang diisi nol di depan.</p>
       </Panel>
-      <Panel title="Preview" action={<CopyButton value={values.join("\n")} label="Copy all" />}>
+      <Panel title="Pratinjau" action={<CopyButton value={values.join("\n")} label="Salin semua" />}>
         <pre className="tool-output">{values.join("\n")}</pre>
       </Panel>
     </div>

@@ -16,7 +16,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.String",
     json: "string",
     ts: "string",
-    notes: "MaxLength = n. Trailing blanks are significant in ABAP, usually trimmed on the wire.",
+    notes: "MaxLength = n. Spasi di belakang berarti di ABAP, tapi biasanya dipangkas saat dikirim.",
   },
   {
     abap: "string",
@@ -25,7 +25,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.String",
     json: "string",
     ts: "string",
-    notes: "No length limit (SSTRING is searchable, max 1333). No MaxLength facet.",
+    notes: "Tanpa batas panjang (SSTRING bisa dicari, maks. 1333). Tidak ada facet MaxLength.",
   },
   {
     abap: "n LENGTH n",
@@ -34,7 +34,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.String",
     json: "string",
     ts: "string",
-    notes: "Digit string, left-padded with zeros. Stays a string on the wire — never Edm.Int.",
+    notes: "String berisi angka, diisi nol di depan. Tetap string saat dikirim, tidak pernah Edm.Int.",
   },
   {
     abap: "i",
@@ -43,7 +43,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Int32",
     json: "number",
     ts: "number",
-    notes: "32-bit signed. INT1 → Edm.Byte, INT2 → Edm.Int16, INT8 → Edm.Int64.",
+    notes: "32-bit bertanda. INT1 → Edm.Byte, INT2 → Edm.Int16, INT8 → Edm.Int64.",
   },
   {
     abap: "int8",
@@ -52,7 +52,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Int64",
     json: "string",
     ts: "string | number",
-    notes: "V2 serialises Int64 as a quoted string to avoid precision loss.",
+    notes: "V2 mengirim Int64 sebagai string berkutip supaya presisinya tidak hilang.",
   },
   {
     abap: "p LENGTH l DECIMALS d",
@@ -61,7 +61,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Decimal",
     json: "string",
     ts: "string",
-    notes: "Precision/Scale facets. Sent as a string to preserve exact decimals. CURR pairs with a currency (Edm.String, sap:unit).",
+    notes: "Facet Precision/Scale. Dikirim sebagai string supaya desimalnya tetap persis. CURR berpasangan dengan field mata uang (Edm.String, sap:unit).",
   },
   {
     abap: "decfloat16 / decfloat34",
@@ -70,7 +70,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Decimal",
     json: "string",
     ts: "string",
-    notes: "IEEE 754-2008 decimal floating point. 16 or 34 significant digits.",
+    notes: "Decimal floating point IEEE 754-2008. 16 atau 34 digit signifikan.",
   },
   {
     abap: "f",
@@ -79,7 +79,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Double",
     json: "number",
     ts: "number",
-    notes: "Binary floating point — avoid for money.",
+    notes: "Binary floating point. Hindari untuk nilai uang.",
   },
   {
     abap: "d",
@@ -88,7 +88,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Date",
     json: "string",
     ts: "string",
-    notes: "V2: /Date(ms)/ literal, no timezone. V4: plain 'YYYY-MM-DD'. Internal ABAP value is 'YYYYMMDD'.",
+    notes: "V2: literal /Date(ms)/, tanpa zona waktu. V4: 'YYYY-MM-DD' biasa. Nilai internal di ABAP 'YYYYMMDD'.",
   },
   {
     abap: "t",
@@ -97,7 +97,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.TimeOfDay",
     json: "string",
     ts: "string",
-    notes: "V2: 'PT13H20M00S' duration form. V4: 'HH:MM:SS'. Internal ABAP value is 'HHMMSS'.",
+    notes: "V2: bentuk durasi 'PT13H20M00S'. V4: 'HH:MM:SS'. Nilai internal di ABAP 'HHMMSS'.",
   },
   {
     abap: "utclong",
@@ -106,7 +106,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.DateTimeOffset",
     json: "string",
     ts: "string",
-    notes: "Always UTC. TIMESTAMP is packed dec 0 (sec), TIMESTAMPL dec 7 (100 ns). utclong is the modern 7.54+ type.",
+    notes: "Selalu UTC. TIMESTAMP adalah packed dec 0 (detik), TIMESTAMPL dec 7 (100 ns). utclong adalah tipe modern sejak 7.54.",
   },
   {
     abap: "abap_bool (c LENGTH 1)",
@@ -115,7 +115,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Boolean",
     json: "boolean",
     ts: "boolean",
-    notes: "ABAP has no real boolean; 'X' / '' (space). RAP & CDS expose it as Edm.Boolean via abap_boolean.",
+    notes: "ABAP tidak punya boolean sungguhan; pakai 'X' / '' (spasi). RAP dan CDS mengeksposnya sebagai Edm.Boolean lewat abap_boolean.",
   },
   {
     abap: "x LENGTH n / xstring",
@@ -124,7 +124,7 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Binary",
     json: "string",
     ts: "string",
-    notes: "Base64-encoded on the wire. RAW16 is the classic GUID storage.",
+    notes: "Di-encode Base64 saat dikirim. RAW16 adalah tempat penyimpanan GUID yang klasik.",
   },
   {
     abap: "sysuuid_x16 (x LENGTH 16)",
@@ -133,6 +133,6 @@ export const TYPE_MAP: TypeRow[] = [
     edmV4: "Edm.Guid",
     json: "string",
     ts: "string",
-    notes: "V2 filter literal: guid'…'. Stored as RAW16, exposed as 8-4-4-4-12.",
+    notes: "Literal filter V2: guid'…'. Disimpan sebagai RAW16, diekspos dalam format 8-4-4-4-12.",
   },
 ];

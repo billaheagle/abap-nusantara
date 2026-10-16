@@ -33,7 +33,7 @@ function StructuredCard({ item }: { item: EdmStructured }) {
         <ChevronRight className={`h-4 w-4 shrink-0 text-foreground-muted transition ${open ? "rotate-90" : ""}`} />
         {item.name}
         <span className="ml-auto text-xs font-normal text-foreground-muted">
-          {item.properties.length} props{item.navigations.length ? ` · ${item.navigations.length} nav` : ""}
+          {item.properties.length} property{item.navigations.length ? ` · ${item.navigations.length} navigasi` : ""}
         </span>
       </button>
       {open && (
@@ -42,8 +42,8 @@ function StructuredCard({ item }: { item: EdmStructured }) {
             <thead>
               <tr className="admin-th text-left">
                 <th className="px-3 py-1.5">Property</th>
-                <th className="px-3 py-1.5">Type</th>
-                <th className="px-3 py-1.5">Facets</th>
+                <th className="px-3 py-1.5">Tipe</th>
+                <th className="px-3 py-1.5">Facet</th>
               </tr>
             </thead>
             <tbody className="font-mono text-[0.8125rem]">
@@ -84,11 +84,11 @@ export function EdmxExplorer() {
   const [xml, setXml] = useState(SAMPLE);
 
   const model = useMemo<EdmModel | { error: string }>(() => {
-    if (!xml.trim()) return { error: "Paste a $metadata document above." };
+    if (!xml.trim()) return { error: "Tempel dokumen $metadata di atas." };
     try {
       return parseEdmx(xml);
     } catch (e) {
-      return { error: e instanceof Error ? e.message : "Could not parse EDMX" };
+      return { error: e instanceof Error ? e.message : "EDMX tidak bisa dibaca" };
     }
   }, [xml]);
 
@@ -103,7 +103,7 @@ export function EdmxExplorer() {
       ) : (
         <>
           <p className="text-xs text-foreground-muted">
-            EDMX {model.version} · {model.namespaces.join(", ") || "no namespace"} · {model.entityTypes.length} entity types · {model.entitySets.length} entity sets
+            EDMX {model.version} · {model.namespaces.join(", ") || "tanpa namespace"} · {model.entityTypes.length} entity types · {model.entitySets.length} entity sets
           </p>
 
           {model.entitySets.length > 0 && (
@@ -135,7 +135,7 @@ export function EdmxExplorer() {
           )}
 
           {model.operations.length > 0 && (
-            <Panel title="Functions & actions">
+            <Panel title="Function dan action">
               <ul className="space-y-2 text-sm">
                 {model.operations.map((op) => (
                   <li key={op.name} className="font-mono text-[0.8125rem]">

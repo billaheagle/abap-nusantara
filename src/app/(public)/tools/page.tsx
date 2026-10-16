@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, FlaskConical, ShieldCheck } from "lucide-react";
 import { ToolIcon } from "@/components/tools/tool-icon";
-import { CATEGORY_ORDER, TOOL_REGISTRY } from "@/lib/tools/registry";
+import { CATEGORY_ORDER, TOOL_REGISTRY, type ToolCategory } from "@/lib/tools/registry";
 import { getSetting } from "@/features/settings/queries";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   title: "Tools",
   description:
     "Kumpulan alat bantu pengembangan SAP yang jalan di browser: konversi tanggal SAP, conversion exit ALPHA, penyusun query OData, format payload, decode JWT, dan lainnya. Data yang kamu tempel tidak keluar dari browser.",
+};
+
+// Display names; the registry keys stay as they are.
+const CATEGORY_LABEL: Record<ToolCategory, string> = {
+  ABAP: "ABAP",
+  Integration: "Integrasi",
+  "OData & CDS": "OData & CDS",
+  "BTP & Security": "BTP & keamanan",
+  Reference: "Referensi",
 };
 
 export default async function ToolsPage() {
@@ -36,7 +45,7 @@ export default async function ToolsPage() {
         )}
         {byCategory.map(({ category, tools }) => (
           <section key={category}>
-            <h2 className="mb-4 text-sm font-semibold text-foreground-muted">{category}</h2>
+            <h2 className="mb-4 text-sm font-semibold text-foreground-muted">{CATEGORY_LABEL[category]}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {tools.map((tool) => {
                 const planned = tool.status === "planned";
@@ -52,7 +61,7 @@ export default async function ToolsPage() {
                       </span>
                       {planned ? (
                         <span className="rounded-full bg-surface px-2 py-0.5 text-[11px] font-medium text-foreground-muted">
-                          Planned
+                          Segera
                         </span>
                       ) : tool.status === "beta" ? (
                         <span className="rounded-full bg-gold-tint px-2 py-0.5 text-[11px] font-semibold text-gold-strong">

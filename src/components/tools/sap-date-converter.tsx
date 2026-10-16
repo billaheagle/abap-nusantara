@@ -26,7 +26,7 @@ export function SapDateConverter() {
   return (
     <div className="space-y-5">
       <Panel>
-        <Field label="Input" hint="SAP date/time/timestamp, an ISO 8601 string, or a Unix epoch (seconds or ms) — auto-detected.">
+        <Field label="Input" hint="Tanggal, jam, atau timestamp SAP, string ISO 8601, atau Unix epoch (detik atau milidetik). Formatnya dikenali otomatis.">
           <input value={raw} onChange={(e) => setRaw(e.target.value)} className="tool-input tool-mono" spellCheck={false} />
         </Field>
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -34,12 +34,12 @@ export function SapDateConverter() {
             value={interpret}
             onChange={setInterpret}
             options={[
-              { value: "utc", label: "Input is UTC" },
-              { value: "local", label: "Input is local time" },
+              { value: "utc", label: "Input dalam UTC" },
+              { value: "local", label: "Input dalam waktu lokal" },
             ]}
           />
           <button type="button" onClick={nowBtn} className="rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:border-brand hover:text-brand">
-            Now
+            Sekarang
           </button>
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -63,7 +63,7 @@ export function SapDateConverter() {
       ) : (
         <>
           <p className="text-xs text-foreground-muted">
-            Detected: <span className="font-medium text-foreground">{parsed.detected}</span> · {relativeTime(parsed.instant)}
+            Terdeteksi: <span className="font-medium text-foreground">{parsed.detected}</span> · {relativeTime(parsed.instant)}
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -75,10 +75,10 @@ export function SapDateConverter() {
                 ["SAP timestamp", v.sapTimestamp],
                 ["SAP timestampL", v.sapTimestampL],
                 ["ISO 8601", v.iso],
-                ["Weekday", `${v.weekday} · ISO week ${v.isoWeek} · day ${v.dayOfYear}`],
+                ["Hari", `${v.weekday}, minggu ISO ${v.isoWeek}, hari ke-${v.dayOfYear}`],
               ];
               return (
-                <Panel key={zone} title={`${zone}${zone === "Local" ? ` (${v.offset})` : ""}`}>
+                <Panel key={zone} title={zone === "Local" ? `Lokal (${v.offset})` : "UTC"}>
                   <table className="w-full text-sm">
                     <tbody>
                       {rows.map(([k, val]) => (
@@ -101,8 +101,8 @@ export function SapDateConverter() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {(
                 [
-                  ["Seconds", String(epochSeconds(parsed.instant))],
-                  ["Milliseconds", String(epochMillis(parsed.instant))],
+                  ["Detik", String(epochSeconds(parsed.instant))],
+                  ["Milidetik", String(epochMillis(parsed.instant))],
                 ] as [string, string][]
               ).map(([k, val]) => (
                 <div key={k} className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2">

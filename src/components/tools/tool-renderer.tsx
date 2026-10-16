@@ -25,6 +25,6 @@ const TOOLS: Record<string, ComponentType> = {
 
 export function ToolRenderer({ slug }: { slug: string }) {
   const Tool = TOOLS[slug];
-  if (!Tool) return <p className="text-sm text-foreground-muted">This tool is not available yet.</p>;
+  if (!Tool) return <p className="text-sm text-foreground-muted">Tool ini belum tersedia.</p>;
   return <Tool />;
 }

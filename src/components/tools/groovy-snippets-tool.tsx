@@ -7,12 +7,12 @@ import { GROOVY_CATEGORIES, GROOVY_SNIPPETS } from "@/lib/tools/groovy-snippets"
 
 export function GroovySnippetsTool() {
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("All");
+  const [cat, setCat] = useState<string>("Semua");
 
   const snippets = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return GROOVY_SNIPPETS.filter((s) => {
-      if (cat !== "All" && s.category !== cat) return false;
+      if (cat !== "Semua" && s.category !== cat) return false;
       if (!needle) return true;
       return [s.title, s.description, s.code, s.category].some((v) => v.toLowerCase().includes(needle));
     });
@@ -21,9 +21,9 @@ export function GroovySnippetsTool() {
   return (
     <div className="space-y-5">
       <Panel>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search snippets — 'header', 'json', 'exception', 'mpl'…" className="tool-input" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari snippet, misalnya 'header', 'json', 'exception', 'mpl'…" className="tool-input" />
         <div className="mt-3 flex flex-wrap gap-1.5 text-sm">
-          {["All", ...GROOVY_CATEGORIES].map((c) => (
+          {["Semua", ...GROOVY_CATEGORIES].map((c) => (
             <button
               key={c}
               type="button"
@@ -43,7 +43,7 @@ export function GroovySnippetsTool() {
             <CodeOutput code={s.code} lang="groovy" />
           </Panel>
         ))}
-        {snippets.length === 0 && <p className="text-sm text-foreground-muted">No snippets match.</p>}
+        {snippets.length === 0 && <p className="text-sm text-foreground-muted">Tidak ada snippet yang cocok.</p>}
       </div>
     </div>
   );

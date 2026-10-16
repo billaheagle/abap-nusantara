@@ -16,7 +16,7 @@ export function minifyJson(input: string): string {
 function parseXml(input: string): Document {
   const doc = new DOMParser().parseFromString(input, "application/xml");
   const err = doc.querySelector("parsererror");
-  if (err) throw new Error(err.textContent?.replace(/\s+/g, " ").trim() || "Invalid XML");
+  if (err) throw new Error(err.textContent?.replace(/\s+/g, " ").trim() || "XML tidak valid");
   return doc;
 }
 
@@ -128,7 +128,7 @@ export function runJsonPath(input: string, path: string): string {
       }
     } else if (p[i] === "[") {
       const end = p.indexOf("]", i);
-      if (end === -1) throw new Error("Unbalanced '[' in path");
+      if (end === -1) throw new Error("Tanda '[' di path tidak ditutup");
       const inner = p.slice(i + 1, end).trim();
       i = end + 1;
       if (inner === "*") toks.push({ t: "wild" });
@@ -166,7 +166,7 @@ export function runJsonPath(input: string, path: string): string {
     cur = next;
   }
 
-  if (cur.length === 0) return "(no matches)";
+  if (cur.length === 0) return "(tidak ada yang cocok)";
   if (cur.length === 1) return JSON.stringify(cur[0], null, 2);
   return JSON.stringify(cur, null, 2);
 }
@@ -183,7 +183,7 @@ export function runXPath(xml: string, expr: string): string {
     out.push(n.nodeType === 1 ? (n as Element).outerHTML : (n.nodeValue ?? n.textContent ?? ""));
     n = res.iterateNext();
   }
-  return out.length ? out.join("\n\n") : "(no matches)";
+  return out.length ? out.join("\n\n") : "(tidak ada yang cocok)";
 }
 
 // ---- Encoding -----------------------------------------------------------

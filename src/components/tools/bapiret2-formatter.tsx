@@ -12,9 +12,9 @@ import {
 } from "@/lib/tools/bapiret2";
 
 const SAMPLE = `[
-  { "TYPE": "E", "ID": "ZORDER", "NUMBER": "010", "MESSAGE": "Customer 4711 is blocked for orders" },
-  { "TYPE": "W", "ID": "ZORDER", "NUMBER": "021", "MESSAGE": "Requested date is in the past" },
-  { "TYPE": "S", "ID": "ZORDER", "NUMBER": "000", "MESSAGE": "Order 4500001234 created" }
+  { "TYPE": "E", "ID": "ZORDER", "NUMBER": "010", "MESSAGE": "Customer 4711 diblokir untuk order" },
+  { "TYPE": "W", "ID": "ZORDER", "NUMBER": "021", "MESSAGE": "Tanggal yang diminta sudah lewat" },
+  { "TYPE": "S", "ID": "ZORDER", "NUMBER": "000", "MESSAGE": "Order 4500001234 berhasil dibuat" }
 ]`;
 
 const TONE: Record<string, string> = {
@@ -29,7 +29,7 @@ export function Bapiret2Formatter() {
   const [tab, setTab] = useState<"parse" | "build">("parse");
   return (
     <div className="space-y-5">
-      <Segmented value={tab} onChange={setTab} options={[{ value: "parse", label: "Format a return table" }, { value: "build", label: "Build a message" }]} />
+      <Segmented value={tab} onChange={setTab} options={[{ value: "parse", label: "Rapikan tabel return" }, { value: "build", label: "Susun message" }]} />
       {tab === "parse" ? <Parse /> : <Build />}
     </div>
   );
@@ -42,17 +42,17 @@ function Parse() {
 
   return (
     <div className="space-y-4">
-      <Panel title="Raw BAPIRET2">
+      <Panel title="BAPIRET2 mentah">
         <textarea value={raw} onChange={(e) => setRaw(e.target.value)} rows={7} spellCheck={false} className="tool-input tool-mono resize-y" />
         <p className="mt-2 text-xs text-foreground-muted">
-          Accepts a JSON array of rows, or plain lines like <code className="tool-code">E ZORDER 010 Customer blocked</code> or <code className="tool-code">W: date in the past</code>.
+          Menerima array JSON berisi baris, atau baris biasa seperti <code className="tool-code">E ZORDER 010 Customer diblokir</code> atau <code className="tool-code">W: tanggal sudah lewat</code>.
         </p>
       </Panel>
 
       {parsed.error ? (
         <Panel><p className="text-sm text-negative">{parsed.error}</p></Panel>
       ) : (
-        <Panel title={`${sorted.length} message${sorted.length === 1 ? "" : "s"}`}>
+        <Panel title={`${sorted.length} message`}>
           <ul className="space-y-2">
             {sorted.map((m, i) => (
               <li key={i} className="flex gap-3 rounded-md border border-border p-3 text-sm">
@@ -72,7 +72,7 @@ function Parse() {
               </li>
             ))}
           </ul>
-          {sorted.length === 0 && <p className="text-sm text-foreground-muted">Nothing to show.</p>}
+          {sorted.length === 0 && <p className="text-sm text-foreground-muted">Tidak ada yang ditampilkan.</p>}
         </Panel>
       )}
     </div>
@@ -83,7 +83,7 @@ function Build() {
   const [cls, setCls] = useState("ZORDER");
   const [num, setNum] = useState("010");
   const [type, setType] = useState<Severity>("E");
-  const [textVal, setTextVal] = useState("Customer &1 is blocked for orders");
+  const [textVal, setTextVal] = useState("Customer &1 diblokir untuk order");
 
   const snippets = useMemo(() => buildMessageSnippets(cls, num, type), [cls, num, type]);
 
@@ -92,15 +92,15 @@ function Build() {
       <Panel>
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
           <Field label="Message class"><input value={cls} onChange={(e) => setCls(e.target.value.toUpperCase())} className="tool-input tool-mono" /></Field>
-          <Field label="Number"><input value={num} onChange={(e) => setNum(e.target.value.replace(/\D/g, "").slice(0, 3))} className="tool-input tool-mono" /></Field>
-          <Field label="Type">
+          <Field label="Nomor"><input value={num} onChange={(e) => setNum(e.target.value.replace(/\D/g, "").slice(0, 3))} className="tool-input tool-mono" /></Field>
+          <Field label="Tipe">
             <select value={type} onChange={(e) => setType(e.target.value as Severity)} className="tool-input">
               {(["E", "W", "I", "S", "A"] as Severity[]).map((t) => (
                 <option key={t} value={t}>{t} — {SEVERITY_LABEL[t]}</option>
               ))}
             </select>
           </Field>
-          <Field label="Text (&1 &2 = placeholders)"><input value={textVal} onChange={(e) => setTextVal(e.target.value)} className="tool-input" /></Field>
+          <Field label="Teks (&1 &2 = placeholder)"><input value={textVal} onChange={(e) => setTextVal(e.target.value)} className="tool-input" /></Field>
         </div>
       </Panel>
       {snippets.map((s) => (
