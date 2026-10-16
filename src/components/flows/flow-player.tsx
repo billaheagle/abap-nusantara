@@ -15,7 +15,7 @@ import {
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
-import type { FlowIcon, FlowSpec } from "@/lib/flows/schema";
+import type { FlowIcon, FlowSpec } from "@/lib/flows/types";
 
 /**
  * One message walking through an iFlow, step by step: the envelope moves to

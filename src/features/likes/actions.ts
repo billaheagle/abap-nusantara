@@ -17,6 +17,9 @@ export async function toggleLikeAction(articleId: string): Promise<{ liked: bool
   const { allowed } = rateLimit(`like:${ip}`, 20, 60 * 1000);
   if (!allowed) return { liked: false, count: 0, error: "Terlalu banyak permintaan. Tunggu sebentar." };
 
+  const article = await prisma.article.findUnique({ where: { id: articleId }, select: { status: true } });
+  if (article?.status !== "PUBLISHED") return { liked: false, count: 0, error: "Artikel ini belum bisa disukai." };
+
   const anonHash = await getOrCreateAnonHash();
 
   const existing = await prisma.like.findUnique({

@@ -12,6 +12,7 @@ import { ArticleRenderer } from "@/components/article/article-renderer";
 import { highlightCodeBlocks } from "@/lib/editor/highlight";
 import { addImageDimensions } from "@/lib/editor/image-dimensions";
 import { addHeadingIds } from "@/lib/editor/headings";
+import { attachFlowSpecs } from "@/lib/flows/attach";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 import { LikeButton } from "@/components/article/like-button";
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!article) return {};
   if (preview) return { title: `Pratinjau: ${article.title}`, robots: { index: false, follow: false } };
 
+  const { brand } = await getSetting("general");
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const url = `${siteUrl}/articles/${article.slug}`;
 
@@ -47,6 +49,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: { canonical: url },
     openGraph: {
       type: "article",
+      locale: "id_ID",
+      siteName: [brand.name, brand.accent].filter(Boolean).join(" "),
       title: article.title,
       description: article.excerpt ?? undefined,
       url,
@@ -70,6 +74,8 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!article) notFound();
 
   const csrfToken = issueCsrfToken();
+  // Likes and comments only make sense once the article is live.
+  const draftPreview = preview && article.status !== "PUBLISHED";
   const [related, likeState, approvedComments, highlighted, hireMe, general] = await Promise.all([
     getRelatedArticles(article.id, article.categoryId, article.tags.map((t) => t.tag.slug)),
     getLikeState(article.id),
@@ -78,7 +84,7 @@ export default async function ArticlePage({ params }: PageProps) {
       orderBy: { createdAt: "asc" },
       select: { id: true, authorName: true, body: true, createdAt: true, parentCommentId: true },
     }),
-    highlightCodeBlocks(article.contentJson).then(addImageDimensions),
+    highlightCodeBlocks(article.contentJson).then(addImageDimensions).then(attachFlowSpecs),
     getSetting("hireMe"),
     getSetting("general"),
   ]);
@@ -295,9 +301,11 @@ export default async function ArticlePage({ params }: PageProps) {
             </div>
           )}
 
-          <div className="mt-6">
-            <LikeButton articleId={article.id} initialLiked={likeState.liked} initialCount={likeState.count} />
-          </div>
+          {!draftPreview && (
+            <div className="mt-6">
+              <LikeButton articleId={article.id} initialLiked={likeState.liked} initialCount={likeState.count} />
+            </div>
+          )}
 
           {(prevInSeries || nextInSeries) && (
             <nav aria-label="Navigasi seri" className="mt-10 grid gap-3 sm:grid-cols-2">
@@ -359,10 +367,18 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <section className="mx-auto mt-12 max-w-3xl border-t border-border pt-10">
           <h2 className="display mb-5 text-[1.75rem] font-bold">Komentar</h2>
-          <div className="mb-8">
-            <CommentForm articleId={article.id} csrfToken={csrfToken} />
-          </div>
-          <CommentThread comments={commentTree} articleId={article.id} csrfToken={csrfToken} />
+          {draftPreview ? (
+            <p className="rounded-xl border border-dashed border-border-strong px-4 py-3 text-sm text-foreground-muted">
+              Komentar dan like dibuka setelah artikel terbit.
+            </p>
+          ) : (
+            <>
+              <div className="mb-8">
+                <CommentForm articleId={article.id} csrfToken={csrfToken} />
+              </div>
+              <CommentThread comments={commentTree} articleId={article.id} csrfToken={csrfToken} />
+            </>
+          )}
         </section>
       </div>
     </article>

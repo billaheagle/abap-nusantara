@@ -8,7 +8,7 @@ import { ScrollTable } from "./scroll-table";
 import { ImageLightbox } from "./image-lightbox";
 import type { HighlightedCode } from "@/lib/editor/highlight";
 import { FlowPlayer } from "@/components/flows/flow-player";
-import { FLOW_LANGUAGE, parseFlow } from "@/lib/flows/schema";
+import { FLOW_LANGUAGE, type FlowSpec } from "@/lib/flows/types";
 
 /**
  * Renders Tiptap's JSON document tree directly to React elements.
@@ -178,17 +178,22 @@ const isFlowBlock = (node: TiptapNode) => node.type === "codeBlock" && node.attr
 
 const FLOW_CAPTION = "Ikuti satu pesan melewati iFlow di artikel ini. Klik titik langkah untuk berhenti di satu tahap.";
 
-/** A ```flow block: the animated message flow, or a notice if its JSON is broken (the importer normally catches that). */
+/**
+ * A ```flow block. The server validates it (lib/flows/attach.ts) and leaves
+ * either `attrs.flow` or `attrs.flowError`; the importer normally rejects a
+ * broken block before it ever gets here.
+ */
 function FlowBlock({ node }: { node: TiptapNode }) {
-  const parsed = parseFlow(node.content?.map((c) => c.text ?? "").join("") ?? "");
-  if (!parsed.ok) {
+  const spec = node.attrs?.flow as FlowSpec | undefined;
+  if (!spec) {
+    const error = typeof node.attrs?.flowError === "string" ? node.attrs.flowError : "belum divalidasi";
     return (
       <p className="rounded-xl border border-dashed border-border-strong px-4 py-3 text-sm text-foreground-muted">
-        Ilustrasi alur tidak bisa ditampilkan ({parsed.error}).
+        Ilustrasi alur tidak bisa ditampilkan ({error}).
       </p>
     );
   }
-  return <FlowPlayer spec={parsed.spec} caption={FLOW_CAPTION} />;
+  return <FlowPlayer spec={spec} caption={FLOW_CAPTION} />;
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { FlowSpec } from "./schema";
+import type { FlowSpec } from "./types";
 
 /**
  * The home page hero: the exchange-rate iFlow from "Memanggil REST API

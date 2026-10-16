@@ -1,6 +1,6 @@
 import { bundledLanguages, bundledLanguagesAlias, codeToTokens } from "shiki";
 import { CODE_THEME } from "./highlight-theme";
-import { FLOW_LANGUAGE } from "@/lib/flows/schema";
+import { FLOW_LANGUAGE } from "@/lib/flows/types";
 
 /**
  * Server-side syntax highlighting for article code blocks.

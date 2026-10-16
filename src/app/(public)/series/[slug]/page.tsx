@@ -5,6 +5,7 @@ import { ArrowRight, Clock } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { hasPublishedArticles } from "@/features/articles/queries";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { getSetting } from "@/features/settings/queries";
 
 export const revalidate = 60;
 
@@ -29,11 +30,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const series = await getSeries(slug);
   if (!series) return {};
+  const { brand } = await getSetting("general");
   const images = series.coverImage ? [{ url: series.coverImage, width: 1600, height: 900, alt: series.title }] : undefined;
   return {
     title: series.title,
     description: series.description ?? undefined,
-    openGraph: { title: series.title, description: series.description ?? undefined, images },
+    openGraph: {
+      locale: "id_ID",
+      siteName: [brand.name, brand.accent].filter(Boolean).join(" "),
+      title: series.title,
+      description: series.description ?? undefined,
+      images,
+    },
     twitter: { card: "summary_large_image", title: series.title, images: images?.map((i) => i.url) },
   };
 }

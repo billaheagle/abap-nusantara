@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { FLOW_ICONS, type FlowSpec } from "./types";
+
+export { FLOW_ICONS, FLOW_LANGUAGE, type FlowIcon, type FlowNode, type FlowSpec } from "./types";
 
 /**
  * Animated message flows inside articles.
@@ -11,12 +14,10 @@ import { z } from "zod";
  *
  * Coordinates are percentages of the canvas. Steps point at a node by index;
  * step text may use **bold** for step names.
+ *
+ * Server and importer only: zod must not reach the browser bundle. Client
+ * code imports types and constants from ./types.
  */
-
-export const FLOW_LANGUAGE = "flow";
-
-export const FLOW_ICONS = ["send", "modifier", "script", "request", "reply", "api", "error", "token", "gateway", "sign", "filter", "check"] as const;
-export type FlowIcon = (typeof FLOW_ICONS)[number];
 
 const short = (max: number) => z.string().min(1).max(max);
 const percent = z.number().min(0).max(100);
@@ -75,8 +76,6 @@ export const flowSpecSchema = z
     });
   });
 
-export type FlowSpec = z.infer<typeof flowSpecSchema>;
-export type FlowNode = FlowSpec["nodes"][number];
 
 /** Parses a ```flow block body; the error names the first problem and where it is. */
 export function parseFlow(source: string): { ok: true; spec: FlowSpec } | { ok: false; error: string } {
@@ -87,7 +86,7 @@ export function parseFlow(source: string): { ok: true; spec: FlowSpec } | { ok: 
     return { ok: false, error: `not valid JSON: ${(e as Error).message}` };
   }
   const result = flowSpecSchema.safeParse(data);
-  if (result.success) return { ok: true, spec: result.data };
+  if (result.success) return { ok: true, spec: result.data satisfies FlowSpec };
   const issue = result.error.issues[0];
   const where = issue.path.length ? issue.path.join(".") : "(root)";
   return { ok: false, error: `${where}: ${issue.message}` };
