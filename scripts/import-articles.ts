@@ -32,8 +32,8 @@
  * (src/lib/flows/schema.ts). It must sit at the top level of the article;
  * a block that does not parse or validate stops the import for that file.
  *
- * Series covers: every <content>/assets/series/<series-slug>.png is copied to
- * public/series/<series-slug>.png and set as that series' coverImage (made by
+ * Series covers: every <content>/assets/series/<series-slug>.jpg is copied to
+ * public/series/<series-slug>.jpg and set as that series' coverImage (made by
  * tools/cover/generate-covers.mjs --series in the content repo).
  */
 import { copyFile, mkdir, readFile, readdir, stat } from "fs/promises";
