@@ -7,13 +7,18 @@ import { commentSchema, commentModerationSchema } from "@/lib/validation/schemas
 import { sanitizePlainText } from "@/lib/security/sanitize";
 import { rateLimit, getClientIp } from "@/lib/security/rate-limit";
 import { hashValue } from "@/lib/security/anon";
-import { verifyCsrfToken } from "@/lib/security/csrf";
+import { issueCsrfToken, verifyCsrfToken } from "@/lib/security/csrf";
 import { isReservedAuthorName } from "@/lib/security/reserved-names";
 import { getAdminSession } from "@/lib/auth/session";
 
 export type CommentFormState = { error?: string; success?: boolean };
 
 const MAX_NESTING_DEPTH = 4;
+
+/** A fresh CSRF token for the comment form (article pages are cached, so they can't carry one). */
+export async function issueCommentTokenAction(): Promise<string> {
+  return issueCsrfToken();
+}
 
 export async function submitCommentAction(_prev: CommentFormState, formData: FormData): Promise<CommentFormState> {
   // Honeypot: a hidden field real visitors never fill in.
@@ -83,12 +88,19 @@ export async function moderateCommentAction(formData: FormData) {
   await requireAdmin();
   const parsed = commentModerationSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) throw new Error("Invalid moderation request");
-  await prisma.comment.update({ where: { id: parsed.data.id }, data: { status: parsed.data.status } });
+  const comment = await prisma.comment.update({
+    where: { id: parsed.data.id },
+    data: { status: parsed.data.status },
+    select: { article: { select: { slug: true } } },
+  });
   revalidatePath("/admin/comments");
+  // The article page is cached: show (or hide) the comment there right away.
+  revalidatePath(`/articles/${comment.article.slug}`);
 }
 
 export async function deleteCommentAction(id: string) {
   await requireAdmin();
-  await prisma.comment.delete({ where: { id } });
+  const comment = await prisma.comment.delete({ where: { id }, select: { article: { select: { slug: true } } } });
   revalidatePath("/admin/comments");
+  revalidatePath(`/articles/${comment.article.slug}`);
 }

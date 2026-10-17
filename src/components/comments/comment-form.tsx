@@ -1,18 +1,25 @@
 "use client";
 
 import { useActionState, useRef } from "react";
-import { submitCommentAction, type CommentFormState } from "@/features/comments/actions";
+import { issueCommentTokenAction, submitCommentAction, type CommentFormState } from "@/features/comments/actions";
 
 const initialState: CommentFormState = {};
 
-export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: { articleId: string; csrfToken: string; parentCommentId?: string; onDone?: () => void }) {
+export function CommentForm({ articleId, parentCommentId, onDone }: { articleId: string; parentCommentId?: string; onDone?: () => void }) {
   const [state, formAction, isPending] = useActionState(submitCommentAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  // The article page is cached, so the token can't be baked into it: fetch one
+  // when the reader first touches the form (and on submit if that hasn't happened).
+  const token = useRef<Promise<string> | null>(null);
+  const getToken = () => (token.current ??= issueCommentTokenAction());
 
   return (
     <form
       ref={formRef}
+      onFocusCapture={() => void getToken()}
       action={async (formData) => {
+        formData.set("csrfToken", await getToken());
+        token.current = null;
         await formAction(formData);
         formRef.current?.reset();
         onDone?.();
@@ -20,7 +27,6 @@ export function CommentForm({ articleId, csrfToken, parentCommentId, onDone }: {
       className="space-y-3"
     >
       <input type="hidden" name="articleId" value={articleId} />
-      <input type="hidden" name="csrfToken" value={csrfToken} />
       {parentCommentId && <input type="hidden" name="parentCommentId" value={parentCommentId} />}
       {/* Honeypot — hidden from real users via CSS, left unstyled-visible to naive bots that ignore CSS. */}
       <div className="absolute left-[-9999px]" aria-hidden="true">

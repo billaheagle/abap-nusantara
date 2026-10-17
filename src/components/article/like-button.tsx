@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Heart } from "lucide-react";
-import { toggleLikeAction } from "@/features/likes/actions";
+import { getLikeState, toggleLikeAction } from "@/features/likes/actions";
 
-export function LikeButton({ articleId, initialLiked, initialCount }: { articleId: string; initialLiked: boolean; initialCount: number }) {
-  const [liked, setLiked] = useState(initialLiked);
+export function LikeButton({ articleId, initialCount }: { articleId: string; initialCount: number }) {
+  // The page is cached, so whether this visitor liked it (their anon cookie)
+  // is asked once the page has loaded.
+  const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(initialCount);
+  useEffect(() => {
+    let live = true;
+    getLikeState(articleId).then((s) => {
+      if (!live) return;
+      setLiked(s.liked);
+      setCount(s.count);
+    });
+    return () => {
+      live = false;
+    };
+  }, [articleId]);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 

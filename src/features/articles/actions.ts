@@ -17,6 +17,19 @@ async function requireAdmin() {
 
 export type ArticleFormState = { error?: string; fieldErrors?: Record<string, string> };
 
+
+/**
+ * Public pages that show an article are cached (ISR). After a change, refresh
+ * the ones that list or show it now instead of waiting for the next cycle.
+ */
+function revalidatePublic(slug?: string) {
+  revalidatePath("/admin/articles");
+  revalidatePath("/articles");
+  revalidatePath("/");
+  revalidatePath("/feed.xml");
+  if (slug) revalidatePath(`/articles/${slug}`);
+}
+
 export async function createArticleAction(_prev: ArticleFormState, formData: FormData): Promise<ArticleFormState> {
   await requireAdmin();
 
@@ -60,8 +73,7 @@ export async function createArticleAction(_prev: ArticleFormState, formData: For
     },
   });
 
-  revalidatePath("/admin/articles");
-  revalidatePath("/articles");
+  revalidatePublic();
   redirect(`/admin/articles/${article.id}`);
 }
 
@@ -116,22 +128,19 @@ export async function updateArticleAction(id: string, _prev: ArticleFormState, f
     }),
   ]);
 
-  revalidatePath("/admin/articles");
-  revalidatePath(`/articles/${data.slug}`);
-  revalidatePath("/articles");
+  revalidatePublic(data.slug);
   return {};
 }
 
 export async function deleteArticleAction(id: string) {
   await requireAdmin();
-  await prisma.article.delete({ where: { id } });
-  revalidatePath("/admin/articles");
-  revalidatePath("/articles");
+  const { slug } = await prisma.article.delete({ where: { id }, select: { slug: true } });
+  revalidatePublic(slug);
 }
 
 export async function setArticleStatusAction(id: string, status: "DRAFT" | "PUBLISHED" | "ARCHIVED") {
   await requireAdmin();
-  const existing = await prisma.article.findUnique({ where: { id }, select: { publishedAt: true } });
+  const existing = await prisma.article.findUnique({ where: { id }, select: { publishedAt: true, slug: true } });
   await prisma.article.update({
     where: { id },
     data: {
@@ -139,6 +148,5 @@ export async function setArticleStatusAction(id: string, status: "DRAFT" | "PUBL
       publishedAt: status === "PUBLISHED" ? (existing?.publishedAt ?? new Date()) : existing?.publishedAt,
     },
   });
-  revalidatePath("/admin/articles");
-  revalidatePath("/articles");
+  revalidatePublic(existing?.slug);
 }

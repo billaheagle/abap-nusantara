@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { ArrowLeft, ArrowRight, ListTree } from "lucide-react";
 import { GithubIcon } from "@/components/ui/github-icon";
-import { getArticleBySlug, getRelatedArticles } from "@/features/articles/queries";
+import { getAllPublishedSlugs, getArticleBySlug, getRelatedArticles } from "@/features/articles/queries";
 import { isAdminPreview } from "@/lib/auth/preview";
 import { PreviewBanner } from "@/components/article/preview-banner";
 import { ArticleRenderer } from "@/components/article/article-renderer";
@@ -21,12 +21,18 @@ import { ArticleCard } from "@/components/ui/article-card";
 import { CommentForm } from "@/components/comments/comment-form";
 import { CommentThread } from "@/components/comments/comment-thread";
 import { buildCommentTree } from "@/features/comments/tree";
-import { getLikeState } from "@/features/likes/actions";
-import { issueCsrfToken } from "@/lib/security/csrf";
 import { prisma } from "@/lib/db/prisma";
 import { getSetting } from "@/features/settings/queries";
 
+// Cached and refreshed in the background (ISR): nothing here reads the
+// request. Per-visitor bits load in the browser: the like state from
+// LikeButton, the comment token when someone starts a comment. Draft-mode
+// previews skip the cache.
 export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return (await getAllPublishedSlugs()).map(({ slug }) => ({ slug }));
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -77,12 +83,11 @@ export default async function ArticlePage({ params }: PageProps) {
   const article = await getArticleBySlug(slug, { preview });
   if (!article) notFound();
 
-  const csrfToken = issueCsrfToken();
   // Likes and comments only make sense once the article is live.
   const draftPreview = preview && article.status !== "PUBLISHED";
-  const [related, likeState, approvedComments, highlighted, hireMe, general] = await Promise.all([
+  const [related, likeCount, approvedComments, highlighted, hireMe, general] = await Promise.all([
     getRelatedArticles(article.id, article.categoryId, article.tags.map((t) => t.tag.slug)),
-    getLikeState(article.id),
+    prisma.like.count({ where: { articleId: article.id } }),
     prisma.comment.findMany({
       where: { articleId: article.id, status: "APPROVED" },
       orderBy: { createdAt: "asc" },
@@ -307,7 +312,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
           {!draftPreview && (
             <div className="mt-6">
-              <LikeButton articleId={article.id} initialLiked={likeState.liked} initialCount={likeState.count} />
+              <LikeButton articleId={article.id} initialCount={likeCount} />
             </div>
           )}
 
@@ -378,9 +383,9 @@ export default async function ArticlePage({ params }: PageProps) {
           ) : (
             <>
               <div className="mb-8">
-                <CommentForm articleId={article.id} csrfToken={csrfToken} />
+                <CommentForm articleId={article.id} />
               </div>
-              <CommentThread comments={commentTree} articleId={article.id} csrfToken={csrfToken} />
+              <CommentThread comments={commentTree} articleId={article.id} />
             </>
           )}
         </section>

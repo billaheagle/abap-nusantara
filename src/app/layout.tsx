@@ -3,11 +3,12 @@ import { Bricolage_Grotesque, JetBrains_Mono, Literata } from "next/font/google"
 import "./globals.css";
 import { getSetting } from "@/features/settings/queries";
 
-// Interface and headings: a lively grotesque with width and optical-size axes.
+// Interface and headings: a lively grotesque with a width axis. Preloaded on
+// every page, so the optical-size axis is left out: 129 KB down to 78 KB.
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
   subsets: ["latin"],
-  axes: ["wdth", "opsz"],
+  axes: ["wdth"],
 });
 
 // Article body: a serif designed for long reading on screens. Only article

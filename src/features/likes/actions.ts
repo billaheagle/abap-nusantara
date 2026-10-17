@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { likeSchema } from "@/lib/validation/schemas";
 import { readAnonHash, getOrCreateAnonHash } from "@/lib/security/anon";
@@ -35,8 +34,9 @@ export async function toggleLikeAction(articleId: string): Promise<{ liked: bool
     await prisma.like.create({ data: { articleId, anonHash } }).catch(() => null);
   }
 
+  // No revalidatePath: article pages are cached and LikeButton asks for the
+  // current count itself, so one like doesn't invalidate every article.
   const count = await prisma.like.count({ where: { articleId } });
-  revalidatePath("/articles/[slug]", "page");
   return { liked: !existing, count };
 }
 

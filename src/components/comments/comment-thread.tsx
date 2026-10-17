@@ -22,7 +22,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function CommentItem({ comment, articleId, csrfToken, depth }: { comment: CommentNode; articleId: string; csrfToken: string; depth: number }) {
+function CommentItem({ comment, articleId, depth }: { comment: CommentNode; articleId: string; depth: number }) {
   const [replying, setReplying] = useState(false);
   const canNestFurther = depth < 4;
 
@@ -54,14 +54,14 @@ function CommentItem({ comment, articleId, csrfToken, depth }: { comment: Commen
 
         {replying && (
           <div className="mt-2">
-            <CommentForm articleId={articleId} csrfToken={csrfToken} parentCommentId={comment.id} onDone={() => setReplying(false)} />
+            <CommentForm articleId={articleId} parentCommentId={comment.id} onDone={() => setReplying(false)} />
           </div>
         )}
 
         {comment.replies.length > 0 && (
           <ul className="mt-3 space-y-3 border-l border-border pl-2 sm:pl-4">
             {comment.replies.map((reply) => (
-              <CommentItem key={reply.id} comment={reply} articleId={articleId} csrfToken={csrfToken} depth={depth + 1} />
+              <CommentItem key={reply.id} comment={reply} articleId={articleId} depth={depth + 1} />
             ))}
           </ul>
         )}
@@ -70,14 +70,14 @@ function CommentItem({ comment, articleId, csrfToken, depth }: { comment: Commen
   );
 }
 
-export function CommentThread({ comments, articleId, csrfToken }: { comments: CommentNode[]; articleId: string; csrfToken: string }) {
+export function CommentThread({ comments, articleId }: { comments: CommentNode[]; articleId: string }) {
   if (comments.length === 0) {
     return <p className="text-sm text-foreground-muted">Belum ada komentar. Jadilah yang pertama berbagi pendapat.</p>;
   }
   return (
     <ul className="space-y-5">
       {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} articleId={articleId} csrfToken={csrfToken} depth={0} />
+        <CommentItem key={comment.id} comment={comment} articleId={articleId} depth={0} />
       ))}
     </ul>
   );
