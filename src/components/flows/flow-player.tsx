@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Fragment, memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   ArrowLeftRight,
   Braces,
@@ -145,7 +145,8 @@ function Label({ node, layout, active }: { node: LaidNode; layout: Layout; activ
   );
 }
 
-function Node({ node, layout, state }: { node: LaidNode; layout: Layout; state: "active" | "visited" | "idle" }) {
+// Memoised: a step change re-renders only the nodes whose state changed.
+const Node = memo(function Node({ node, layout, state }: { node: LaidNode; layout: Layout; state: "active" | "visited" | "idle" }) {
   const Icon = ICONS[node.icon];
   const base = NODE_STYLE[node.kind];
   const look = state === "active" ? ACTIVE : base;
@@ -181,7 +182,53 @@ function Node({ node, layout, state }: { node: LaidNode; layout: Layout; state: 
       <Label node={node} layout={layout} active={state === "active"} />
     </g>
   );
-}
+});
+
+/** Lines, arrows, the exception lane and the return-path notes: redrawn only when the layout changes. */
+const Backdrop = memo(function Backdrop({ layout }: { layout: Layout }) {
+  const { lane } = layout;
+  return (
+    <>
+      <defs>
+        {(Object.keys(STROKE) as EdgeTone[]).map((t) => (
+          <marker key={t} id={`flow-arrow-${t}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M1,1 L7,4 L1,7" fill="none" stroke={STROKE[t]} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </marker>
+        ))}
+      </defs>
+
+      {lane && (
+        <g>
+          <rect x={lane.x} y={lane.y} width={lane.w} height={lane.h} rx={16} fill="rgb(122 51 70 / 0.12)" stroke="rgb(240 96 104 / 0.35)" strokeDasharray="5 4" />
+          {/* Header row, starting right of Error Start so the way in (straight down onto it) stays clear. */}
+          <text x={lane.start.x + lane.startR + 8} y={lane.y + 16} fontSize={layout.font} fontWeight={700} className="fill-[#f2a7b2]">
+            {lane.name}
+          </text>
+          <circle cx={lane.start.x} cy={lane.start.y} r={lane.startR} fill="#2c1730" stroke="#f06068" strokeWidth={1.5} />
+          <Zap x={lane.start.x - lane.startR * 0.6} y={lane.start.y - lane.startR * 0.6} width={lane.startR * 1.2} height={lane.startR * 1.2} color="#f06068" strokeWidth={2.4} />
+        </g>
+      )}
+
+      {layout.edges.map((e, i) => (
+        <path
+          key={i}
+          d={e.d}
+          fill="none"
+          stroke={STROKE[e.tone]}
+          strokeWidth={e.tone === "main" ? 2 : 1.6}
+          strokeDasharray={e.dashed ? "5 4" : undefined}
+          strokeLinejoin="round"
+          markerEnd={e.arrow ? `url(#flow-arrow-${e.tone})` : undefined}
+        />
+      ))}
+      {layout.notes.map((n) => (
+        <text key={n.text} x={n.x} y={n.y} textAnchor="middle" fontSize={layout.font - 0.5} fontWeight={600} fill={STROKE[n.tone]}>
+          {n.text}
+        </text>
+      ))}
+    </>
+  );
+});
 
 export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.ReactNode }) {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -209,6 +256,7 @@ export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.
   /** Set once the reader picks a tab or a step: playback then stays in that scenario. */
   const [pinned, setPinned] = useState(false);
   const [paused, setPaused] = useState<boolean | null>(null);
+  const [inView, setInView] = useState(false);
   const playing = paused === null ? !reduced : !paused;
 
   const scenario = spec.scenarios[pos.scenario];
@@ -261,7 +309,7 @@ export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.
 
   // Auto-advance: through the scenario, then on to the next one unless pinned.
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !inView) return;
     const last = pos.frame === frames.length - 1;
     const t = setTimeout(
       () =>
@@ -272,7 +320,17 @@ export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.
       duration + (last ? DWELL_LAST : DWELL),
     );
     return () => clearTimeout(t);
-  }, [playing, pos, frames.length, duration, pinned, spec.scenarios.length]);
+  }, [playing, inView, pos, frames.length, duration, pinned, spec.scenarios.length]);
+
+  // Play only while the figure is on screen, so readers don't arrive mid-way and
+  // nothing runs for a figure further down the page.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const visited = new Set(frames.slice(0, frameIndex).map((f) => (f.at === FLOW_REPLY ? "sender" : f.at)));
   const activeId = frame.at === FLOW_REPLY ? "sender" : frame.at;
@@ -291,7 +349,6 @@ export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.
     }
   };
 
-  const { lane } = layout;
 
   return (
     <figure className="grain relative m-0 overflow-hidden rounded-[22px] bg-ink p-3 font-sans text-ink-foreground shadow-[0_30px_60px_-20px_rgb(15_19_54/0.45),inset_0_0_0_1px_var(--ink-border)] sm:rounded-[26px] sm:p-[18px]">
@@ -344,43 +401,7 @@ export function FlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.
           className={`block h-auto w-full transition-opacity duration-300 ${width ? "opacity-100" : "opacity-0"}`}
           fontFamily="inherit"
         >
-          <defs>
-            {(Object.keys(STROKE) as EdgeTone[]).map((t) => (
-              <marker key={t} id={`flow-arrow-${t}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M1,1 L7,4 L1,7" fill="none" stroke={STROKE[t]} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </marker>
-            ))}
-          </defs>
-
-          {lane && (
-            <g>
-              <rect x={lane.x} y={lane.y} width={lane.w} height={lane.h} rx={16} fill="rgb(122 51 70 / 0.12)" stroke="rgb(240 96 104 / 0.35)" strokeDasharray="5 4" />
-              {/* Header row, starting right of Error Start so the way in (straight down onto it) stays clear. */}
-              <text x={lane.start.x + lane.startR + 8} y={lane.y + 16} fontSize={layout.font} fontWeight={700} className="fill-[#f2a7b2]">
-                {lane.name}
-              </text>
-              <circle cx={lane.start.x} cy={lane.start.y} r={lane.startR} fill="#2c1730" stroke="#f06068" strokeWidth={1.5} />
-              <Zap x={lane.start.x - lane.startR * 0.6} y={lane.start.y - lane.startR * 0.6} width={lane.startR * 1.2} height={lane.startR * 1.2} color="#f06068" strokeWidth={2.4} />
-            </g>
-          )}
-
-          {layout.edges.map((e, i) => (
-            <path
-              key={i}
-              d={e.d}
-              fill="none"
-              stroke={STROKE[e.tone]}
-              strokeWidth={e.tone === "main" ? 2 : 1.6}
-              strokeDasharray={e.dashed ? "5 4" : undefined}
-              strokeLinejoin="round"
-              markerEnd={e.arrow ? `url(#flow-arrow-${e.tone})` : undefined}
-            />
-          ))}
-          {layout.notes.map((n) => (
-            <text key={n.text} x={n.x} y={n.y} textAnchor="middle" fontSize={layout.font - 0.5} fontWeight={600} fill={STROKE[n.tone]}>
-              {n.text}
-            </text>
-          ))}
+          <Backdrop layout={layout} />
 
           <path
             key={`${pos.scenario}-${frameIndex}-${layout.width}`}
