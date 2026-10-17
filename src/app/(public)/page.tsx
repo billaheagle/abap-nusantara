@@ -4,7 +4,7 @@ import { getPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
-import { LazyFlowPlayer } from "@/components/flows/lazy-flow-player";
+import { FlowPlayer } from "@/components/flows/flow-player";
 import { HOME_FLOW } from "@/lib/flows/home-flow";
 import { firstFlowSpec } from "@/lib/flows/attach";
 import { AlphaTry } from "@/components/home/alpha-try";
@@ -148,10 +148,9 @@ export default async function HomePage() {
             </dl>
           </div>
 
-          {/* Loaded once the page is idle: the shell is identical, and the player's
-              first render no longer competes with the page's own load. */}
-          <LazyFlowPlayer
-            when="idle"
+          {/* Loaded with the page: the hero is on screen from the start, and loading it
+              later (when idle) measured worse, as a separate download, parse and render. */}
+          <FlowPlayer
             spec={heroFlow.spec}
             caption={
               iflowArticle && (

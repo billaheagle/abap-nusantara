@@ -101,33 +101,13 @@ function Shell({ spec, caption, failed = false }: { spec: FlowSpec; caption?: Re
   );
 }
 
-/**
- * `when="near"` (articles): load as the figure approaches the screen.
- * `when="idle"` (the home hero, on screen from the start): load once the page
- * has finished loading and the browser is idle.
- */
-export function LazyFlowPlayer({ spec, caption, when = "near" }: { spec: FlowSpec; caption?: React.ReactNode; when?: "near" | "idle" }) {
+export function LazyFlowPlayer({ spec, caption }: { spec: FlowSpec; caption?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
 
   useEffect(() => {
-    if (when !== "idle") return;
-    let idle = 0;
-    const start = () => {
-      idle = "requestIdleCallback" in window ? window.requestIdleCallback(() => setNear(true), { timeout: 2000 }) : Number(setTimeout(() => setNear(true), 300));
-    };
-    if (document.readyState === "complete") start();
-    else window.addEventListener("load", start, { once: true });
-    return () => {
-      window.removeEventListener("load", start);
-      if ("cancelIdleCallback" in window) window.cancelIdleCallback(idle);
-      else clearTimeout(idle);
-    };
-  }, [when]);
-
-  useEffect(() => {
     const el = ref.current;
-    if (!el || when === "idle") return;
+    if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
@@ -138,7 +118,7 @@ export function LazyFlowPlayer({ spec, caption, when = "near" }: { spec: FlowSpe
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [when]);
+  }, []);
 
   const shell = <Shell spec={spec} caption={caption} />;
   return <div ref={ref}>{near ? <Suspense fallback={shell}>{<FlowPlayer spec={spec} caption={caption} />}</Suspense> : shell}</div>;
