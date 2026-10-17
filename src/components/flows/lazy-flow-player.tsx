@@ -4,7 +4,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2 } from "lucide-react";
 import { layoutFlow } from "@/lib/flows/layout";
 import type { FlowSpec } from "@/lib/flows/types";
-import { Rich, SlotBox, distinct } from "./frame-parts";
+import { Rich, SlotPanels, distinct } from "./frame-parts";
 
 /**
  * Article flows sit below the fold, so the player's code (and its first
@@ -71,11 +71,7 @@ function Shell({ spec, caption, failed = false }: { spec: FlowSpec; caption?: Re
         </div>
       )}
       <div ref={canvasRef} className="bg-grid-dark rounded-[18px] bg-ink-elevated" style={{ height: layoutFlow(spec, width).height }} />
-      <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
-        {spec.slots.map((s, i) => (
-          <SlotBox key={s.title} title={s.title} note={s.note} values={distinct(allFrames.map((f) => f.values[i]))} value={first.values[i]} />
-        ))}
-      </div>
+      <SlotPanels slots={spec.slots} allValues={spec.slots.map((_, i) => distinct(allFrames.map((f) => f.values[i])))} values={first.values} />
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-sm text-ink-foreground-muted [&_b]:font-semibold [&_b]:text-ink-foreground">
         <span className="shrink-0 font-mono text-xs font-semibold text-kunyit" style={{ minWidth: `${2 * String(maxFrames).length + 1}ch` }}>
           1/{frames.length}

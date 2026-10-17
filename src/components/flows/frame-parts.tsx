@@ -36,6 +36,69 @@ export function Stack({ texts, current, render }: { texts: string[]; current: st
   );
 }
 
+/**
+ * The three panels. On a wide screen they sit side by side; on a phone they'd
+ * stack into a column taller than the screen, so they become tabs over one
+ * panel (sized for the longest text of any slot). A dot marks a tab whose
+ * value changed at this frame, so changes aren't missed on hidden tabs.
+ */
+export function SlotPanels({
+  slots,
+  allValues,
+  values,
+  previous,
+}: {
+  slots: { title: string; note: string }[];
+  /** Every value each slot can show, across all frames. */
+  allValues: string[][];
+  values: string[];
+  /** The previous frame's values, to mark what changed. */
+  previous?: string[];
+}) {
+  const [tab, setTab] = useState(0);
+  const union = distinct(allValues.flat());
+  return (
+    <>
+      <div className="mt-2.5 hidden gap-2 sm:grid sm:grid-cols-3">
+        {slots.map((s, i) => (
+          <SlotBox key={s.title} title={s.title} note={s.note} values={allValues[i]} value={values[i]} />
+        ))}
+      </div>
+      <div className="mt-2.5 sm:hidden">
+        <div role="tablist" aria-label="Isi pesan" className="mb-1.5 grid grid-cols-3 gap-1 rounded-[12px] border border-ink-border bg-ink-elevated p-1">
+          {slots.map((s, i) => {
+            const on = i === tab;
+            const changed = !!previous && previous[i] !== values[i];
+            return (
+              <button
+                key={s.title}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setTab(i)}
+                className={`relative min-w-0 cursor-pointer truncate rounded-[9px] px-2 py-1.5 text-xs font-bold transition-colors ${
+                  on ? "bg-[#2a3180] text-ink-foreground" : "text-ink-foreground-muted"
+                }`}
+              >
+                {s.title}
+                {changed && !on && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-kunyit" aria-label="berubah" />}
+              </button>
+            );
+          })}
+        </div>
+        <div className="rounded-[14px] border border-ink-border bg-ink-elevated px-3 py-2.5">
+          <p className="mb-1.5 text-right text-xs font-medium text-ink-foreground-muted opacity-80">
+            <Stack texts={distinct(slots.map((s) => s.note))} current={slots[tab].note} render={(t) => t} />
+          </p>
+          <pre className="m-0 whitespace-pre-wrap font-mono text-xs leading-normal text-ink-foreground [overflow-wrap:anywhere]">
+            <Stack texts={union} current={values[tab]} render={(t) => t} />
+          </pre>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function SlotBox({ title, note, values, value }: { title: string; note: string; values: string[]; value: string }) {
   const [flash, setFlash] = useState(false);
   const prev = useRef(value);

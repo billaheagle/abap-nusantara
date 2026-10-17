@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { FLOW_REPLY, type FlowFrame, type FlowIcon, type FlowSpec } from "@/lib/flows/types";
 import { layoutFlow, nodeAt, pathLength, pointAlong, toPathD, travelPath, type EdgeTone, type LaidNode, type Layout } from "@/lib/flows/layout";
-import { Rich, SlotBox, Stack, distinct } from "./frame-parts";
+import { Rich, SlotPanels, Stack, distinct } from "./frame-parts";
 
 /**
  * One message walking through an iFlow. The diagram is laid out from the spec
@@ -546,11 +546,7 @@ export function FlowPlayer({
         </div>
       </div>
 
-      <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
-        {spec.slots.map((s, i) => (
-          <SlotBox key={s.title} title={s.title} note={s.note} values={slotTexts[i]} value={frame.values[i]} />
-        ))}
-      </div>
+      <SlotPanels slots={spec.slots} allValues={slotTexts} values={frame.values} previous={prev?.values} />
 
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-sm text-ink-foreground-muted [&_b]:font-semibold [&_b]:text-ink-foreground">
         {/* Fixed width: "10/11" is wider than "1/11" and would rewrap the caption. */}
