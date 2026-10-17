@@ -14,6 +14,7 @@ import { addImageDimensions } from "@/lib/editor/image-dimensions";
 import { addHeadingIds } from "@/lib/editor/headings";
 import { attachFlowSpecs } from "@/lib/flows/attach";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
+import { SeriesRail } from "@/components/article/series-rail";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 import { LikeButton } from "@/components/article/like-button";
 import { ViewTracker } from "@/components/article/view-tracker";
@@ -145,51 +146,15 @@ export default async function ArticlePage({ params }: PageProps) {
   };
 
   const tone = coverTone(article.series?.order, article.slug);
-  const seriesBox =
-    article.series && seriesArticles.length > 1 ? (
-      <div className="rounded-[18px] border border-border bg-surface-elevated p-3.5">
-        <Link href={`/series/${article.series.slug}`} className="block px-1 text-sm font-bold leading-snug hover:text-brand-dark">
-          {article.series.title}
-        </Link>
-        {/* A timeline: read parts in indigo, the current one in turmeric, the rest outlined. */}
-        <ol className="mt-3 grid">
-          {seriesArticles.map((a, i) => {
-            const state = a.id === article.id ? "cur" : i < currentIndexInSeries ? "done" : "todo";
-            const isNext = i === currentIndexInSeries + 1;
-            return (
-              <li
-                key={a.id}
-                className="relative pb-2.5 last:pb-0 before:absolute before:left-[10.5px] before:top-6 before:bottom-0 before:w-px before:bg-border last:before:hidden"
-              >
-                <Link
-                  href={`/articles/${a.slug}`}
-                  aria-current={state === "cur" ? "page" : undefined}
-                  className={`group/part grid grid-cols-[22px_minmax(0,1fr)] gap-2.5 text-[0.8125rem] leading-snug ${
-                    state === "cur" ? "font-semibold text-foreground" : "text-foreground-muted"
-                  }`}
-                >
-                  <span
-                    className={`relative z-[1] grid h-[22px] w-[22px] place-items-center rounded-full text-[0.6875rem] font-bold tabular-nums ${
-                      state === "cur"
-                        ? "bg-kunyit text-[#241800] shadow-[0_0_0_4px_rgb(242_182_50/0.2)]"
-                        : state === "done"
-                          ? "bg-brand text-white"
-                          : "border border-border-strong bg-surface-elevated"
-                    }`}
-                  >
-                    {a.seriesOrder ?? i + 1}
-                  </span>
-                  <span className="pt-0.5">
-                    <span className={state === "cur" ? "" : "transition-colors group-hover/part:text-brand-dark"}>{a.title}</span>
-                    {isNext && <span className="mt-0.5 block text-xs font-semibold text-brand-dark">Berikutnya →</span>}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-    ) : null;
+  const seriesRail =
+    article.series && seriesArticles.length > 1
+      ? {
+          title: article.series.title,
+          href: `/series/${article.series.slug}`,
+          items: seriesArticles.map((a, i) => ({ id: a.id, slug: a.slug, title: a.title, order: a.seriesOrder ?? i + 1 })),
+          currentId: article.id,
+        }
+      : null;
 
   return (
     <article>
@@ -280,7 +245,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <div className={`min-w-0 ${headings.length > 1 ? "" : "xl:col-start-2"}`}>
           {headings.length > 1 && (
-            <details className="group mb-8 rounded-[18px] border border-border bg-surface-elevated lg:hidden">
+            <details className="group mb-8 rounded-[18px] border border-border bg-surface-elevated xl:hidden">
               <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-[0.9375rem] font-semibold [&::-webkit-details-marker]:hidden">
                 <ListTree className="h-4 w-4 text-brand" aria-hidden="true" />
                 Daftar isi
@@ -345,20 +310,24 @@ export default async function ArticlePage({ params }: PageProps) {
             </nav>
           )}
 
-          {seriesBox && <div className="mt-8 lg:hidden">{seriesBox}</div>}
+          {seriesRail && (
+            <div className="mt-8 lg:hidden">
+              <SeriesRail {...seriesRail} />
+            </div>
+          )}
 
           <ReaderControls minutes={article.readingTimeMin} variant="bar" />
         </div>
 
-        <aside aria-label="Pengaturan baca dan seri" className="sticky top-24 hidden max-h-[calc(100vh-7rem)] self-start overflow-y-auto lg:grid lg:gap-6">
+        {/* Sized to fit the screen (compact series rail, TOC in its own column or the
+            panel above the article), so it needs no scrollbar; on a very short
+            screen it can still scroll, with the bar hidden. */}
+        <aside
+          aria-label="Pengaturan baca dan seri"
+          className="sticky top-24 hidden max-h-[calc(100vh-7rem)] self-start overflow-y-auto [scrollbar-width:none] lg:grid lg:gap-6 [&::-webkit-scrollbar]:hidden"
+        >
           <ReaderControls minutes={article.readingTimeMin} variant="rail" />
-          {headings.length > 1 && (
-            <div className="xl:hidden">
-              <p className="mb-2.5 text-[0.8125rem] font-bold text-foreground-muted">Di artikel ini</p>
-              <ArticleToc headings={headings} />
-            </div>
-          )}
-          {seriesBox}
+          {seriesRail && <SeriesRail {...seriesRail} compact />}
         </aside>
       </div>
 
