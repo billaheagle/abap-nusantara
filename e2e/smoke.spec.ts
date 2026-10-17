@@ -37,7 +37,8 @@ test("home page loads, and the hero flow plays", async ({ page }) => {
   await expect(page.locator("h1")).toBeVisible();
   // The hero swaps its shell for the player once the page is idle.
   await expect(page.locator("figure svg[viewBox]").first()).toBeVisible({ timeout: 15_000 });
-  await expect(page.locator("figure [role=tab]").first()).toBeVisible();
+  // The player's own controls (scenario tabs only exist when a flow has several).
+  await expect(page.locator("figure").getByRole("button", { name: /^(Jeda|Putar)$/ }).first()).toBeVisible();
   await noSidewaysScroll(page);
   expect(errors, "console errors").toEqual([]);
 });
