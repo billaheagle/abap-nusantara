@@ -100,7 +100,9 @@ export function FlowWorkbench({ articles, initial }: { articles: FlowSource[]; i
           value={source}
           onChange={(e) => setSource(e.target.value)}
           spellCheck={false}
-          className="h-[68vh] min-h-[22rem] w-full resize-y rounded-xl border border-border bg-surface-elevated p-3 font-mono text-xs leading-relaxed outline-none focus:border-brand"
+          // One frame per line reads best unwrapped; long lines scroll sideways.
+          wrap="off"
+          className="h-[68vh] min-h-[22rem] w-full resize-y overflow-x-auto whitespace-pre rounded-xl border border-border bg-surface-elevated p-3 font-mono text-xs leading-relaxed outline-none focus:border-brand"
         />
         <div aria-live="polite" className="mt-2 min-h-[2.5rem] text-sm">
           {!result ? (

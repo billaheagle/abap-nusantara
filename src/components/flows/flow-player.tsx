@@ -209,14 +209,37 @@ const Backdrop = memo(function Backdrop({ layout }: { layout: Layout }) {
  * phone it spans the canvas, top or bottom), and fades in once the envelope
  * has arrived. Long bodies scroll inside the card.
  */
-function ResponseCard({ frame, layout, senderLabel, delay, expanded }: { frame: FlowFrame; layout: Layout; senderLabel: string; delay: number; expanded: boolean }) {
+function ResponseCard({
+  frame,
+  layout,
+  senderLabel,
+  delay,
+  expanded,
+  view,
+}: {
+  frame: FlowFrame;
+  layout: Layout;
+  senderLabel: string;
+  delay: number;
+  expanded: boolean;
+  /**
+   * Full screen: the card sits on the visible area (w × h, the drawing scaled
+   * by z), not on the drawing, so zooming or panning never pushes it off
+   * screen. When the drawing pans, the active node is kept centred.
+   */
+  view?: { w: number; h: number; z: number; pans: boolean };
+}) {
   const response = frame.response!;
   const n = nodeAt(layout, frame.at);
   const reply = frame.at === FLOW_REPLY;
-  const narrow = layout.width < 560;
-  const width = narrow ? layout.width - 16 : Math.min(expanded ? 380 : 320, Math.round(layout.width * 0.46));
-  const place: React.CSSProperties = n.y < layout.height / 2 ? { bottom: 8 } : { top: 8 };
-  if (narrow || n.x > layout.width / 2) place.left = 8;
+  const boxW = view ? view.w : layout.width;
+  const nodeX = view ? (view.pans ? boxW / 2 : n.x * view.z) : n.x;
+  const nodeY = view ? n.y * view.z : n.y;
+  const boxH = view ? view.h : layout.height;
+  const narrow = boxW < 560;
+  const width = narrow ? boxW - 16 : Math.min(expanded ? 380 : 320, Math.round(boxW * 0.46));
+  const place: React.CSSProperties = nodeY < boxH / 2 ? { bottom: 8 } : { top: 8 };
+  if (narrow || nodeX > boxW / 2) place.left = 8;
   else place.right = 8;
 
   const ok = response.status.trim().startsWith("2");
@@ -493,57 +516,63 @@ export function FlowPlayer({
         </div>
       )}
 
-      <div ref={canvasRef} className={`bg-grid-dark rounded-[18px] bg-ink-elevated ${expanded ? "overflow-auto" : "relative"}`} aria-hidden="true">
-        <div className="relative" style={expanded ? { width: layout.width * z, height: layout.height * z } : undefined}>
-          <div
-            className="relative"
-            style={expanded ? { width: layout.width, height: layout.height, transform: `scale(${z})`, transformOrigin: "0 0" } : undefined}
-          >
-            <svg
-              viewBox={`0 0 ${layout.width} ${layout.height}`}
-              width={expanded ? layout.width : undefined}
-              height={expanded ? layout.height : undefined}
-              className={`block transition-opacity duration-300 ${expanded ? "" : "h-auto w-full"} ${width ? "opacity-100" : "opacity-0"}`}
-              fontFamily="inherit"
+      <div className="relative">
+        <div ref={canvasRef} className={`bg-grid-dark rounded-[18px] bg-ink-elevated ${expanded ? "overflow-auto" : "relative"}`} aria-hidden="true">
+          <div className="relative" style={expanded ? { width: layout.width * z, height: layout.height * z } : undefined}>
+            <div
+              className="relative"
+              style={expanded ? { width: layout.width, height: layout.height, transform: `scale(${z})`, transformOrigin: "0 0" } : undefined}
             >
-              <Backdrop layout={layout} />
+              <svg
+                viewBox={`0 0 ${layout.width} ${layout.height}`}
+                width={expanded ? layout.width : undefined}
+                height={expanded ? layout.height : undefined}
+                className={`block transition-opacity duration-300 ${expanded ? "" : "h-auto w-full"} ${width ? "opacity-100" : "opacity-0"}`}
+                fontFamily="inherit"
+              >
+                <Backdrop layout={layout} />
 
-              <path
-                key={`${pos.scenario}-${frameIndex}-${layout.width}`}
-                ref={trailRef}
-                d={toPathD(route)}
-                pathLength={1}
-                fill="none"
-                stroke={trailColor}
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="1 1"
-                strokeDashoffset={0}
-                opacity={0.85}
-              />
+                <path
+                  key={`${pos.scenario}-${frameIndex}-${layout.width}`}
+                  ref={trailRef}
+                  d={toPathD(route)}
+                  pathLength={1}
+                  fill="none"
+                  stroke={trailColor}
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray="1 1"
+                  strokeDashoffset={0}
+                  opacity={0.85}
+                />
 
-              {[...layout.nodes.values()].map((n) => (
-                <Node key={n.id} node={n} layout={layout} state={n.id === activeId ? "active" : visited.has(n.id) ? "visited" : "idle"} />
-              ))}
+                {[...layout.nodes.values()].map((n) => (
+                  <Node key={n.id} node={n} layout={layout} state={n.id === activeId ? "active" : visited.has(n.id) ? "visited" : "idle"} />
+                ))}
 
-              <g ref={envelopeRef} transform={`translate(${end.x + corner.x} ${end.y + corner.y})`} style={{ filter: "drop-shadow(0 4px 8px rgb(0 0 0 / 0.4))" }}>
-                <rect x={-11} y={-8} width={22} height={16} rx={3} fill={envelopeFill} style={{ transition: "fill .3s" }} />
-                <path d="M-10,-7 L0,1 L10,-7" fill="none" stroke="#9aa0cf" strokeWidth={1.3} strokeLinejoin="round" />
-              </g>
-            </svg>
-            {frame.response && width > 0 && (
-              <ResponseCard
-                key={`${pos.scenario}-${frameIndex}`}
-                frame={frame}
-                layout={layout}
-                senderLabel={spec.sender.label}
-                delay={duration}
-                expanded={expanded}
-              />
-            )}
+                <g ref={envelopeRef} transform={`translate(${end.x + corner.x} ${end.y + corner.y})`} style={{ filter: "drop-shadow(0 4px 8px rgb(0 0 0 / 0.4))" }}>
+                  <rect x={-11} y={-8} width={22} height={16} rx={3} fill={envelopeFill} style={{ transition: "fill .3s" }} />
+                  <path d="M-10,-7 L0,1 L10,-7" fill="none" stroke="#9aa0cf" strokeWidth={1.3} strokeLinejoin="round" />
+                </g>
+              </svg>
+              {!expanded && frame.response && width > 0 && (
+                <ResponseCard key={`${pos.scenario}-${frameIndex}`} frame={frame} layout={layout} senderLabel={spec.sender.label} delay={duration} expanded={false} />
+              )}
+            </div>
           </div>
         </div>
+        {expanded && frame.response && width > 0 && (
+          <ResponseCard
+            key={`${pos.scenario}-${frameIndex}`}
+            frame={frame}
+            layout={layout}
+            senderLabel={spec.sender.label}
+            delay={duration}
+            expanded
+            view={{ w: width, h: layout.height * z, z, pans: layout.width * z > width + 1 }}
+          />
+        )}
       </div>
 
       <SlotPanels slots={spec.slots} allValues={slotTexts} values={frame.values} previous={prev?.values} />
