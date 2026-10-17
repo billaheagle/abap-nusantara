@@ -177,6 +177,7 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
 const isFlowBlock = (node: TiptapNode) => node.type === "codeBlock" && node.attrs?.language === FLOW_LANGUAGE;
 
 const FLOW_CAPTION = "Ikuti satu pesan melewati iFlow di artikel ini. Klik titik langkah untuk berhenti di satu tahap.";
+const FLOW_CAPTION_SCENARIOS = "Ikuti satu pesan melewati iFlow di artikel ini. Pilih skenario di atas, atau klik titik langkah untuk berhenti di satu tahap.";
 
 /**
  * A ```flow block. The server validates it (lib/flows/attach.ts) and leaves
@@ -193,7 +194,7 @@ function FlowBlock({ node }: { node: TiptapNode }) {
       </p>
     );
   }
-  return <FlowPlayer spec={spec} caption={FLOW_CAPTION} />;
+  return <FlowPlayer spec={spec} caption={spec.scenarios.length > 1 ? FLOW_CAPTION_SCENARIOS : FLOW_CAPTION} />;
 }
 
 /**

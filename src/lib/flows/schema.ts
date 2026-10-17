@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { FLOW_ICONS, type FlowSpec } from "./types";
+import { FLOW_ICONS, FLOW_REPLY, FLOW_SENDER, type FlowSpec } from "./types";
 
-export { FLOW_ICONS, FLOW_LANGUAGE, type FlowIcon, type FlowNode, type FlowSpec } from "./types";
+export { FLOW_ICONS, FLOW_LANGUAGE, type FlowIcon, type FlowSpec } from "./types";
 
 /**
  * Animated message flows inside articles.
@@ -12,70 +12,96 @@ export { FLOW_ICONS, FLOW_LANGUAGE, type FlowIcon, type FlowNode, type FlowSpec 
  * importer validates it, the renderer draws it, and it never counts towards
  * reading time.
  *
- * Coordinates are percentages of the canvas. Steps point at a node by index;
- * step text may use **bold** for step names.
+ * The spec names the parts (sender, steps, receivers, Exception Subprocess);
+ * the player lays them out. Frames point at a part by id, or at "sender" /
+ * "reply"; frame text may use **bold** for step names.
  *
  * Server and importer only: zod must not reach the browser bundle. Client
  * code imports types and constants from ./types.
  */
 
 const short = (max: number) => z.string().min(1).max(max);
-const percent = z.number().min(0).max(100);
+const id = z.string().regex(/^[a-z][a-zA-Z0-9_-]{0,23}$/, "lowercase letter first, then letters, digits, - or _ (max 24)");
+const icon = z.enum(FLOW_ICONS);
 const slot = z.object({ title: short(30), note: short(30) }).strict();
+const value = z.string().max(400);
+
+const step = z.object({ id, label: short(30), icon, calls: id.optional() }).strict();
 
 export const flowSpecSchema = z
   .object({
-    /** iFlow ID shown in the title bar. */
     name: short(60),
-    /** Sender address, or a short note for concept flows. */
     path: z.string().max(60),
-    /** Deployment status chip; leave out for concept flows. */
     status: short(20).optional(),
-    /** Canvas height in px on wide screens (phones use a bit less). */
-    height: z.number().int().min(160).max(320).optional(),
-    nodes: z
-      .array(
-        z
-          .object({
-            label: short(40),
-            icon: z.enum(FLOW_ICONS),
-            x: percent,
-            y: percent,
-            /** "end" draws a circle; "api" and "sub" mark something outside the main process. */
-            kind: z.enum(["end", "api", "sub"]).optional(),
-            labelAt: z.enum(["bottom", "top", "right", "left"]).optional(),
-          })
-          .strict(),
-      )
-      .min(2)
-      .max(8),
-    edges: z.array(z.object({ from: z.number().int().min(0), to: z.number().int().min(0), dashed: z.boolean().optional() }).strict()).max(16),
+    sender: z.object({ label: short(30), icon }).strict(),
+    steps: z.array(step).min(1).max(6),
+    receivers: z
+      .array(z.object({ id, label: short(30), icon, kind: z.enum(["api", "iflow", "lip"]), calls: id.optional() }).strict())
+      .max(4)
+      .optional(),
+    exception: z
+      .object({ name: short(40), steps: z.array(z.object({ id, label: short(30), icon }).strict()).min(1).max(3) })
+      .strict()
+      .optional(),
     slots: z.tuple([slot, slot, slot]),
-    steps: z
+    scenarios: z
       .array(
         z
           .object({
-            node: z.number().int().min(0),
-            text: short(220),
-            /** One value per slot, in slot order. */
-            values: z.tuple([z.string().max(400), z.string().max(400), z.string().max(400)]),
+            label: short(32),
+            outcome: z.enum(["ok", "error"]),
+            frames: z
+              .array(z.object({ at: z.string(), text: short(240), values: z.tuple([value, value, value]) }).strict())
+              .min(2)
+              .max(14),
           })
           .strict(),
       )
       .min(1)
-      .max(12),
+      .max(4),
   })
   .strict()
   .superRefine((spec, ctx) => {
-    const n = spec.nodes.length;
-    spec.edges.forEach((e, i) => {
-      if (e.from >= n || e.to >= n) ctx.addIssue({ code: "custom", path: ["edges", i], message: `points at a node that doesn't exist (there are ${n})` });
-    });
-    spec.steps.forEach((s, i) => {
-      if (s.node >= n) ctx.addIssue({ code: "custom", path: ["steps", i, "node"], message: `node ${s.node} doesn't exist (there are ${n})` });
-    });
-  });
+    const receivers = spec.receivers ?? [];
+    const laneSteps = spec.exception?.steps ?? [];
+    const all = [...spec.steps.map((s) => s.id), ...receivers.map((r) => r.id), ...laneSteps.map((s) => s.id)];
+    const issue = (path: (string | number)[], message: string) => ctx.addIssue({ code: "custom", path, message });
 
+    all.forEach((x, i) => {
+      if (all.indexOf(x) !== i) issue([], `id "${x}" is used twice`);
+      if (x === FLOW_SENDER || x === FLOW_REPLY) issue([], `"${x}" is reserved and can't be an id`);
+    });
+
+    // Every receiver hangs under exactly one caller, which decides where it's drawn.
+    const callers = new Map<string, number>();
+    const callTargets = [...spec.steps.map((s, i) => ({ path: ["steps", i, "calls"], to: s.calls })), ...receivers.map((r, i) => ({ path: ["receivers", i, "calls"], to: r.calls }))];
+    for (const { path, to } of callTargets) {
+      if (!to) continue;
+      if (!receivers.some((r) => r.id === to)) issue(path, `"${to}" isn't a receiver`);
+      callers.set(to, (callers.get(to) ?? 0) + 1);
+    }
+    receivers.forEach((r, i) => {
+      const count = callers.get(r.id) ?? 0;
+      if (count !== 1) issue(["receivers", i], `"${r.id}" must be called by exactly one step or receiver (found ${count})`);
+      if (r.calls === r.id) issue(["receivers", i, "calls"], "a receiver can't call itself");
+    });
+    // ...and that chain has to start at a step (no receivers calling each other in a loop).
+    const reached = new Set<string>();
+    for (const s of spec.steps) {
+      for (let to = s.calls; to && !reached.has(to); to = receivers.find((r) => r.id === to)?.calls) reached.add(to);
+    }
+    receivers.forEach((r, i) => {
+      if (!reached.has(r.id)) issue(["receivers", i], `"${r.id}" isn't reached from any step`);
+    });
+
+    spec.scenarios.forEach((sc, s) =>
+      sc.frames.forEach((f, i) => {
+        if (f.at !== FLOW_SENDER && f.at !== FLOW_REPLY && !all.includes(f.at)) {
+          issue(["scenarios", s, "frames", i, "at"], `"${f.at}" isn't a step, receiver, exception step, "sender" or "reply"`);
+        }
+      }),
+    );
+  });
 
 /** Parses a ```flow block body; the error names the first problem and where it is. */
 export function parseFlow(source: string): { ok: true; spec: FlowSpec } | { ok: false; error: string } {

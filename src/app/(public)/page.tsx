@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 import { FlowPlayer } from "@/components/flows/flow-player";
 import { HOME_FLOW } from "@/lib/flows/home-flow";
+import { firstFlowSpec } from "@/lib/flows/attach";
 import { AlphaTry } from "@/components/home/alpha-try";
 import { ToolIcon } from "@/components/tools/tool-icon";
 import { prisma } from "@/lib/db/prisma";
@@ -14,7 +15,7 @@ import { TOOL_REGISTRY } from "@/lib/tools/registry";
 
 export const revalidate = 60;
 
-/** The article the hero's iFlow is taken from; the caption links to it once it's published. */
+/** The article the hero's iFlow is taken from. Once it's published the hero plays its ```flow block and links to it. */
 const IFLOW_ARTICLE_SLUG = "cpi-memanggil-rest-api-pertama";
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -43,11 +44,13 @@ export default async function HomePage() {
       include: { _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
     }),
     prisma.article.count({ where: { status: "PUBLISHED" } }),
-    prisma.article.findFirst({ where: { slug: IFLOW_ARTICLE_SLUG, status: "PUBLISHED" }, select: { slug: true, title: true } }),
+    prisma.article.findFirst({ where: { slug: IFLOW_ARTICLE_SLUG, status: "PUBLISHED" }, select: { slug: true, title: true, contentJson: true } }),
     getSetting("tools"),
     getSetting("general"),
   ]);
 
+  // The published article is the source; the copy in code covers the time before it goes live.
+  const heroFlow = (iflowArticle && firstFlowSpec(iflowArticle.contentJson)) ?? HOME_FLOW;
   const hiddenTools = new Set(toolSettings.hidden);
   const tools = TOOL_REGISTRY.filter((t) => t.status === "live" && !hiddenTools.has(t.slug));
   const showAlpha = tools.some((t) => t.slug === "alpha-converter");
@@ -126,7 +129,7 @@ export default async function HomePage() {
           </div>
 
           <FlowPlayer
-            spec={HOME_FLOW}
+            spec={heroFlow}
             caption={
               iflowArticle && (
                 <>
