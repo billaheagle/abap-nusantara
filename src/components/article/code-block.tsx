@@ -36,25 +36,29 @@ export function tokenStyle(color?: string, fontStyle?: number): React.CSSPropert
   };
 }
 
+/** Copy text, with a fallback for non-secure contexts (e.g. a LAN IP during dev). */
+export async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+  }
+}
+
 export function CodeBlock({ code, language, highlighted }: { code: string; language?: string | null; highlighted?: HighlightedCode }) {
   const [copied, setCopied] = useState(false);
   const lang = language?.trim().toLowerCase() || "";
   const label = LANG_LABELS[lang] ?? (lang ? lang.toUpperCase() : "Code");
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(code);
-    } catch {
-      // Fallback for non-secure contexts (e.g. LAN IP during dev).
-      const ta = document.createElement("textarea");
-      ta.value = code;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-    }
+    await copyToClipboard(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

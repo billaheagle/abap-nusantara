@@ -4,6 +4,8 @@ import React, { Fragment, useCallback, useState } from "react";
 import Image from "next/image";
 import { Maximize2 } from "lucide-react";
 import { CodeBlock } from "./code-block";
+import { StepFlow } from "./step-flow";
+import { isStepFlow } from "@/lib/editor/step-flow";
 import { ScrollTable } from "./scroll-table";
 import { ImageLightbox } from "./image-lightbox";
 import type { HighlightedCode } from "@/lib/editor/highlight";
@@ -107,14 +109,13 @@ function RenderNode({ node, index, onImageClick }: { node: TiptapNode; index: nu
       return <li>{children}</li>;
     case "blockquote":
       return <blockquote>{children}</blockquote>;
-    case "codeBlock":
-      return (
-        <CodeBlock
-          code={node.content?.map((c) => c.text).join("") ?? ""}
-          language={typeof node.attrs?.language === "string" ? node.attrs.language : null}
-          highlighted={node.attrs?.highlighted as HighlightedCode | undefined}
-        />
-      );
+    case "codeBlock": {
+      const code = node.content?.map((c) => c.text).join("") ?? "";
+      const language = typeof node.attrs?.language === "string" ? node.attrs.language : null;
+      // ```text sketches of iFlow steps are drawn as a step list.
+      if (isStepFlow(language, code)) return <StepFlow code={code} />;
+      return <CodeBlock code={code} language={language} highlighted={node.attrs?.highlighted as HighlightedCode | undefined} />;
+    }
     case "horizontalRule":
       return <hr />;
     case "hardBreak":
