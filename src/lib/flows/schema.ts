@@ -51,7 +51,16 @@ export const flowSpecSchema = z
             label: short(32),
             outcome: z.enum(["ok", "error"]),
             frames: z
-              .array(z.object({ at: z.string(), text: short(240), values: z.tuple([value, value, value]) }).strict())
+              .array(
+                z
+                  .object({
+                    at: z.string(),
+                    text: short(240),
+                    values: z.tuple([value, value, value]),
+                    response: z.object({ status: short(24), body: z.string().max(700) }).strict().optional(),
+                  })
+                  .strict(),
+              )
               .min(2)
               .max(14),
           })

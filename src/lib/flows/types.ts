@@ -56,6 +56,11 @@ export interface FlowFrame {
   text: string;
   /** One value per slot, in slot order. */
   values: [string, string, string];
+  /**
+   * A response shown as a card next to the node: what an API answers (on a
+   * receiver frame) or what the sender gets back (on a "reply" frame).
+   */
+  response?: { status: string; body: string };
 }
 
 export interface FlowScenario {

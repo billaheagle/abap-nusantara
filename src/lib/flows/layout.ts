@@ -12,7 +12,8 @@ import { FLOW_REPLY, FLOW_SENDER, type FlowIcon, type FlowSpec } from "./types";
  *
  * Columns are spread evenly (capped so short flows don't stretch), node size
  * and font follow the column spacing, so the same spec stays tidy from a
- * 320px phone to a desktop column. Pure and client-safe.
+ * 320px phone to a desktop column. `scale` enlarges everything for the
+ * full-screen view. Pure and client-safe.
  */
 
 export interface Pt {
@@ -81,18 +82,18 @@ function replySources(spec: FlowSpec) {
   return { top, bottom };
 }
 
-export function layoutFlow(spec: FlowSpec, width: number): Layout {
+export function layoutFlow(spec: FlowSpec, width: number, scale = 1): Layout {
   const receivers = spec.receivers ?? [];
   const laneSteps = spec.exception?.steps ?? [];
   const cols = Math.max(1 + spec.steps.length, laneSteps.length ? laneSteps.length + 2 : 0);
 
-  const avail = width - 2 * (PAD + LABEL_SLACK);
-  const spacing = cols > 1 ? Math.min(avail / (cols - 1), 150) : 0;
+  const avail = width - 2 * (PAD + LABEL_SLACK * scale);
+  const spacing = cols > 1 ? Math.min(avail / (cols - 1), 150 * scale) : 0;
   const x0 = (width - spacing * (cols - 1)) / 2;
   const colX = (i: number) => x0 + i * spacing;
 
-  const size = Math.round(Math.min(42, Math.max(30, spacing * 0.6)));
-  const font = spacing < 62 ? 10 : 11.5;
+  const size = Math.round(Math.min(42 * scale, Math.max(30, spacing * 0.6)));
+  const font = (spacing < 62 ? 10 : 11.5) * (scale > 1 ? scale * 0.92 : 1);
   const lineHeight = Math.round(font * 1.25);
   const labelBlock = 2 * lineHeight + 4;
 

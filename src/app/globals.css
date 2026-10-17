@@ -157,7 +157,7 @@ h1, h2, h3 {
 
 /* Display headings use Bricolage's narrower, optically-large cut. */
 .display {
-  font-variation-settings: "wdth" 96, "opsz" 96;
+  font-variation-settings: "wdth" 96;
   letter-spacing: -0.022em;
 }
 
@@ -432,8 +432,15 @@ h1, h2, h3 {
   0%, 100% { opacity: 0.55; transform: scale(0.94); }
   50% { opacity: 1; transform: scale(1.06); }
 }
+/* Flow player: the response card fades in once the envelope has arrived (delay set inline). */
+.flow-card { animation: flow-card-in 0.28s ease-out both; }
+@keyframes flow-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   .flow-pulse { animation: none; }
+  .flow-card { animation: none; }
 }
 
 .filter-select-option {

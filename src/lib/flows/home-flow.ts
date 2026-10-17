@@ -105,6 +105,10 @@ export const HOME_FLOW: FlowSpec = {
             "CamelHttp\nResponseCode: 200",
             "p_base = USD\np_quote = IDR\np_rateDate = 2026-09-30\np_query = date=2026-09-30",
           ],
+          response: {
+            status: "200 OK",
+            body: '{\n  "date": "2026-09-30",\n  "base": "USD",\n  "quote": "IDR",\n  "rate": 17922\n}',
+          },
         },
         {
           at: "build",
@@ -123,6 +127,10 @@ export const HOME_FLOW: FlowSpec = {
             "HTTP 200\nContent-Type:\n application/json",
             "(tidak terkirim)",
           ],
+          response: {
+            status: "200 OK",
+            body: '{\n  "pair": "USD/IDR",\n  "rate": 17922,\n  "rateDate": "2026-09-30",\n  "source": "Frankfurter"\n}',
+          },
         },
       ],
     },
@@ -165,6 +173,10 @@ export const HOME_FLOW: FlowSpec = {
             "CamelHttp\nResponseCode: 422",
             "p_base = USD\np_quote = XYZ\np_rateDate = (kosong)\np_query = (kosong)",
           ],
+          response: {
+            status: "422 Unprocessable",
+            body: '{\n  "status": 422,\n  "message": "invalid currency: XYZ"\n}',
+          },
         },
         {
           at: "err",
@@ -183,6 +195,10 @@ export const HOME_FLOW: FlowSpec = {
             "HTTP 400\nContent-Type:\n application/json",
             "(tidak terkirim)",
           ],
+          response: {
+            status: "400 Bad Request",
+            body: '{\n  "error": "Request tidak valid",\n  "detail": "HTTP operation failed invoking https://api.frankfurter.dev/v2/rate/USD/XYZ with statusCode: 422"\n}',
+          },
         },
       ],
     },
@@ -217,6 +233,10 @@ export const HOME_FLOW: FlowSpec = {
             "HTTP 400\nContent-Type:\n application/json",
             "(tidak terkirim)",
           ],
+          response: {
+            status: "400 Bad Request",
+            body: '{\n  "error": "Request tidak valid",\n  "detail": "java.lang.Exception: …IllegalArgumentException: Field \'base\' dan \'quote\' wajib … @ line 16 in ReadRateRequest.groovy"\n}',
+          },
         },
       ],
     },
