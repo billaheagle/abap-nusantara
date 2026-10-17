@@ -7,7 +7,7 @@ import { CodeBlock } from "./code-block";
 import { ScrollTable } from "./scroll-table";
 import { ImageLightbox } from "./image-lightbox";
 import type { HighlightedCode } from "@/lib/editor/highlight";
-import { FlowPlayer } from "@/components/flows/flow-player";
+import { LazyFlowPlayer } from "@/components/flows/lazy-flow-player";
 import { FLOW_LANGUAGE, type FlowSpec } from "@/lib/flows/types";
 
 /**
@@ -194,7 +194,7 @@ function FlowBlock({ node }: { node: TiptapNode }) {
       </p>
     );
   }
-  return <FlowPlayer spec={spec} caption={spec.scenarios.length > 1 ? FLOW_CAPTION_SCENARIOS : FLOW_CAPTION} />;
+  return <LazyFlowPlayer spec={spec} caption={spec.scenarios.length > 1 ? FLOW_CAPTION_SCENARIOS : FLOW_CAPTION} />;
 }
 
 /**
