@@ -4,7 +4,7 @@ import { getPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
-import { FlowPlayer } from "@/components/flows/flow-player";
+import { LazyFlowPlayer } from "@/components/flows/lazy-flow-player";
 import { HOME_FLOW } from "@/lib/flows/home-flow";
 import { firstFlowSpec } from "@/lib/flows/attach";
 import { AlphaTry } from "@/components/home/alpha-try";
@@ -15,8 +15,29 @@ import { TOOL_REGISTRY } from "@/lib/tools/registry";
 
 export const revalidate = 60;
 
-/** The article the hero's iFlow is taken from. Once it's published the hero plays its ```flow block and links to it. */
+/** The hero's preferred iFlow: the exchange-rate article, once it's published. */
 const IFLOW_ARTICLE_SLUG = "cpi-memanggil-rest-api-pertama";
+
+/**
+ * The hero always plays a flow from a published article, so its caption can
+ * link to it: the exchange-rate article when it's out, otherwise the newest
+ * published article that has a ```flow block. The copy in home-flow.ts only
+ * shows when no published article has one.
+ */
+async function pickHeroFlow() {
+  const published = await prisma.article.findMany({
+    where: { status: "PUBLISHED" },
+    orderBy: { publishedAt: "desc" },
+    take: 30,
+    select: { slug: true, title: true, contentJson: true },
+  });
+  const ordered = [...published.filter((a) => a.slug === IFLOW_ARTICLE_SLUG), ...published.filter((a) => a.slug !== IFLOW_ARTICLE_SLUG)];
+  for (const a of ordered) {
+    const spec = firstFlowSpec(a.contentJson);
+    if (spec) return { spec, article: { slug: a.slug, title: a.title } };
+  }
+  return { spec: HOME_FLOW, article: null };
+}
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -36,7 +57,7 @@ function Statement({ text }: { text: string }) {
 }
 
 export default async function HomePage() {
-  const [latest, series, articleCount, iflowArticle, toolSettings, { hero, home }] = await Promise.all([
+  const [latest, series, articleCount, heroFlow, toolSettings, { hero, home }] = await Promise.all([
     getPublishedArticles({ page: 1 }),
     prisma.series.findMany({
       orderBy: { order: "asc" },
@@ -44,13 +65,12 @@ export default async function HomePage() {
       include: { _count: { select: { articles: { where: { status: "PUBLISHED" } } } } },
     }),
     prisma.article.count({ where: { status: "PUBLISHED" } }),
-    prisma.article.findFirst({ where: { slug: IFLOW_ARTICLE_SLUG, status: "PUBLISHED" }, select: { slug: true, title: true, contentJson: true } }),
+    pickHeroFlow(),
     getSetting("tools"),
     getSetting("general"),
   ]);
 
-  // The published article is the source; the copy in code covers the time before it goes live.
-  const heroFlow = (iflowArticle && firstFlowSpec(iflowArticle.contentJson)) ?? HOME_FLOW;
+  const iflowArticle = heroFlow.article;
   const hiddenTools = new Set(toolSettings.hidden);
   const tools = TOOL_REGISTRY.filter((t) => t.status === "live" && !hiddenTools.has(t.slug));
   const showAlpha = tools.some((t) => t.slug === "alpha-converter");
@@ -128,8 +148,11 @@ export default async function HomePage() {
             </dl>
           </div>
 
-          <FlowPlayer
-            spec={heroFlow}
+          {/* Loaded once the page is idle: the shell is identical, and the player's
+              first render no longer competes with the page's own load. */}
+          <LazyFlowPlayer
+            when="idle"
+            spec={heroFlow.spec}
             caption={
               iflowArticle && (
                 <>
