@@ -18,7 +18,8 @@ export const dynamicParams = false;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const tool = getTool(slug);
-  if (!tool) return {};
+  // Same checks as the page, so a 404 keeps its own title instead of the site default.
+  if (!tool || tool.status === "planned" || (await getSetting("tools")).hidden.includes(slug)) notFound();
   return { title: tool.name, description: tool.blurb };
 }
 

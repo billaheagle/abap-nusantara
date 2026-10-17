@@ -15,7 +15,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const tag = await prisma.tag.findFirst({ where: { slug, ...tagHasPublishedArticles } });
-  if (!tag) return {};
+  if (!tag) notFound();
   return { title: `#${tag.name}`, description: `Artikel dengan tag ${tag.name}.` };
 }
 

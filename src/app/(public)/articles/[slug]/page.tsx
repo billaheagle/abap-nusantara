@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const preview = await isAdminPreview();
   const article = await getArticleBySlug(slug, { preview });
-  if (!article) return {};
+  if (!article) notFound();
   if (preview) return { title: `Pratinjau: ${article.title}`, robots: { index: false, follow: false } };
 
   const { brand } = await getSetting("general");
@@ -46,7 +46,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: article.title,
     description: article.excerpt ?? undefined,
-    alternates: { canonical: url },
+    // Replaces the layout's alternates, so the feed link is restated.
+    alternates: {
+      canonical: url,
+      types: { "application/rss+xml": [{ url: "/feed.xml", title: [brand.name, brand.accent].filter(Boolean).join(" ") }] },
+    },
     openGraph: {
       type: "article",
       locale: "id_ID",

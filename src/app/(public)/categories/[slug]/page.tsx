@@ -15,7 +15,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const category = await prisma.category.findFirst({ where: { slug, ...hasPublishedArticles } });
-  if (!category) return {};
+  if (!category) notFound();
   return { title: category.name, description: category.description ?? `Artikel di kategori ${category.name}.` };
 }
 

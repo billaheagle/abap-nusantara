@@ -29,7 +29,7 @@ async function getSeries(slug: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const series = await getSeries(slug);
-  if (!series) return {};
+  if (!series) notFound();
   const { brand } = await getSetting("general");
   const images = series.coverImage ? [{ url: series.coverImage, width: 1600, height: 900, alt: series.title }] : undefined;
   return {

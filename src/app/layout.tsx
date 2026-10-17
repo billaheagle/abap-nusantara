@@ -12,11 +12,11 @@ const bricolage = Bricolage_Grotesque({
 
 // Article body: a serif designed for long reading on screens. Only article
 // pages use it, so it isn't preloaded everywhere; the browser fetches it when
-// text set in it appears.
+// text set in it appears. The opsz axis is left out: body copy sits at one
+// size, and the file drops from 110 KB to 52 KB.
 const literata = Literata({
   variable: "--font-literata",
   subsets: ["latin"],
-  axes: ["opsz"],
   preload: false,
 });
 
@@ -56,6 +56,8 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/brand/logo.svg", type: "image/svg+xml" }],
       apple: "/brand/apple-touch-icon.png",
     },
+    // Lets browsers and feed readers find /feed.xml from any page.
+    alternates: { types: { "application/rss+xml": [{ url: "/feed.xml", title: siteName }] } },
     robots: {
       index: true,
       follow: true,

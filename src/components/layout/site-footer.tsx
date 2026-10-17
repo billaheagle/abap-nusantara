@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Mail, Rss } from "lucide-react";
 import { GithubIcon } from "@/components/ui/github-icon";
 import { LinkedinIcon } from "@/components/ui/linkedin-icon";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
@@ -14,6 +14,7 @@ export async function SiteFooter() {
     links.github && { href: links.github, label: "GitHub", icon: GithubIcon },
     links.linkedin && { href: links.linkedin, label: "LinkedIn", icon: LinkedinIcon },
     links.email && { href: `mailto:${links.email}`, label: "Email", icon: Mail },
+    { href: "/feed.xml", label: "RSS", icon: Rss },
   ].filter((s) => !!s);
   // The closing word of the name, set huge as the footer's sign-off.
   const signOff = (brand.accent || brand.name).toLowerCase();
@@ -34,7 +35,7 @@ export async function SiteFooter() {
                   <a
                     key={label}
                     href={href}
-                    target={href.startsWith("mailto:") ? undefined : "_blank"}
+                    target={href.startsWith("http") ? "_blank" : undefined}
                     rel="noopener noreferrer"
                     aria-label={label}
                     title={label}
