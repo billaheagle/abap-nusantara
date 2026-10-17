@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "content:import": "tsx scripts/import-articles.ts",
-    "content:import:prod": "node scripts/import-prod.mjs"
+    "content:import:prod": "node scripts/import-prod.mjs",
+    "test:smoke": "playwright test"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -43,6 +44,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

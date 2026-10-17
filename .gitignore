@@ -49,3 +49,7 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# playwright smoke tests
+/test-results/
+/playwright-report/
