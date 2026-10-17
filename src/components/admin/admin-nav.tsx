@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, ListOrdered, FolderTree, Tag, MessageSquare, Wrench, Settings, ChevronDown } from "lucide-react";
+import { LayoutDashboard, FileText, ListOrdered, FolderTree, Tag, MessageSquare, Wrench, Settings, ChevronDown, Workflow } from "lucide-react";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/tags", label: "Tags", icon: Tag },
   { href: "/admin/comments", label: "Comments", icon: MessageSquare },
   { href: "/admin/tools", label: "Tools", icon: Wrench },
+  { href: "/admin/flows", label: "Flow preview", icon: Workflow },
 ];
 
 const SETTINGS_BASE = "/admin/settings";
