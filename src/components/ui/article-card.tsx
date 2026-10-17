@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
@@ -45,12 +46,23 @@ export function ArticleCard({
       }`}
     >
       <div className={`relative aspect-[16/9] overflow-hidden ${featured ? "md:aspect-auto md:min-h-[300px] md:flex-[1.15]" : ""}`}>
-        <CoverArt
-          tone={tone}
-          seed={seed}
-          className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-        />
-        {label && (
+        {article.coverImage ? (
+          // The cover image already carries the series label, title and logo.
+          <Image
+            src={article.coverImage}
+            alt=""
+            fill
+            sizes={featured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"}
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <CoverArt
+            tone={tone}
+            seed={seed}
+            className="absolute inset-0 h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
+        )}
+        {!article.coverImage && label && (
           <span className="absolute left-3 top-3 rounded-full bg-black/25 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md">
             {label}
           </span>
