@@ -53,7 +53,8 @@ export function ArticleCard({
             alt=""
             fill
             sizes={featured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"}
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+            // Beside the text the box is nearly square: show the illustration (right side), not the title baked into the left.
+            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] ${featured ? "md:object-right" : ""}`}
           />
         ) : (
           <CoverArt
