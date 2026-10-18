@@ -15,7 +15,6 @@ import { addHeadingIds } from "@/lib/editor/headings";
 import { attachFlowSpecs } from "@/lib/flows/attach";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
 import { SeriesRail } from "@/components/article/series-rail";
-import Image from "next/image";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
 import { seriesArtUrl } from "@/components/brand/series-art";
 import { LikeButton } from "@/components/article/like-button";
@@ -148,8 +147,7 @@ export default async function ArticlePage({ params }: PageProps) {
   };
 
   const tone = coverTone(article.series?.order, article.slug);
-  // The series illustration (no text: the title is right above the banner), else the generated art.
-  const bannerArt = seriesArtUrl(article.series?.coverImage);
+  const hasSeriesArt = seriesArtUrl(article.series?.coverImage) !== null;
   const seriesRail =
     article.series && seriesArticles.length > 1
       ? {
@@ -234,13 +232,13 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
         </div>
 
-        <div className="relative mt-7 aspect-[16/9] overflow-hidden rounded-[20px] sm:aspect-[21/8] sm:rounded-[26px]">
-          {bannerArt ? (
-            <Image src={bannerArt} alt="" fill priority sizes="(min-width: 1152px) 1104px, 100vw" className="object-cover object-[right_35%]" />
-          ) : (
+        {/* Articles in an illustrated series have no banner: the series chip above the title says where this
+            belongs, and the illustration lives on the series page and the cards. */}
+        {!hasSeriesArt && (
+          <div className="relative mt-7 aspect-[16/9] overflow-hidden rounded-[20px] sm:aspect-[21/8] sm:rounded-[26px]">
             <CoverArt tone={tone} seed={1} className="absolute inset-0 h-full w-full" />
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pt-8 pb-6 sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-12 xl:grid-cols-[200px_minmax(0,1fr)_220px]">
