@@ -15,7 +15,9 @@ import { addHeadingIds } from "@/lib/editor/headings";
 import { attachFlowSpecs } from "@/lib/flows/attach";
 import { ArticleToc, ReaderControls, ReadingProgressBar } from "@/components/article/reading-tools";
 import { SeriesRail } from "@/components/article/series-rail";
+import Image from "next/image";
 import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { seriesArtUrl } from "@/components/brand/series-art";
 import { LikeButton } from "@/components/article/like-button";
 import { ViewTracker } from "@/components/article/view-tracker";
 import { ArticleCard } from "@/components/ui/article-card";
@@ -146,6 +148,8 @@ export default async function ArticlePage({ params }: PageProps) {
   };
 
   const tone = coverTone(article.series?.order, article.slug);
+  // The series illustration (no text: the title is right above the banner), else the generated art.
+  const bannerArt = seriesArtUrl(article.series?.coverImage);
   const seriesRail =
     article.series && seriesArticles.length > 1
       ? {
@@ -231,7 +235,11 @@ export default async function ArticlePage({ params }: PageProps) {
         </div>
 
         <div className="relative mt-7 aspect-[16/9] overflow-hidden rounded-[20px] sm:aspect-[21/8] sm:rounded-[26px]">
-          <CoverArt tone={tone} seed={1} className="absolute inset-0 h-full w-full" />
+          {bannerArt ? (
+            <Image src={bannerArt} alt="" fill priority sizes="(min-width: 1152px) 1104px, 100vw" className="object-cover object-[right_35%]" />
+          ) : (
+            <CoverArt tone={tone} seed={1} className="absolute inset-0 h-full w-full" />
+          )}
         </div>
       </header>
 

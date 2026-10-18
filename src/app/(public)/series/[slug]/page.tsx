@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowRight, Clock } from "lucide-react";
 import { prisma } from "@/lib/db/prisma";
 import { hasPublishedArticles } from "@/features/articles/queries";
-import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { coverTone } from "@/components/brand/cover-art";
+import { SeriesArt } from "@/components/brand/series-art";
 import { getSetting } from "@/features/settings/queries";
 
 export const revalidate = 60;
@@ -57,15 +58,22 @@ export default async function SeriesDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <header className="relative isolate overflow-hidden rounded-[24px] p-6 text-white sm:rounded-[28px] sm:p-10">
-        <CoverArt tone={coverTone(series.order, series.slug)} className="absolute inset-0 -z-10 h-full w-full" />
+        <SeriesArt
+          coverImage={series.coverImage}
+          tone={coverTone(series.order, series.slug)}
+          seed={0}
+          sizes="(min-width: 1152px) 1104px, 100vw"
+          className="absolute inset-0 -z-10 h-full w-full"
+          scrim="side"
+        />
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-white/20 px-2.5 py-1 text-[0.8125rem] font-bold backdrop-blur-md">Seri {series.order}</span>
           <span className="rounded-full bg-black/20 px-2.5 py-1 text-xs font-semibold">
             {series.articles.length} bagian, sekitar {minutes} menit baca
           </span>
         </div>
-        <h1 className="display mt-16 max-w-[20ch] text-[clamp(2rem,5vw,3.4rem)] leading-[1.04] font-bold sm:mt-24">{series.title}</h1>
-        {series.description && <p className="mt-3 max-w-[56ch] text-[1.0625rem] leading-relaxed opacity-90">{series.description}</p>}
+        <h1 className="display mt-16 max-w-[16ch] text-[clamp(2rem,5vw,3.4rem)] leading-[1.04] font-bold sm:mt-24">{series.title}</h1>
+        {series.description && <p className="mt-3 max-w-[38ch] text-[1.0625rem] leading-relaxed opacity-90">{series.description}</p>}
         {first && (
           <Link
             href={`/articles/${first.slug}`}

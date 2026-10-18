@@ -21,12 +21,15 @@ export function SeriesArt({
   seed,
   sizes,
   className,
+  scrim = "bottom",
 }: {
   coverImage: string | null | undefined;
   tone: number;
   seed: number;
   sizes: string;
   className: string;
+  /** "side" also darkens the left, for big text that sits beside the illustration. */
+  scrim?: "bottom" | "side";
 }) {
   const art = seriesArtUrl(coverImage);
   if (!art) return <CoverArt tone={tone} seed={seed} className={className} />;
@@ -35,6 +38,7 @@ export function SeriesArt({
       <Image src={art} alt="" fill sizes={sizes} className={`${className} object-cover object-right`} />
       {/* Keeps the white text readable over the lighter parts of the illustration. */}
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/35 to-black/5" />
+      {scrim === "side" && <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/45 via-black/15 to-transparent" />}
     </>
   );
 }
