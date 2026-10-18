@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
@@ -147,7 +148,7 @@ export default async function ArticlePage({ params }: PageProps) {
   };
 
   const tone = coverTone(article.series?.order, article.slug);
-  const hasSeriesArt = seriesArtUrl(article.series?.coverImage) !== null;
+  const seriesArt = seriesArtUrl(article.series?.coverImage);
   const seriesRail =
     article.series && seriesArticles.length > 1
       ? {
@@ -166,6 +167,8 @@ export default async function ArticlePage({ params }: PageProps) {
       <ReadingProgressBar />
 
       <header className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <div className={seriesArt ? "grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:gap-12" : ""}>
+        <div>
         <div className="flex flex-wrap items-center gap-2 text-sm text-foreground-muted">
           {article.series ? (
             <>
@@ -232,9 +235,17 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Articles in an illustrated series have no banner: the series chip above the title says where this
-            belongs, and the illustration lives on the series page and the cards. */}
-        {!hasSeriesArt && (
+        </div>
+
+        {/* Illustrated series: the illustration sits beside the title (below it on mobile) instead of a full-width banner. */}
+        {seriesArt && (
+          <div className="relative aspect-[16/9] overflow-hidden rounded-[20px] sm:rounded-[26px] lg:aspect-[4/3]">
+            <Image src={seriesArt} alt="" fill priority sizes="(min-width: 1024px) 460px, 100vw" className="object-cover object-right" />
+          </div>
+        )}
+        </div>
+
+        {!seriesArt && (
           <div className="relative mt-7 aspect-[16/9] overflow-hidden rounded-[20px] sm:aspect-[21/8] sm:rounded-[26px]">
             <CoverArt tone={tone} seed={1} className="absolute inset-0 h-full w-full" />
           </div>
