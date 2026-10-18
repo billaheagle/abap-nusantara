@@ -3,7 +3,8 @@ import { ArrowRight, Newspaper } from "lucide-react";
 import { getPublishedArticles } from "@/features/articles/queries";
 import { ArticleCard } from "@/components/ui/article-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { coverTone } from "@/components/brand/cover-art";
+import { SeriesArt } from "@/components/brand/series-art";
 import { FlowPlayer } from "@/components/flows/flow-player";
 import { HOME_FLOW } from "@/lib/flows/home-flow";
 import { firstFlowSpec } from "@/lib/flows/attach";
@@ -184,7 +185,13 @@ export default async function HomePage() {
                     : `${i === series.length - 1 && series.length % 2 === 1 ? "col-span-2" : "col-span-1"} lg:col-span-1 min-h-[200px] p-5`;
               const inner = (
                 <>
-                  <CoverArt tone={tone} seed={i} className="absolute inset-0 -z-10 h-full w-full" />
+                  <SeriesArt
+                    coverImage={s.coverImage}
+                    tone={tone}
+                    seed={i}
+                    sizes={size === "sm" ? "(min-width: 1024px) 16vw, 50vw" : "(min-width: 1024px) 50vw, 100vw"}
+                    className="absolute inset-0 -z-10 h-full w-full"
+                  />
                   <div className="flex items-center justify-between gap-2">
                     <span className="rounded-full bg-white/20 px-2.5 py-1 text-[0.8125rem] font-bold backdrop-blur-md">Seri {s.order || i + 1}</span>
                     {size !== "sm" && (

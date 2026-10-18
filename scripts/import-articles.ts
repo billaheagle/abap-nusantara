@@ -34,7 +34,8 @@
  *
  * Series covers: every <content>/assets/series/<series-slug>.jpg is copied to
  * public/series/<series-slug>.jpg and set as that series' coverImage (made by
- * tools/cover/generate-covers.mjs --series in the content repo).
+ * tools/cover/generate-covers.mjs --series in the content repo). The plain backgrounds in
+ * assets/series/latar/ are copied to public/series/latar/ for the series cards.
  */
 import { copyFile, mkdir, readFile, readdir, stat } from "fs/promises";
 import path from "path";
@@ -352,6 +353,15 @@ async function syncSeriesCovers(prisma: PrismaClient, contentRoot: string, siteR
       if (series.coverImage !== url) await prisma.series.update({ where: { id: series.id }, data: { coverImage: url } });
     }
     console.log(`✓ series cover ${dryRun ? "(dry run) " : ""}${slug} → ${url}`);
+  }
+
+  const latar = (await readdir(path.join(dir, "latar")).catch(() => [] as string[])).filter((f) => IMAGE_EXTENSIONS.has(path.extname(f).toLowerCase()));
+  for (const file of latar.sort()) {
+    if (!dryRun) {
+      await mkdir(path.join(siteRoot, "public", "series", "latar"), { recursive: true });
+      await copyFile(path.join(dir, "latar", file), path.join(siteRoot, "public", "series", "latar", file));
+    }
+    console.log(`✓ series background ${dryRun ? "(dry run) " : ""}${file} → /series/latar/${file}`);
   }
 }
 

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { hasPublishedArticles } from "@/features/articles/queries";
-import { CoverArt, coverTone } from "@/components/brand/cover-art";
+import { coverTone } from "@/components/brand/cover-art";
+import { SeriesArt } from "@/components/brand/series-art";
 
 export const metadata: Metadata = { title: "Seri" };
 export const revalidate = 60;
@@ -26,7 +27,13 @@ export default async function SeriesListPage() {
             href={`/series/${s.slug}`}
             className="group relative isolate flex min-h-[260px] flex-col overflow-hidden rounded-[24px] p-6 text-white transition-transform duration-300 hover:-translate-y-[3px] sm:min-h-[300px] sm:p-7"
           >
-            <CoverArt tone={coverTone(s.order, s.slug)} seed={i} className="absolute inset-0 -z-10 h-full w-full transition-transform duration-500 group-hover:scale-[1.03]" />
+            <SeriesArt
+              coverImage={s.coverImage}
+              tone={coverTone(s.order, s.slug)}
+              seed={i}
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="absolute inset-0 -z-10 h-full w-full transition-transform duration-500 group-hover:scale-[1.03]"
+            />
             <div className="flex items-center justify-between gap-2">
               <span className="rounded-full bg-white/20 px-2.5 py-1 text-[0.8125rem] font-bold backdrop-blur-md">Seri {s.order || i + 1}</span>
               <span className="rounded-full bg-black/20 px-2.5 py-1 text-xs font-semibold">{s._count.articles} bagian</span>
