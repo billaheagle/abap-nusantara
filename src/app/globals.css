@@ -655,6 +655,17 @@ input.tool-input.tool-mono {
   background: rgb(255 255 255 / 0.1);
   color: #fff;
 }
+/* "Coba" opens an ABAP snippet in the playground */
+.prose-article .code-block-try {
+  margin-left: auto;
+  margin-right: 0.25rem;
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+.prose-article .code-block-try:hover {
+  color: var(--gold);
+}
 .prose-article .code-block pre {
   background: transparent;
   margin: 0;

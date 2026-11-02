@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Play } from "lucide-react";
+import { encodeCode } from "@/components/tools/abap-playground/protocol";
 import type { HighlightedCode } from "@/lib/editor/highlight";
 
 const LANG_LABELS: Record<string, string> = {
@@ -67,6 +68,16 @@ export function CodeBlock({ code, language, highlighted }: { code: string; langu
     <div className="code-block" style={highlighted?.bg ? { background: highlighted.bg } : undefined}>
       <div className="code-block-header">
         <span className="code-block-lang">{label}</span>
+        {lang === "abap" && (
+          <a
+            href={`/tools/abap-playground#kode=${encodeCode(code)}`}
+            className="code-block-copy code-block-try"
+            title="Buka kode ini di ABAP Playground dan jalankan"
+          >
+            <Play className="h-3.5 w-3.5" />
+            <span>Coba</span>
+          </a>
+        )}
         <button type="button" onClick={copy} className="code-block-copy" aria-label={copied ? "Kode tersalin" : "Salin kode"}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           <span>{copied ? "Tersalin" : "Salin"}</span>

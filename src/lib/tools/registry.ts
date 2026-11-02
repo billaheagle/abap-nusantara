@@ -12,9 +12,20 @@ export interface ToolMeta {
   /** lucide-react icon name, resolved by the tools index. */
   icon: string;
   status: ToolStatus;
+  /** needs the full page width (editors) */
+  wide?: boolean;
 }
 
 export const TOOL_REGISTRY: ToolMeta[] = [
+  {
+    slug: "abap-playground",
+    name: "ABAP Playground",
+    blurb: "Tulis dan jalankan ABAP langsung di browser tanpa server SAP: class, internal table, Open SQL ke tabel CSV, ABAP Unit, debugger langkah demi langkah, dan latihan dengan cek otomatis.",
+    category: "ABAP",
+    icon: "SquareTerminal",
+    status: "beta",
+    wide: true,
+  },
   {
     slug: "sap-date-converter",
     name: "SAP Date & Time Converter",
