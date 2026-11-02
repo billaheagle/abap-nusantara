@@ -12,6 +12,7 @@ import {
   Network,
   Regex,
   ShieldCheck,
+  SquareTerminal,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const ICONS: Record<string, LucideIcon> = {
   Fingerprint,
   Globe2,
   ShieldCheck,
+  SquareTerminal,
 };
 
 export function ToolIcon({ name, className }: { name: string; className?: string }) {

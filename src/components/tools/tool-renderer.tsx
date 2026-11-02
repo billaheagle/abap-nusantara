@@ -8,6 +8,7 @@ const loading = () => <div className="tool-panel h-64 animate-pulse rounded-md" 
 // Tools are browser utilities — clipboard, crypto.subtle, DOMParser, timers.
 // Render them client-only so there is no SSR / hydration mismatch.
 const TOOLS: Record<string, ComponentType> = {
+  "abap-playground": dynamic(() => import("./abap-playground/abap-playground").then((m) => m.AbapPlayground), { loading, ssr: false }),
   "sap-date-converter": dynamic(() => import("./sap-date-converter").then((m) => m.SapDateConverter), { loading, ssr: false }),
   "alpha-converter": dynamic(() => import("./alpha-converter").then((m) => m.AlphaConverter), { loading, ssr: false }),
   "payload-lab": dynamic(() => import("./payload-lab").then((m) => m.PayloadLab), { loading, ssr: false }),
